@@ -1,0 +1,84 @@
+.main-page {
+  width: 390px;
+  min-height: 100vh;
+  margin: 0 auto;
+
+  background: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main-card {
+  width: 240px;
+  border: 1px solid #222;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 58px 28px 24px;
+}
+
+.logo-box {
+  width: 180px;
+  height: 52px;
+
+  border: 1px solid #555;
+  border-radius: 5px;
+
+  background: #e6e6e6;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 28px;
+  color: #223247;
+
+  margin-bottom: 42px;
+}
+
+.login-input {
+  width: 180px;
+  height: 28px;
+
+  margin-bottom: 12px;
+
+  padding-left: 10px;
+
+  border: 1px solid #888;
+}
+
+.main-button {
+  width: 180px;
+  height: 34px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #d9d9d9;
+
+  margin-bottom: 12px;
+
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.kakao-button {
+  background: #FEE500;
+  color: #000;
+}
+
+.signup-button {
+  margin-top: 10px;
+
+  align-self: flex-end;
+
+  border: none;
+  background: none;
+
+  cursor: pointer;
+}
