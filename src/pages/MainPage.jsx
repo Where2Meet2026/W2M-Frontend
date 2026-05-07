@@ -40,7 +40,7 @@ function MainPage() {
 
         <button 
           className="main-button"
-          onClick={handleLogin}
+          onClick={() => navigate("/login")}
         >
           로그인
         </button>
