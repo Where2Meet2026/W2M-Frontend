@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { signup, sendCode, verifyCode } from "../api/authApi";
 import "./SignupPage.css";
 
 function SignupPage() {
@@ -15,6 +16,7 @@ function SignupPage() {
   });
 
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -23,24 +25,70 @@ function SignupPage() {
     });
   };
 
-  const handleSendCode = () => {
-    console.log("인증코드 발송:", formData.email);
-    alert("인증코드를 발송했습니다.");
+  const handleSendCode = async () => {
+    if (!formData.email) {
+      alert("이메일을 입력해주세요.");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      await sendCode(formData.email);
+      alert("인증코드를 발송했습니다.");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleVerifyCode = () => {
-    console.log("인증 확인:", formData.email, formData.verificationCode);
-    setIsEmailVerified(true);
-    alert("이메일 인증이 완료되었습니다.");
+  const handleVerifyCode = async () => {
+    if (!formData.verificationCode) {
+      alert("인증코드를 입력해주세요.");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      await verifyCode(formData.email, formData.verificationCode);
+      setIsEmailVerified(true);
+      alert("이메일 인증이 완료되었습니다.");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!isEmailVerified) {
       alert("이메일 인증을 완료해주세요.");
       return;
     }
 
-    console.log(formData);
+    if (formData.password !== formData.passwordCheck) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log("회원가입 시도 중...", formData);
+      
+      await signup({
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        phoneNumber: formData.phoneNumber
+      });
+      
+      alert("회원가입이 완료되었습니다!");
+      navigate("/");
+      
+    } catch (error) {
+      console.error("회원가입 에러:", error);
+      alert(error.message || "회원가입 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { login } from "../api/authApi";
 import "./MainPage.css";
 
 function MainPage() {
@@ -7,11 +8,34 @@ function MainPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
-    console.log(email, password);
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert("아이디와 비밀번호를 입력해주세요.");
+      return;
+    }
 
-    // 나중에 로그인 API 연결
+    try {
+      setIsLoading(true);
+      console.log("로그인 시도 중...", { email, password });
+      
+      const data = await login(email, password);
+      
+      // 토큰 처리 (필요시)
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+      
+      alert("로그인 성공!");
+      navigate("/login"); // 모임 생성 페이지로 이동
+      
+    } catch (error) {
+      console.error("로그인 에러:", error);
+      alert(error.message || "로그인 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -28,6 +52,7 @@ function MainPage() {
           placeholder="아이디"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
         />
 
         <input
@@ -36,18 +61,20 @@ function MainPage() {
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
         />
 
         <button 
           className="main-button"
-          onClick={() => navigate("/login")}
+          onClick={handleLogin}
+          disabled={isLoading}
         >
-          로그인
+          {isLoading ? "로그인 중..." : "로그인"}
         </button>
 
         <button
           className="kakao-button"
-          onClick={() => console.log("카카오 로그인")}
+          onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/kakao"}
         >
           카카오로 시작하기
         </button>
