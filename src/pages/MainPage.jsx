@@ -28,7 +28,7 @@ function MainPage() {
       }
       
       alert("로그인 성공!");
-      navigate("/login"); // 모임 생성 페이지로 이동
+      navigate("/home"); // HomePage로 이동
       
     } catch (error) {
       console.error("로그인 에러:", error);
