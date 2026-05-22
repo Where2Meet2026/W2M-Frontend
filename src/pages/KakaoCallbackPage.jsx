@@ -14,7 +14,7 @@ function KakaoCallbackPage() {
       // 기존 유저: 토큰 저장 후 로그인 처리
       localStorage.setItem("token", token);
       alert("카카오 로그인 성공!");
-      navigate("/login"); // 모임 생성 페이지로 이동
+      navigate("/home"); // HomePage로 이동
     } else if (isNew === "true") {
       // 신규 유저: 정보 추출 후 회원가입 페이지로 유도
       const email = params.get("email");
