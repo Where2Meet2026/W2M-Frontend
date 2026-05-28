@@ -4,6 +4,7 @@ import MainPage from "../pages/MainPage";
 import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
 import ParticipatePage from "../pages/ParticipatePage";
+import TimeSelectionPage from "../pages/TimeSelectionPage"; // 추가
 import KakaoCallbackPage from "../pages/KakaoCallbackPage";
 import HomePage from "../pages/HomePage";
 import GetRoomPage from "../pages/GetRoomPage"; // 추가
@@ -19,6 +20,7 @@ function AppRouter() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/kakao-callback" element={<KakaoCallbackPage />} />
         <Route path="/participate/:meetingId" element={<ParticipatePage />} />
+        <Route path="/time-selection/:meetingId" element={<TimeSelectionPage />} /> {/* 추가 */}
       </Routes>
     </BrowserRouter>
   );

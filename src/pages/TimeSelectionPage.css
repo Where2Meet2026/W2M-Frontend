@@ -1,0 +1,185 @@
+.time-selection-page {
+  width: 390px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: white;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+  user-select: none;
+}
+
+.time-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.meeting-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.meeting-desc {
+  font-size: 14px;
+  color: #888;
+}
+
+.selection-container {
+  display: flex;
+  width: 95%;
+  gap: 15px;
+  height: 500px;
+}
+
+/* 달력 섹션 */
+.calendar-section {
+  flex: 1.2;
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid #eee;
+}
+
+.calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.current-month {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.day-label {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  padding-bottom: 5px;
+}
+
+.day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.day-cell:hover:not(.empty):not(.past) {
+  background-color: #e0e0e0;
+}
+
+.day-cell.empty {
+  cursor: default;
+}
+
+.day-cell.past {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.day-cell.selected {
+  background-color: #333 !important;
+  color: white;
+}
+
+.day-cell.has-time:not(.selected) {
+  background-color: #81c784;
+  color: white;
+}
+
+/* 시간 선택 섹션 */
+.time-section {
+  flex: 1;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.selected-date-label {
+  padding: 10px;
+  background: #f4f4f4;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.time-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.time-slot {
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.time-slot.active {
+  background-color: #81c784;
+  color: white;
+  border-bottom: 1px solid #66bb6a;
+}
+
+.time-slot.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.time-slot:hover:not(.disabled) {
+  background-color: #f5f5f5;
+}
+
+.time-slot.active:hover {
+  background-color: #66bb6a;
+}
+
+.action-buttons {
+  margin-top: 30px;
+  padding-bottom: 40px;
+}
+
+.save-btn {
+  width: 230px;
+  height: 52px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 12px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background-color: #d0d0d0;
+}

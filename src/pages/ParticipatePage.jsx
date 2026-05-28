@@ -19,7 +19,7 @@ function ParticipatePage() {
         const data = await getMeetingDetails(meetingId);
         
         setMeetingData({ 
-          name: data.name || data.meetingName, 
+          name: data.title || data.name || data.meetingName, 
           description: data.description 
         });
         setParticipants(data.participants || []);
@@ -91,7 +91,7 @@ function ParticipatePage() {
         <div className="info-box small">
           {isLoading ? "..." : meetingData.description}
         </div>
-        <button className="next-button" onClick={() => console.log("Next Step")}>
+        <button className="next-button" onClick={() => navigate(`/time-selection/${meetingId}`)}>
           다음 단계
         </button>
       </div>
