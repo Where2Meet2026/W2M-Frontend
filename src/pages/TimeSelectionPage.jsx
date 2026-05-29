@@ -18,7 +18,23 @@ function TimeSelectionPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragMode, setDragMode] = useState(true);
 
-  const times = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+  const formatDisplayTime = (timeStr) => {
+    const [h, m] = timeStr.split(":").map(Number);
+    const displayHour = h % 12 === 0 ? 12 : h % 12;
+    return `${String(displayHour).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  };
+
+  const amTimes = Array.from({ length: 24 }, (_, i) => {
+    const h = Math.floor(i / 2);
+    const m = i % 2 === 0 ? "00" : "30";
+    return `${String(h).padStart(2, "0")}:${m}`;
+  });
+  
+  const pmTimes = Array.from({ length: 24 }, (_, i) => {
+    const h = Math.floor(i / 2) + 12;
+    const m = i % 2 === 0 ? "00" : "30";
+    return `${String(h).padStart(2, "0")}:${m}`;
+  });
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -106,22 +122,34 @@ function TimeSelectionPage() {
         let prevHour = null;
 
         sortedTimes.forEach((t, idx) => {
-          const hour = parseInt(t.split(":")[0]);
+          const [hour, min] = t.split(":").map(Number);
+          const currentTimeValue = hour + min / 60;
+          
           if (start === null) {
-            start = hour;
-          } else if (hour !== prevHour + 1) {
+            start = currentTimeValue;
+          } else if (currentTimeValue !== prevTimeValue + 0.5) {
+            const sH = Math.floor(start);
+            const sM = (start % 1) * 60;
+            const eH = Math.floor(prevTimeValue + 0.5);
+            const eM = ((prevTimeValue + 0.5) % 1) * 60;
+
             formattedRanges.push({
-              startDateTime: `${dateStr}T${String(start).padStart(2, "0")}:00:00`,
-              endDateTime: `${dateStr}T${String(prevHour + 1).padStart(2, "0")}:00:00`
+              startDateTime: `${dateStr}T${String(sH).padStart(2, "0")}:${String(sM).padStart(2, "0")}:00`,
+              endDateTime: `${dateStr}T${String(eH).padStart(2, "0")}:${String(eM).padStart(2, "0")}:00`
             });
-            start = hour;
+            start = currentTimeValue;
           }
-          prevHour = hour;
+          prevTimeValue = currentTimeValue;
           
           if (idx === sortedTimes.length - 1) {
+            const sH = Math.floor(start);
+            const sM = (start % 1) * 60;
+            const eH = Math.floor(prevTimeValue + 0.5);
+            const eM = ((prevTimeValue + 0.5) % 1) * 60;
+
             formattedRanges.push({
-              startDateTime: `${dateStr}T${String(start).padStart(2, "0")}:00:00`,
-              endDateTime: `${dateStr}T${String(prevHour + 1).padStart(2, "0")}:00:00`
+              startDateTime: `${dateStr}T${String(sH).padStart(2, "0")}:${String(sM).padStart(2, "0")}:00`,
+              endDateTime: `${dateStr}T${String(eH).padStart(2, "0")}:${String(eM).padStart(2, "0")}:00`
             });
           }
         });
@@ -150,7 +178,7 @@ function TimeSelectionPage() {
 
       <div className="time-header">
         <div className="meeting-title">{meetingData.title || "모임 이름"}</div>
-        <div className="meeting-desc">날짜를 선택하고 시간을 드래그하세요</div>
+        <div className="meeting-desc">날짜를 선택하고 시간을 선택하세요</div>
       </div>
 
       <div className="selection-container">
@@ -187,17 +215,39 @@ function TimeSelectionPage() {
           <div className="selected-date-label">
             {selectedDateStr ? `${selectedDateStr} 시간 선택` : "날짜를 먼저 선택하세요"}
           </div>
-          <div className="time-grid">
-            {times.map(time => (
-              <div 
-                key={time}
-                className={`time-slot ${dateToTimes[selectedDateStr]?.has(time) ? "active" : ""} ${!selectedDateStr ? "disabled" : ""}`}
-                onMouseDown={() => handleTimeMouseDown(time)}
-                onMouseEnter={() => handleTimeMouseEnter(time)}
-              >
-                {time}
+          
+          <div className="time-scroll-area">
+            <div className="time-group">
+              <div className="time-group-header">오전</div>
+              <div className="time-grid">
+                {amTimes.map(time => (
+                  <div 
+                    key={time}
+                    className={`time-slot ${dateToTimes[selectedDateStr]?.has(time) ? "active" : ""} ${!selectedDateStr ? "disabled" : ""}`}
+                    onMouseDown={() => handleTimeMouseDown(time)}
+                    onMouseEnter={() => handleTimeMouseEnter(time)}
+                  >
+                    {formatDisplayTime(time)}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <div className="time-group">
+              <div className="time-group-header">오후</div>
+              <div className="time-grid">
+                {pmTimes.map(time => (
+                  <div 
+                    key={time}
+                    className={`time-slot ${dateToTimes[selectedDateStr]?.has(time) ? "active" : ""} ${!selectedDateStr ? "disabled" : ""}`}
+                    onMouseDown={() => handleTimeMouseDown(time)}
+                    onMouseEnter={() => handleTimeMouseEnter(time)}
+                  >
+                    {formatDisplayTime(time)}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
