@@ -209,3 +209,21 @@ export const getRecommendations = async (meetingId) => {
 
   return await response.json();
 };
+
+export const deleteMeeting = async (meetingId) => {
+  const token = localStorage.getItem("token");
+  const headers = {};
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${BASE_URL}/api/meetings/${meetingId}`, {
+    method: "DELETE",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error("모임 삭제에 실패했습니다.");
+  }
+};

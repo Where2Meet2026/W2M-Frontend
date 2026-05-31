@@ -9,26 +9,27 @@ function GetRoomPage() {
   const [rooms, setRooms] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getMyMeetings();
-        // 백엔드에서 meetingId로 주므로 id로 매핑하거나 RoomItem에서 처리해야 함
-        const formattedRooms = data.map(room => ({
-          ...room,
-          id: room.meetingId,
-          name: room.title // RoomItem은 room.name을 사용하므로 매핑
-        }));
-        setRooms(formattedRooms);
-      } catch (error) {
-        console.error("내 방 목록 조회 실패:", error);
-        alert(error.message || "목록을 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchRooms = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getMyMeetings();
+      // 백엔드에서 meetingId로 주므로 id로 매핑하거나 RoomItem에서 처리해야 함
+      const formattedRooms = data.map(room => ({
+        ...room,
+        id: room.meetingId,
+        name: room.title,
+        role: room.role // role 정보 포함
+      }));
+      setRooms(formattedRooms);
+    } catch (error) {
+      console.error("내 방 목록 조회 실패:", error);
+      alert(error.message || "목록을 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchRooms();
   }, []);
 
@@ -55,7 +56,8 @@ function GetRoomPage() {
               <RoomItem 
                 key={room.id} 
                 room={room} 
-                onClick={() => navigate(`/participate/${room.id}`)} 
+                onClick={() => navigate(`/participate/${room.id}`)}
+                onRefresh={fetchRooms}
               />
             ))
           ) : (

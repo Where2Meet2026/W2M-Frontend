@@ -25,19 +25,16 @@ function TimeSelectionPage() {
     return `${String(displayHour).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   };
 
-  const amTimes = Array.from({ length: 24 }, (_, i) => {
-    const h = Math.floor(i / 2);
-    const m = i % 2 === 0 ? "00" : "30";
-    return `${String(h).padStart(2, "0")}:${m}`;
+  const amTimes = Array.from({ length: 12 }, (_, i) => {
+    return `${String(i).padStart(2, "0")}:00`;
   });
   
-  const pmTimes = Array.from({ length: 24 }, (_, i) => {
-    const h = Math.floor(i / 2) + 12;
-    const m = i % 2 === 0 ? "00" : "30";
-    return `${String(h).padStart(2, "0")}:${m}`;
+  const pmTimes = Array.from({ length: 12 }, (_, i) => {
+    return `${String(i + 12).padStart(2, "0")}:00`;
   });
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const twoWeeksLater = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,13 +64,13 @@ function TimeSelectionPage() {
               loadedData[dateKey] = new Set();
             }
             
-            // 30분 단위로 쪼개서 Set에 추가
+            // 1시간 단위로 쪼개서 Set에 추가
             let current = new Date(start);
             while (current < end) {
               const h = String(current.getHours()).padStart(2, "0");
               const m = String(current.getMinutes()).padStart(2, "0");
               loadedData[dateKey].add(`${h}:${m}`);
-              current.setMinutes(current.getMinutes() + 30);
+              current.setHours(current.getHours() + 1);
             }
           });
           
@@ -110,7 +107,7 @@ function TimeSelectionPage() {
   };
 
   const handleDateClick = (date) => {
-    if (!date || date < today) return;
+    if (!date || date < today || date >= twoWeeksLater) return;
     const dateStr = formatDate(date);
     setSelectedDateStr(dateStr);
     if (!dateToTimes[dateStr]) {
@@ -162,11 +159,11 @@ function TimeSelectionPage() {
           
           if (start === null) {
             start = currentTimeValue;
-          } else if (currentTimeValue !== prevTimeValue + 0.5) {
+          } else if (currentTimeValue !== prevTimeValue + 1.0) {
             const sH = Math.floor(start);
             const sM = (start % 1) * 60;
-            const eH = Math.floor(prevTimeValue + 0.5);
-            const eM = ((prevTimeValue + 0.5) % 1) * 60;
+            const eH = Math.floor(prevTimeValue + 1.0);
+            const eM = ((prevTimeValue + 1.0) % 1) * 60;
 
             formattedRanges.push({
               startDateTime: `${dateStr}T${String(sH).padStart(2, "0")}:${String(sM).padStart(2, "0")}:00`,
@@ -179,8 +176,8 @@ function TimeSelectionPage() {
           if (idx === sortedTimes.length - 1) {
             const sH = Math.floor(start);
             const sM = (start % 1) * 60;
-            const eH = Math.floor(prevTimeValue + 0.5);
-            const eM = ((prevTimeValue + 0.5) % 1) * 60;
+            const eH = Math.floor(prevTimeValue + 1.0);
+            const eM = ((prevTimeValue + 1.0) % 1) * 60;
 
             formattedRanges.push({
               startDateTime: `${dateStr}T${String(sH).padStart(2, "0")}:${String(sM).padStart(2, "0")}:00`,
@@ -197,7 +194,7 @@ function TimeSelectionPage() {
 
       await saveAvailabilities(participantId, formattedRanges);
       alert("모든 시간대가 저장되었습니다.");
-      navigate(`/participate/${meetingId}`);
+      navigate(`/time-waiting/${meetingId}`);
     } catch (error) {
       alert("저장 실패: " + error.message);
     }
@@ -228,14 +225,14 @@ function TimeSelectionPage() {
             {["일", "월", "화", "수", "목", "금", "토"].map(d => <div key={d} className="day-label">{d}</div>)}
             {calendarDays.map((date, idx) => {
               const dateStr = date ? formatDate(date) : "";
-              const isPast = date && date < today;
+              const isNotSelectable = date && (date < today || date >= twoWeeksLater);
               const isSelected = selectedDateStr === dateStr;
               const hasTime = date && dateToTimes[dateStr]?.size > 0;
 
               return (
                 <div 
                   key={idx} 
-                  className={`day-cell ${!date ? "empty" : ""} ${isPast ? "past" : ""} ${isSelected ? "selected" : ""} ${hasTime ? "has-time" : ""}`}
+                  className={`day-cell ${!date ? "empty" : ""} ${isNotSelectable ? "past" : ""} ${isSelected ? "selected" : ""} ${hasTime ? "has-time" : ""}`}
                   onClick={() => handleDateClick(date)}
                 >
                   {date?.getDate()}

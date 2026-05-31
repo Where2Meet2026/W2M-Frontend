@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getMeetingDetails, getParticipants } from "../api/meetingApi";
+import { getMeetingDetails, getParticipants, getMyParticipant, leaveMeeting } from "../api/meetingApi";
 import "./ParticipatePage.css";
 
 function ParticipatePage() {
@@ -11,17 +11,16 @@ function ParticipatePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [meetingData, setMeetingData] = useState({ title: "", description: "", inviteCode: "" });
   const [participants, setParticipants] = useState([]);
-  
-  // 임시로 true로 설정 (추후 호스트 여부 판단 로직 연동 필요)
-  const isHost = true;
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [meetingDetails, participantList] = await Promise.all([
+        const [meetingDetails, participantList, myInfo] = await Promise.all([
           getMeetingDetails(meetingId),
-          getParticipants(meetingId)
+          getParticipants(meetingId),
+          getMyParticipant(meetingId)
         ]);
         
         setMeetingData({ 
@@ -30,6 +29,7 @@ function ParticipatePage() {
           inviteCode: meetingDetails.inviteCode
         });
         setParticipants(participantList);
+        setIsHost(myInfo.role === "HOST");
       } catch (error) {
         console.error("데이터 로드 실패:", error);
         alert(error.message || "모임 정보를 불러오는데 실패했습니다.");
@@ -51,6 +51,18 @@ function ParticipatePage() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleLeaveMeeting = async () => {
+    if (window.confirm("정말 이 모임에서 나가시겠습니까?")) {
+      try {
+        await leaveMeeting(meetingId);
+        alert("모임에서 탈퇴되었습니다.");
+        navigate("/home");
+      } catch (error) {
+        alert(error.message || "모임 탈퇴에 실패했습니다.");
+      }
+    }
+  };
+
   return (
     <div className="participate-page">
       {/* Sidebar Toggle Button (Triangle) */}
@@ -62,14 +74,22 @@ function ParticipatePage() {
 
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        {isLoading ? (
-          <div className="sidebar-item">로딩 중...</div>
-        ) : (
-          participants.map((p) => (
-            <div key={p.participantId} className="sidebar-item">
-              {p.role === "HOST" ? "👑 " : ""}{p.userName}
-            </div>
-          ))
+        <div className="sidebar-content" style={{ flex: 1, overflowY: "auto" }}>
+          {isLoading ? (
+            <div className="sidebar-item">로딩 중...</div>
+          ) : (
+            participants.map((p) => (
+              <div key={p.participantId} className="sidebar-item">
+                {p.role === "HOST" ? "👑 " : ""}{p.userName}
+              </div>
+            ))
+          )}
+        </div>
+        
+        {!isLoading && !isHost && (
+          <div className="leave-button-container">
+            <button className="leave-btn" onClick={handleLeaveMeeting}>나가기</button>
+          </div>
         )}
       </div>
 

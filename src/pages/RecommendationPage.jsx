@@ -46,6 +46,13 @@ function RecommendationPage() {
     return `${month}월 ${day}일 ${ampm} ${displayHours}:${minutes.toString().padStart(2, "0")}`;
   };
 
+  const getDurationHours = (start, end) => {
+    const s = new Date(start);
+    const e = new Date(end);
+    const diff = (e - s) / (1000 * 60 * 60);
+    return Math.round(diff);
+  };
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -75,7 +82,7 @@ function RecommendationPage() {
                 <div className="card-body">
                   <div className="time-info">
                     <div className="slot-date-time">{formatDateTime(slot.startDateTime)}</div>
-                    <div className="slot-duration">30분간</div>
+                    <div className="slot-duration">{getDurationHours(slot.startDateTime, slot.endDateTime)}시간 동안</div>
                   </div>
                   <div className="participation-info">
                     <div className="count-row">
