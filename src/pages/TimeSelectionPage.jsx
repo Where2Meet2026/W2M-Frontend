@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getMeetingDetails, saveAvailabilities, getAvailabilities } from "../api/meetingApi";
+import { getMeetingDetails, saveAvailabilities, getAvailabilities, getMyParticipant } from "../api/meetingApi";
 import "./TimeSelectionPage.css";
 
 function TimeSelectionPage() {
@@ -9,6 +9,7 @@ function TimeSelectionPage() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [meetingData, setMeetingData] = useState({ title: "", description: "" });
+  const [participantId, setParticipantId] = useState(null);
   
   // 상태 관리: 선택된 날짜별 시간대 (Map: "YYYY-MM-DD" -> Set of "HH:00")
   const [dateToTimes, setDateToTimes] = useState({});
@@ -42,17 +43,47 @@ function TimeSelectionPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await getMeetingDetails(meetingId);
-        setMeetingData(data);
         
-        // 실제 운영 시 participantId를 가져오는 과정이 필요함 (현재 임시 1)
-        const participantId = 1; 
+        // 1. 모임 상세 정보와 내 참여 정보 동시 로드
+        const [details, myInfo] = await Promise.all([
+          getMeetingDetails(meetingId),
+          getMyParticipant(meetingId)
+        ]);
+        
+        setMeetingData(details);
+        setParticipantId(myInfo.participantId);
+        
+        // 2. 기존 저장된 가능 시간 로드
         try {
-          const availabilities = await getAvailabilities(participantId);
-          // DB 데이터를 dateToTimes 형식으로 변환하는 로직 (추후 구현)
-        } catch (e) { console.error("기존 데이터 없음"); }
+          const availabilities = await getAvailabilities(myInfo.participantId);
+          const loadedData = {};
+          
+          availabilities.forEach(range => {
+            const start = new Date(range.startDateTime);
+            const end = new Date(range.endDateTime);
+            const dateKey = range.startDateTime.split("T")[0];
+            
+            if (!loadedData[dateKey]) {
+              loadedData[dateKey] = new Set();
+            }
+            
+            // 30분 단위로 쪼개서 Set에 추가
+            let current = new Date(start);
+            while (current < end) {
+              const h = String(current.getHours()).padStart(2, "0");
+              const m = String(current.getMinutes()).padStart(2, "0");
+              loadedData[dateKey].add(`${h}:${m}`);
+              current.setMinutes(current.getMinutes() + 30);
+            }
+          });
+          
+          setDateToTimes(loadedData);
+        } catch (e) { 
+          console.log("기존 저장된 데이터가 없습니다."); 
+        }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
+        alert("정보를 불러오는데 실패했습니다. 참여 여부를 확인해주세요.");
       } finally {
         setIsLoading(false);
       }
@@ -109,8 +140,12 @@ function TimeSelectionPage() {
   };
 
   const handleSave = async () => {
+    if (!participantId) {
+      alert("참여 정보를 찾을 수 없습니다.");
+      return;
+    }
+
     try {
-      const participantId = 1; // 임시
       const formattedRanges = [];
       
       Object.entries(dateToTimes).forEach(([dateStr, timesSet]) => {
@@ -119,7 +154,7 @@ function TimeSelectionPage() {
 
         // 연속된 시간을 하나의 범위로 묶는 로직
         let start = null;
-        let prevHour = null;
+        let prevTimeValue = null;
 
         sortedTimes.forEach((t, idx) => {
           const [hour, min] = t.split(":").map(Number);

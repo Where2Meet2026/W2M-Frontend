@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getMeetingDetails } from "../api/meetingApi";
+import { getMeetingDetails, getParticipants } from "../api/meetingApi";
 import "./ParticipatePage.css";
 
 function ParticipatePage() {
@@ -9,20 +9,27 @@ function ParticipatePage() {
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [meetingData, setMeetingData] = useState({ name: "", description: "" });
+  const [meetingData, setMeetingData] = useState({ title: "", description: "", inviteCode: "" });
   const [participants, setParticipants] = useState([]);
+  
+  // 임시로 true로 설정 (추후 호스트 여부 판단 로직 연동 필요)
+  const isHost = true;
 
   useEffect(() => {
-    const fetchMeetingData = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await getMeetingDetails(meetingId);
+        const [meetingDetails, participantList] = await Promise.all([
+          getMeetingDetails(meetingId),
+          getParticipants(meetingId)
+        ]);
         
         setMeetingData({ 
-          name: data.title || data.name || data.meetingName, 
-          description: data.description 
+          title: meetingDetails.title, 
+          description: meetingDetails.description,
+          inviteCode: meetingDetails.inviteCode
         });
-        setParticipants(data.participants || []);
+        setParticipants(participantList);
       } catch (error) {
         console.error("데이터 로드 실패:", error);
         alert(error.message || "모임 정보를 불러오는데 실패했습니다.");
@@ -32,7 +39,7 @@ function ParticipatePage() {
     };
 
     if (meetingId) {
-      fetchMeetingData();
+      fetchData();
     }
   }, [meetingId]);
 
@@ -59,8 +66,8 @@ function ParticipatePage() {
           <div className="sidebar-item">로딩 중...</div>
         ) : (
           participants.map((p) => (
-            <div key={p.id} className="sidebar-item">
-              {p.role === "admin" ? "👑 " : ""}{p.name}
+            <div key={p.participantId} className="sidebar-item">
+              {p.role === "HOST" ? "👑 " : ""}{p.userName}
             </div>
           ))
         )}
@@ -86,13 +93,30 @@ function ParticipatePage() {
 
       <div className="content-container">
         <div className="info-box">
-          {isLoading ? "정보를 불러오는 중..." : meetingData.name}
+          {isLoading ? "정보를 불러오는 중..." : meetingData.title}
         </div>
         <div className="info-box small">
           {isLoading ? "..." : meetingData.description}
         </div>
+        
+        {!isLoading && isHost && (
+          <button 
+            className="invite-share-button" 
+            onClick={() => navigate(`/invite/${meetingId}`)}
+          >
+            초대코드 공유하기
+          </button>
+        )}
+
+        <button 
+          className="recommend-view-button" 
+          onClick={() => navigate(`/recommendation/${meetingId}`)}
+        >
+          추천 시간 확인하기
+        </button>
+
         <button className="next-button" onClick={() => navigate(`/time-selection/${meetingId}`)}>
-          다음 단계
+          내 시간 선택하기
         </button>
       </div>
     </div>

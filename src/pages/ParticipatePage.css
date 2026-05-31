@@ -80,7 +80,46 @@
   width: 150px;
   height: 42px;
   font-size: 16px;
-  margin-bottom: 60px;
+  margin-bottom: 30px;
+}
+
+.invite-share-button {
+  width: 230px;
+  height: 52px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  cursor: pointer;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.invite-share-button:hover {
+  background-color: #d0d0d0;
+}
+
+.recommend-view-button {
+  width: 230px;
+  height: 52px;
+  background-color: #f0f0f0;
+  border: 2px solid #333;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+}
+
+.recommend-view-button:hover {
+  background-color: #333;
+  color: white;
 }
 
 .next-button {

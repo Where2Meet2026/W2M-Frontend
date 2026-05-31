@@ -28,7 +28,14 @@ function MainPage() {
       }
       
       alert("로그인 성공!");
-      navigate("/home"); // HomePage로 이동
+      
+      const returnUrl = localStorage.getItem("returnUrl");
+      if (returnUrl) {
+        // [수정] 여기서 지우지 않고 이동만 함
+        navigate(returnUrl);
+      } else {
+        navigate("/home");
+      }
       
     } catch (error) {
       console.error("로그인 에러:", error);
