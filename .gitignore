@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 proj.md
+.env
+.env.local
