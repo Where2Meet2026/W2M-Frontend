@@ -22,7 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-proj.md
-.env
-.env.local
