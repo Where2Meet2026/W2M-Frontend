@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getMeetingDetails } from "../api/meetingApi";
+import { getMeetingDetails, getParticipants, getMyParticipant, leaveMeeting } from "../api/meetingApi";
 import "./ParticipatePage.css";
 
 function ParticipatePage() {
@@ -9,20 +9,27 @@ function ParticipatePage() {
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [meetingData, setMeetingData] = useState({ name: "", description: "" });
+  const [meetingData, setMeetingData] = useState({ title: "", description: "", inviteCode: "" });
   const [participants, setParticipants] = useState([]);
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
-    const fetchMeetingData = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await getMeetingDetails(meetingId);
+        const [meetingDetails, participantList, myInfo] = await Promise.all([
+          getMeetingDetails(meetingId),
+          getParticipants(meetingId),
+          getMyParticipant(meetingId)
+        ]);
         
         setMeetingData({ 
-          name: data.name || data.meetingName, 
-          description: data.description 
+          title: meetingDetails.title, 
+          description: meetingDetails.description,
+          inviteCode: meetingDetails.inviteCode
         });
-        setParticipants(data.participants || []);
+        setParticipants(participantList);
+        setIsHost(myInfo.role === "HOST");
       } catch (error) {
         console.error("데이터 로드 실패:", error);
         alert(error.message || "모임 정보를 불러오는데 실패했습니다.");
@@ -32,7 +39,7 @@ function ParticipatePage() {
     };
 
     if (meetingId) {
-      fetchMeetingData();
+      fetchData();
     }
   }, [meetingId]);
 
@@ -42,6 +49,18 @@ function ParticipatePage() {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleLeaveMeeting = async () => {
+    if (window.confirm("정말 이 모임에서 나가시겠습니까?")) {
+      try {
+        await leaveMeeting(meetingId);
+        alert("모임에서 탈퇴되었습니다.");
+        navigate("/home");
+      } catch (error) {
+        alert(error.message || "모임 탈퇴에 실패했습니다.");
+      }
+    }
   };
 
   return (
@@ -55,14 +74,22 @@ function ParticipatePage() {
 
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        {isLoading ? (
-          <div className="sidebar-item">로딩 중...</div>
-        ) : (
-          participants.map((p) => (
-            <div key={p.id} className="sidebar-item">
-              {p.role === "admin" ? "👑 " : ""}{p.name}
-            </div>
-          ))
+        <div className="sidebar-content" style={{ flex: 1, overflowY: "auto" }}>
+          {isLoading ? (
+            <div className="sidebar-item">로딩 중...</div>
+          ) : (
+            participants.map((p) => (
+              <div key={p.participantId} className="sidebar-item">
+                {p.role === "HOST" ? "👑 " : ""}{p.userName}
+              </div>
+            ))
+          )}
+        </div>
+        
+        {!isLoading && !isHost && (
+          <div className="leave-button-container">
+            <button className="leave-btn" onClick={handleLeaveMeeting}>나가기</button>
+          </div>
         )}
       </div>
 
@@ -86,13 +113,30 @@ function ParticipatePage() {
 
       <div className="content-container">
         <div className="info-box">
-          {isLoading ? "정보를 불러오는 중..." : meetingData.name}
+          {isLoading ? "정보를 불러오는 중..." : meetingData.title}
         </div>
         <div className="info-box small">
           {isLoading ? "..." : meetingData.description}
         </div>
-        <button className="next-button" onClick={() => console.log("Next Step")}>
-          다음 단계
+        
+        {!isLoading && isHost && (
+          <button 
+            className="invite-share-button" 
+            onClick={() => navigate(`/invite/${meetingId}`)}
+          >
+            초대코드 공유하기
+          </button>
+        )}
+
+        <button 
+          className="recommend-view-button" 
+          onClick={() => navigate(`/recommendation/${meetingId}`)}
+        >
+          추천 시간 확인하기
+        </button>
+
+        <button className="next-button" onClick={() => navigate(`/time-selection/${meetingId}`)}>
+          내 시간 선택하기
         </button>
       </div>
     </div>

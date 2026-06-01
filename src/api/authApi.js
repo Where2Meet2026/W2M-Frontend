@@ -34,6 +34,23 @@ export const signup = async (userData) => {
   return response.text();
 };
 
+export const socialSignup = async (userData) => {
+  const response = await fetch(`${BASE_URL}/api/auth/social-signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "소셜 회원가입에 실패했습니다.");
+  }
+
+  return await response.json();
+};
+
 export const sendCode = async (email) => {
   const response = await fetch(`${BASE_URL}/api/v1/send-code?email=${encodeURIComponent(email)}`, {
     method: "POST",

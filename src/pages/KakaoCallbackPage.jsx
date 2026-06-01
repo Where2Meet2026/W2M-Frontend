@@ -13,8 +13,18 @@ function KakaoCallbackPage() {
     if (token) {
       // 기존 유저: 토큰 저장 후 로그인 처리
       localStorage.setItem("token", token);
+      
+      const targetPath = localStorage.getItem("returnUrl");
+      console.log("KakaoCallback: 확보된 targetPath ->", targetPath);
+
       alert("카카오 로그인 성공!");
-      navigate("/home"); // HomePage로 이동
+      
+      if (targetPath) {
+        // [수정] 여기서 지우지 않고 이동만 함. 목적지인 AcceptInvitePage에서 지워야 레이스 컨디션을 방지함.
+        navigate(targetPath);
+      } else {
+        navigate("/home");
+      }
     } else if (isNew === "true") {
       // 신규 유저: 정보 추출 후 회원가입 페이지로 유도
       const email = params.get("email");

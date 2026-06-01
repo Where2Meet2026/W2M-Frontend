@@ -1,0 +1,96 @@
+.time-waiting-page {
+  width: 390px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: white;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+}
+
+.back-button-container {
+  position: absolute;
+  top: 40px;
+  left: 30px;
+  cursor: pointer;
+}
+
+.waiting-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.meeting-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.waiting-desc {
+  font-size: 14px;
+  color: #888;
+}
+
+.participant-status-list {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 50px;
+}
+
+.participant-status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
+.participant-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.status-badge {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.status-badge.complete {
+  background-color: #e8f5e9;
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.status-badge.incomplete {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+  border: 1px solid #bdbdbd;
+}
+
+.action-buttons {
+  margin-top: auto;
+  padding-bottom: 60px;
+}
+
+.check-recommendation-btn {
+  width: 230px;
+  height: 52px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.check-recommendation-btn:hover {
+  background-color: #d0d0d0;
+}
