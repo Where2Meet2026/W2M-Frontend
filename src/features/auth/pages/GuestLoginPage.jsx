@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { login } from "../api/authApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function GuestLoginPage() {
   const navigate = useNavigate();
@@ -64,8 +65,7 @@ function GuestLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="flex min-h-screen w-[390px] flex-col bg-white px-6 py-10 text-[#191f28]">
+    <PageShell>
         <button
           onClick={() => navigate(-1)}
           className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
@@ -180,8 +180,7 @@ function GuestLoginPage() {
             </button>
           </div>
         </section>
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

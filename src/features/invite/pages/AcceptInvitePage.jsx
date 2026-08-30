@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingByInviteCode } from "../../meeting/api/meetingApi";
 import { joinMeeting } from "../../meeting/api/participantApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function AcceptInvitePage() {
   const navigate = useNavigate();
@@ -74,8 +75,7 @@ function AcceptInvitePage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen justify-center bg-[#111]">
-        <main className="flex min-h-screen w-[390px] flex-col bg-white px-6 py-10 text-[#191f28]">
+      <PageShell>
           <section className="mt-auto rounded-3xl bg-red-50 px-5 py-8 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -95,14 +95,12 @@ function AcceptInvitePage() {
               홈으로 가기
             </button>
           </div>
-        </main>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="flex min-h-screen w-[390px] flex-col bg-white px-6 py-10 text-[#191f28]">
+    <PageShell>
         <button
           onClick={handleDecline}
           className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
@@ -182,8 +180,7 @@ function AcceptInvitePage() {
             {isSubmitting ? "참여 중..." : "수락하기"}
           </button>
         </div>
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getParticipants } from "../../meeting/api/participantApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function TimeWaitingPage() {
   const navigate = useNavigate();
@@ -53,8 +54,7 @@ function TimeWaitingPage() {
   }, [meetingId]);
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="flex min-h-screen w-[390px] flex-col overflow-y-auto bg-white px-6 py-10 text-[#191f28]">
+    <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
         <button
           onClick={() => navigate(-1)}
           className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
@@ -152,8 +152,7 @@ function TimeWaitingPage() {
             추천 시간 확인하기
           </button>
         </div>
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

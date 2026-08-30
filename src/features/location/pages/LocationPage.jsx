@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { searchPlacesByKeyword } from "../api/locationApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function LocationPage() {
   const navigate = useNavigate();
@@ -55,231 +56,185 @@ function LocationPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#111", display: "flex", justifyContent: "center" }}>
-      <main style={{
-        display: "flex",
-        minHeight: "100vh",
-        width: "390px",
-        flexDirection: "column",
-        background: "white",
-        padding: "40px 24px 40px",
-        color: "#191f28",
-      }}>
+    <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
+      {/* 뒤로가기 */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
+        aria-label="뒤로가기"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
 
-        {/* 뒤로가기 */}
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            width: 44, height: 44, borderRadius: "50%",
-            background: "#f3f4f6", border: "none",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", marginBottom: 40, flexShrink: 0,
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
+      {/* 헤더 */}
+      <section className="mb-10">
+        <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
+          WHERE2MEET
+        </p>
+        <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
+          출발 위치를 입력해주세요
+        </h1>
+        <p className="m-0 text-sm leading-[1.7] text-gray-500">
+          약속 장소를 추천받기 위해 출발할 위치를 선택해 주세요.
+        </p>
+      </section>
 
-        {/* 헤더 */}
-        <div style={{ marginBottom: 40 }}>
-          <p style={{ fontSize: 12, fontWeight: 800, color: "#3b82f6", letterSpacing: "0.5px", marginBottom: 10 }}>
-            WHERE2MEET
-          </p>
-          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-1px", lineHeight: 1.25, margin: "0 0 10px" }}>
-            출발 위치를 입력해주세요
-          </h1>
-          <p style={{ fontSize: 14, color: "#6b7280", lineHeight: 1.7, margin: 0 }}>
-            약속 장소를 추천받기 위해 출발할 위치를 선택해 주세요.
-          </p>
-        </div>
-
-        {/* 선택된 장소 카드 */}
-        <section style={{
-          background: "#f9fafb",
-          borderRadius: 24,
-          padding: "22px 20px",
-          marginBottom: 28,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#9ca3af", margin: 0 }}>현재 선택 위치</p>
-            {selectedPlace && (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{
-                  background: "#dbeafe", color: "#2563eb",
-                  fontSize: 11, fontWeight: 800,
-                  padding: "4px 12px", borderRadius: 999,
-                }}>선택 완료</span>
-                <button
-                  onClick={handleClearSelection}
-                  style={{
-                    background: "#e5e7eb", color: "#6b7280",
-                    fontSize: 11, fontWeight: 700,
-                    padding: "4px 10px", borderRadius: 999,
-                    border: "none", cursor: "pointer",
-                  }}
-                >초기화</button>
-              </div>
-            )}
-          </div>
-
-          {selectedPlace ? (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#3b82f6", flexShrink: 0 }} />
-                <p style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>{selectedPlace.name}</p>
-              </div>
-              <p style={{ fontSize: 13, color: "#6b7280", margin: 0, paddingLeft: 20, lineHeight: 1.6 }}>
-                {selectedPlace.address}
-              </p>
-            </div>
-          ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#d1d5db", flexShrink: 0 }} />
-              <p style={{ fontSize: 15, fontWeight: 600, color: "#9ca3af", margin: 0 }}>
-                아직 선택된 위치가 없습니다.
-              </p>
+      {/* 선택된 장소 카드 */}
+      <section className="mb-7 rounded-3xl bg-gray-50 px-5 py-[22px]">
+        <div className="mb-4 flex items-center justify-between">
+          <p className="m-0 text-[13px] font-bold text-gray-400">현재 선택 위치</p>
+          {selectedPlace && (
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
+                선택 완료
+              </span>
+              <button
+                onClick={handleClearSelection}
+                className="rounded-full border-0 bg-gray-200 px-2.5 py-1 text-[11px] font-bold text-gray-500"
+              >
+                초기화
+              </button>
             </div>
           )}
-        </section>
-
-        {/* 검색 입력 */}
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 13, fontWeight: 700, color: "#374151", display: "block", marginBottom: 10 }}>
-            출발지 검색
-          </label>
-          <div style={{ position: "relative" }}>
-            <svg style={{ position: "absolute", left: 18, top: "50%", transform: "translateY(-50%)" }}
-              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round">
-              <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
-            </svg>
-            <input
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              placeholder="장소명을 입력하세요"
-              style={{
-                height: 54, width: "100%", borderRadius: 16,
-                border: "1.5px solid #e5e7eb", background: "white",
-                padding: "0 48px 0 48px", fontSize: 15, fontWeight: 500,
-                outline: "none", boxSizing: "border-box", color: "#191f28",
-                fontFamily: "inherit",
-              }}
-            />
-            {keyword && (
-              <button
-                onClick={() => setKeyword("")}
-                style={{
-                  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
-                  width: 24, height: 24, borderRadius: "50%",
-                  background: "#e5e7eb", border: "none", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
         </div>
 
-        {/* 검색 결과 */}
-        {isSearching && (
-          <div style={{ marginBottom: 28, display: "flex", flexDirection: "column", gap: 12 }}>
-            {isLoading ? (
-              <div style={{ borderRadius: 24, background: "#f9fafb", padding: "32px 20px", textAlign: "center" }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#6b7280", margin: 0 }}>장소를 검색하고 있어요...</p>
-              </div>
-            ) : errorMessage ? (
-              <div style={{ borderRadius: 24, background: "#fef2f2", padding: "24px 20px", textAlign: "center" }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#dc2626", margin: 0 }}>{errorMessage}</p>
-              </div>
-            ) : places.length > 0 ? (
-              places.map((place) => {
-                const isSelected = selectedPlace?.id === place.id;
-                return (
-                  <button
-                    key={place.id}
-                    onClick={() => handleSelectPlace(place)}
-                    style={{
-                      width: "100%", borderRadius: 24,
-                      border: isSelected ? "1.5px solid #3b82f6" : "1.5px solid #f3f4f6",
-                      background: isSelected ? "#3b82f6" : "white",
-                      padding: "20px", textAlign: "left", cursor: "pointer",
-                      boxShadow: isSelected ? "0 8px 24px rgba(59,130,246,0.15)" : "0 1px 4px rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                      <div>
-                        <p style={{ fontSize: 17, fontWeight: 800, color: isSelected ? "white" : "#191f28", margin: "0 0 4px" }}>
-                          {place.name}
-                        </p>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: isSelected ? "rgba(255,255,255,0.7)" : "#9ca3af", margin: 0 }}>
-                          {place.category || "장소"}
-                        </p>
-                      </div>
-                      {isSelected && (
-                        <span style={{
-                          background: "rgba(255,255,255,0.2)", color: "white",
-                          fontSize: 11, fontWeight: 700,
-                          padding: "4px 10px", borderRadius: 999, flexShrink: 0,
-                        }}>선택됨</span>
-                      )}
-                    </div>
-                    <p style={{ fontSize: 13, marginTop: 12, lineHeight: 1.6, color: isSelected ? "rgba(255,255,255,0.8)" : "#6b7280" }}>
-                      {place.address}
-                    </p>
-                  </button>
-                );
-              })
-            ) : (
-              <div style={{ borderRadius: 24, background: "#f9fafb", padding: "32px 20px", textAlign: "center" }}>
-                <p style={{ fontSize: 24, marginBottom: 8 }}>🔍</p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#6b7280", margin: "0 0 4px" }}>검색 결과가 없습니다</p>
-                <p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>다른 장소명으로 다시 검색해보세요</p>
-              </div>
-            )}
+        {selectedPlace ? (
+          <div>
+            <div className="mb-2 flex items-center gap-2.5">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
+              <p className="m-0 text-[17px] font-extrabold">{selectedPlace.name}</p>
+            </div>
+            <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
+              {selectedPlace.address}
+            </p>
           </div>
-        )}
-
-        {/* Tip 박스 */}
-        {!isSearching && !selectedPlace && (
-          <div style={{ background: "#eff6ff", borderRadius: 20, padding: "18px 20px", marginBottom: 28 }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "#2563eb", margin: "0 0 6px" }}>💡 Tip</p>
-            <p style={{ fontSize: 13, color: "#1e40af", lineHeight: 1.65, margin: 0 }}>
-              장소명을 입력하기 시작하면 아래에 검색 결과가 표시됩니다.
+        ) : (
+          <div className="flex items-center gap-2.5">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-gray-300" />
+            <p className="m-0 text-[15px] font-semibold text-gray-400">
+              아직 선택된 위치가 없습니다.
             </p>
           </div>
         )}
+      </section>
 
-        {/* 선택 완료 안내 */}
-        {!isSearching && selectedPlace && (
-          <div style={{ background: "#f0fdf4", borderRadius: 20, padding: "18px 20px", marginBottom: 28 }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "#16a34a", margin: "0 0 6px" }}>✅ 출발지 선택 완료</p>
-            <p style={{ fontSize: 13, color: "#15803d", lineHeight: 1.65, margin: 0 }}>
-              다음 버튼을 눌러 약속 장소 추천을 받아보세요.
-            </p>
-          </div>
-        )}
-
-        {/* 다음 버튼 */}
-        <div style={{ marginTop: "auto", paddingTop: 32 }}>
-          <button
-            disabled={!selectedPlace}
-            onClick={() => navigate(`/recommendation-loading/${meetingId}`)}
-            style={{
-              height: 54, width: "100%", borderRadius: 16, border: "none",
-              background: selectedPlace ? "#3b82f6" : "#e5e7eb",
-              color: selectedPlace ? "white" : "#9ca3af",
-              fontSize: 16, fontWeight: 800, cursor: selectedPlace ? "pointer" : "default",
-              transition: "all 0.15s",
-            }}
+      {/* 검색 입력 */}
+      <div className="mb-5">
+        <label className="mb-2.5 block text-[13px] font-bold text-gray-700">
+          출발지 검색
+        </label>
+        <div className="relative">
+          <svg
+            className="absolute left-[18px] top-1/2 -translate-y-1/2"
+            width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"
           >
-            다음
-          </button>
+            <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+          </svg>
+          <input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="장소명을 입력하세요"
+            className="h-[54px] w-full rounded-2xl border-[1.5px] border-gray-200 bg-white px-12 text-[15px] font-medium text-[#191f28] outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          />
+          {keyword && (
+            <button
+              onClick={() => setKeyword("")}
+              className="absolute right-3.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-gray-200"
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+
+      {/* 검색 결과 */}
+      {isSearching && (
+        <div className="mb-7 flex flex-col gap-3">
+          {isLoading ? (
+            <div className="rounded-3xl bg-gray-50 px-5 py-8 text-center">
+              <p className="m-0 text-sm font-bold text-gray-500">장소를 검색하고 있어요...</p>
+            </div>
+          ) : errorMessage ? (
+            <div className="rounded-3xl bg-red-50 px-5 py-6 text-center">
+              <p className="m-0 text-sm font-bold text-red-600">{errorMessage}</p>
+            </div>
+          ) : places.length > 0 ? (
+            places.map((place) => {
+              const isSelected = selectedPlace?.id === place.id;
+              return (
+                <button
+                  key={place.id}
+                  onClick={() => handleSelectPlace(place)}
+                  className={`w-full rounded-3xl border-[1.5px] px-5 py-5 text-left shadow-sm transition ${
+                    isSelected ? "border-blue-500 bg-blue-500" : "border-gray-100 bg-white"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className={`m-0 mb-1 text-[17px] font-extrabold ${isSelected ? "text-white" : "text-[#191f28]"}`}>
+                        {place.name}
+                      </p>
+                      <p className={`m-0 text-[13px] font-semibold ${isSelected ? "text-white/70" : "text-gray-400"}`}>
+                        {place.category || "장소"}
+                      </p>
+                    </div>
+                    {isSelected && (
+                      <span className="shrink-0 rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-bold text-white">
+                        선택됨
+                      </span>
+                    )}
+                  </div>
+                  <p className={`mt-3 text-[13px] leading-[1.6] ${isSelected ? "text-white/80" : "text-gray-500"}`}>
+                    {place.address}
+                  </p>
+                </button>
+              );
+            })
+          ) : (
+            <div className="rounded-3xl bg-gray-50 px-5 py-8 text-center">
+              <p className="mb-2 text-2xl">🔍</p>
+              <p className="m-0 mb-1 text-sm font-bold text-gray-500">검색 결과가 없습니다</p>
+              <p className="m-0 text-xs text-gray-400">다른 장소명으로 다시 검색해보세요</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tip 박스 */}
+      {!isSearching && !selectedPlace && (
+        <div className="mb-7 rounded-[20px] bg-blue-50 px-5 py-[18px]">
+          <p className="mb-1.5 text-[13px] font-extrabold text-blue-600">💡 Tip</p>
+          <p className="m-0 text-[13px] leading-[1.65] text-blue-800">
+            장소명을 입력하기 시작하면 아래에 검색 결과가 표시됩니다.
+          </p>
+        </div>
+      )}
+
+      {/* 선택 완료 안내 */}
+      {!isSearching && selectedPlace && (
+        <div className="mb-7 rounded-[20px] bg-green-50 px-5 py-[18px]">
+          <p className="mb-1.5 text-[13px] font-extrabold text-green-600">✅ 출발지 선택 완료</p>
+          <p className="m-0 text-[13px] leading-[1.65] text-green-700">
+            다음 버튼을 눌러 약속 장소 추천을 받아보세요.
+          </p>
+        </div>
+      )}
+
+      {/* 다음 버튼 */}
+      <div className="mt-auto pt-8">
+        <button
+          disabled={!selectedPlace}
+          onClick={() => navigate(`/recommendation-loading/${meetingId}`)}
+          className="h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400"
+        >
+          다음
+        </button>
+      </div>
+    </PageShell>
   );
 }
 

@@ -98,6 +98,12 @@ src/
 │  ├─ App.jsx           최상위 컴포넌트, AppRouter만 렌더링
 │  └─ AppRouter.jsx      주소(URL)별로 어떤 화면을 보여줄지 매핑
 │
+├─ shared/
+│  ├─ api/
+│  │  └─ client.js       백엔드 요청 공통 처리 (baseURL, 인증 헤더, 에러 처리)
+│  └─ components/
+│     └─ PageShell.jsx   모든 화면이 공유하는 공통 레이아웃 껍데기
+│
 ├─ features/
 │  ├─ auth/              로그인 · 회원가입 · 카카오 로그인
 │  │  ├─ pages/
@@ -146,24 +152,60 @@ features
 
 ---
 
+## 화면 공통 레이아웃
+
+모든 화면은 배경색 위에 흰 카드가 폰 화면처럼 떠 있는 구조를 공유합니다.
+이 껍데기를 페이지마다 따로 만들지 않고 `shared/components/PageShell.jsx`
+하나로 통일했습니다.
+
+```jsx
+import PageShell from "../../../shared/components/PageShell";
+
+function SomePage() {
+  return (
+    <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
+      {/* 화면 내용 */}
+    </PageShell>
+  );
+}
+```
+
+- `className`으로 페이지마다 다른 정렬/스크롤 방식을 지정합니다 (기본값
+  `"flex flex-col px-6 py-10"`이라 대부분의 화면은 안 넘겨도 됩니다).
+- 바깥 배경색, 카드 너비 등 공통 스타일은 `PageShell.jsx` 한 곳만 고치면
+  모든 화면에 한 번에 적용됩니다.
+
+---
+
 ## API 통신 구조
 
-각 기능 폴더 안의 `api/*.js`에서 fetch 호출 함수를 관리합니다. 인증이
-필요한 요청은 `localStorage`에 저장된 토큰을 헤더에 실어 보냅니다.
+`shared/api/client.js`에 baseURL, 인증 토큰 첨부, 에러 처리를 한 번만
+정의해두고, 각 기능의 `api/*.js`는 이 client를 가져다 엔드포인트별
+함수만 짧게 작성합니다.
+
+```js
+// shared/api/client.js
+export const apiClient = {
+  get: (path, options) => request(path, { ...options, method: "GET" }),
+  post: (path, body, options) => request(path, { ...options, method: "POST", body }),
+  patch: (path, body, options) => request(path, { ...options, method: "PATCH", body }),
+  delete: (path, options) => request(path, { ...options, method: "DELETE" }),
+};
+```
 
 ```js
 // features/meeting/api/meetingApi.js
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { apiClient } from "../../../shared/api/client";
 
-export const getMeetingDetails = async (meetingId) => {
-  const token = localStorage.getItem("token");
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-  const response = await fetch(`${BASE_URL}/api/meetings/${meetingId}`, { headers });
-  if (!response.ok) throw new Error("모임 정보를 불러오는 데 실패했습니다.");
-  return await response.json();
-};
+export const getMeetingDetails = (meetingId) =>
+  apiClient.get(`/api/meetings/${meetingId}`);
 ```
+
+토큰 첨부나 에러 처리를 함수마다 반복할 필요가 없고, "토큰 만료 시 자동
+로그아웃" 같은 공통 로직이 필요해지면 `client.js` 한 곳만 고치면 됩니다.
+
+카카오 로컬 API처럼 우리 백엔드가 아닌 외부 API를 부르는 `locationApi.js`는
+이 client 대상이 아니라 별도로 fetch를 직접 호출합니다.
 
 한 기능의 데이터를 다른 기능 화면에서도 써야 할 때는(예: 초대 화면에서
 모임 정보를 보여줄 때), 그 데이터를 소유한 기능의 api를 그대로 가져다

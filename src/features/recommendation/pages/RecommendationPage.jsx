@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { confirmMeetingTime, getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getMyParticipant } from "../../meeting/api/participantApi";
 import { getRecommendations } from "../api/recommendationApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function RecommendationPage() {
   const navigate = useNavigate();
@@ -122,8 +123,7 @@ function RecommendationPage() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="flex min-h-screen w-[390px] flex-col overflow-y-auto bg-white px-6 py-10 text-[#191f28]">
+    <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
         <button
           onClick={handleBack}
           className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
@@ -299,8 +299,7 @@ function RecommendationPage() {
             </button>
           )}
         </div>
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

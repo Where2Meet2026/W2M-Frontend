@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import PageShell from "../../../shared/components/PageShell";
 
 function KakaoCallbackPage() {
   const navigate = useNavigate();
@@ -57,8 +58,7 @@ function KakaoCallbackPage() {
   }, [email, isNew, name, navigate, token]);
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="flex min-h-screen w-[390px] flex-col items-center justify-center bg-white px-6 py-10 text-[#191f28]">
+    <PageShell className="flex flex-col items-center justify-center px-6 py-10">
         <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-full text-sm font-extrabold ${
           status.type === "error"
             ? "bg-red-50 text-red-500"
@@ -74,8 +74,7 @@ function KakaoCallbackPage() {
         <p className="mt-2 text-center text-sm leading-[1.7] text-gray-500">
           {status.message}
         </p>
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup, sendCode, verifyCode } from "../api/authApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -98,8 +99,7 @@ function SignupPage() {
   const inputClass = "w-full h-11 px-4 rounded-xl border border-gray-200 text-sm font-medium outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 transition";
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="min-h-screen w-[390px] overflow-y-auto bg-white px-6 py-10 text-[#191f28]">
+    <PageShell className="overflow-y-auto px-6 py-10">
         <div className="w-full">
 
         <div className="mb-8">
@@ -183,8 +183,7 @@ function SignupPage() {
         </div>
 
         </div>
-      </main>
-    </div>
+    </PageShell>
   );
 }
 
