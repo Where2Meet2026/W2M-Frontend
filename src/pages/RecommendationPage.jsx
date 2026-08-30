@@ -108,7 +108,7 @@ function RecommendationPage() {
 
       <div className="footer-actions">
         <button className="confirm-btn" onClick={() => navigate(`/participate/${meetingId}`)}>
-          확인 완료
+          확정하기
         </button>
       </div>
     </div>
