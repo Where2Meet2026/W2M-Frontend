@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../api/meetingApi";
 import { getParticipants, getMyParticipant, leaveMeeting } from "../api/participantApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function ParticipatePage() {
   const navigate = useNavigate();
@@ -76,8 +77,7 @@ function ParticipatePage() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="relative flex min-h-screen w-[390px] flex-col overflow-hidden bg-white text-[#191f28]">
+    <PageShell className="relative flex flex-col overflow-hidden">
 
         {/* 사이드바 오버레이 */}
         {isSidebarOpen && (
@@ -205,8 +205,7 @@ function ParticipatePage() {
           </button>
         </div>
 
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

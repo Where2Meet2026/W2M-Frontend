@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/authApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function MainPage() {
   const navigate = useNavigate();
@@ -30,8 +31,7 @@ function MainPage() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="flex min-h-screen w-[390px] flex-col justify-center bg-white px-6 py-10 text-[#191f28]">
+    <PageShell className="flex flex-col justify-center px-6 py-10">
         <div className="w-full">
 
           {/* 로고 */}
@@ -99,8 +99,7 @@ function MainPage() {
 
           </div>
         </div>
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

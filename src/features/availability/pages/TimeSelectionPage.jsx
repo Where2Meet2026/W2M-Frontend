@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getMyParticipant } from "../../meeting/api/participantApi";
 import { saveAvailabilities, getAvailabilities } from "../api/availabilityApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function TimeSelectionPage() {
   const navigate = useNavigate();
@@ -236,11 +237,10 @@ function TimeSelectionPage() {
   }, 0);
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main
-        className="relative flex min-h-screen w-[390px] select-none flex-col overflow-y-auto bg-white px-6 py-10 text-[#191f28]"
-        onMouseUp={() => setIsDragging(false)}
-      >
+    <PageShell
+      className="relative flex select-none flex-col overflow-y-auto px-6 py-10"
+      onMouseUp={() => setIsDragging(false)}
+    >
         <button
           onClick={() => navigate(-1)}
           className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
@@ -403,8 +403,7 @@ function TimeSelectionPage() {
             </p>
           </div>
         )}
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

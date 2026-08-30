@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createMeeting } from "../api/meetingApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function CreateMeetingPage() {
   const navigate = useNavigate();
@@ -52,8 +53,7 @@ function CreateMeetingPage() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="relative flex min-h-screen w-[390px] flex-col overflow-hidden bg-white px-6 py-10 text-[#191f28]">
+    <PageShell className="relative flex flex-col overflow-hidden px-6 py-10">
 
         <button
           onClick={() => navigate(-1)}
@@ -117,8 +117,7 @@ function CreateMeetingPage() {
           </div>
         )}
 
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

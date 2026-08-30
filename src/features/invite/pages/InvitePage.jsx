@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
+import PageShell from "../../../shared/components/PageShell";
 
 function InvitePage() {
   const navigate = useNavigate();
@@ -82,8 +83,7 @@ function InvitePage() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#111]">
-      <main className="relative flex min-h-screen w-[390px] flex-col overflow-hidden bg-white px-6 py-10 text-[#191f28]">
+    <PageShell className="relative flex flex-col overflow-hidden px-6 py-10">
         <button
           onClick={handleBack}
           className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
@@ -186,8 +186,7 @@ function InvitePage() {
             </p>
           </div>
         )}
-      </main>
-    </div>
+    </PageShell>
   );
 }
 
