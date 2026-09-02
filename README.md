@@ -92,49 +92,79 @@ npm run dev
 동일하게 맞춰서, 어떤 화면이 어떤 백엔드 API를 쓰는지 폴더 이름만 보고
 알 수 있게 했습니다.
 
+아래 트리에서 실제 존재하는 파일은 이름을 그대로 표기하고, 아직 코드가 없는
+스켈레톤 폴더(`.gitkeep`만 존재)는 `(스켈레톤)`으로 표기합니다.
+
 ```txt
 src/
 ├─ app/
-│  ├─ App.jsx           최상위 컴포넌트, AppRouter만 렌더링
-│  └─ AppRouter.jsx      주소(URL)별로 어떤 화면을 보여줄지 매핑
+│  ├─ App.jsx                 최상위 컴포넌트, AppRouter만 렌더링
+│  └─ AppRouter.jsx            주소(URL)별로 어떤 화면을 보여줄지 매핑
 │
 ├─ shared/
 │  ├─ api/
-│  │  └─ client.js       백엔드 요청 공통 처리 (baseURL, 인증 헤더, 에러 처리)
+│  │  └─ client.js             백엔드 요청 공통 처리 (baseURL, 인증 헤더, 에러 처리)
 │  └─ components/
-│     └─ PageShell.jsx   모든 화면이 공유하는 공통 레이아웃 껍데기
+│     └─ PageShell.jsx         모든 화면이 공유하는 공통 레이아웃 껍데기
 │
 ├─ features/
-│  ├─ auth/              로그인 · 회원가입 · 카카오 로그인
+│  ├─ auth/                    로그인 · 회원가입 · 카카오 로그인
 │  │  ├─ pages/
-│  │  └─ api/             authApi.js
+│  │  │  ├─ MainPage.jsx         로그인/카카오 로그인 진입 화면
+│  │  │  ├─ SignupPage.jsx       자체 회원가입 (이메일 인증 포함)
+│  │  │  ├─ GuestLoginPage.jsx   초대 수락 전 로그인 유도 화면
+│  │  │  └─ KakaoCallbackPage.jsx 카카오 로그인 콜백 처리
+│  │  └─ api/                  authApi.js
 │  │
-│  ├─ meeting/            모임 생성/조회/삭제, 내 모임 목록, 참여 현황
+│  ├─ meeting/                 모임 생성/조회/삭제, 내 모임 목록, 참여 현황
 │  │  ├─ pages/
-│  │  ├─ components/      RoomItem.jsx
-│  │  └─ api/             meetingApi.js, participantApi.js
+│  │  │  ├─ HomePage.jsx         홈 (내 방 조회 / 모임 만들기 진입)
+│  │  │  ├─ CreateMeetingPage.jsx 모임 생성
+│  │  │  ├─ GetRoomPage.jsx      내 모임 목록 (방장/참여자 구분, 방 삭제)
+│  │  │  └─ ParticipatePage.jsx  모임 참여 화면 (초대 공유, 다음 단계 진입)
+│  │  ├─ components/
+│  │  │  └─ RoomItem.jsx         모임 목록의 방 1개 카드
+│  │  └─ api/                  meetingApi.js, participantApi.js
 │  │
-│  ├─ invite/             초대 링크 공유 및 수락
+│  ├─ invite/                  초대 링크 공유 및 수락
 │  │  └─ pages/
+│  │     ├─ InvitePage.jsx       초대 링크 생성 및 공유 (카카오톡/링크 복사)
+│  │     └─ AcceptInvitePage.jsx 초대 링크로 접속했을 때 참여 수락 처리
 │  │
-│  ├─ availability/       가능한 시간대 입력/조회
+│  ├─ availability/            가능한 시간대 입력/조회
 │  │  ├─ pages/
-│  │  └─ api/             availabilityApi.js
+│  │  │  ├─ TimeSelectionPage.jsx 날짜·시간 선택 (캘린더 + 드래그 선택)
+│  │  │  └─ TimeWaitingPage.jsx  전원 시간 입력 완료 대기 (폴링)
+│  │  └─ api/                  availabilityApi.js
 │  │
-│  ├─ recommendation/     공통 시간대 추천 및 확정
+│  ├─ recommendation/          공통 시간대 추천 및 확정
 │  │  ├─ pages/
-│  │  └─ api/             recommendationApi.js
+│  │  │  └─ RecommendationPage.jsx 추천 시간 목록 표시 및 방장 확정
+│  │  └─ api/                  recommendationApi.js
 │  │
-│  ├─ location/           출발 위치 검색/저장 (카카오 장소 검색)
+│  ├─ location/                출발 위치 검색/저장 (카카오 장소 검색)
 │  │  ├─ pages/
-│  │  └─ api/             locationApi.js
+│  │  │  └─ LocationPage.jsx     시간 확정 이후 출발 위치 1회 입력
+│  │  └─ api/                  locationApi.js
 │  │
-│  ├─ candidate/          (2학기) 장소 후보 비교 및 투표
-│  ├─ review/             (2학기) 확정 장소 후기 작성/조회
-│  └─ notification/       (2학기) 알림 수신 설정 (Web Push)
+│  ├─ candidate/ (스켈레톤)     장소 후보 3개 비교 + 좋아요·싫어요 반응 (미구현)
+│  │  ├─ pages/                예정: CandidatePage.jsx
+│  │  └─ api/                  예정: candidateApi.js
+│  │
+│  ├─ vote/ (스켈레톤)          최종 투표 + 최종 확정 결과 화면 (미구현)
+│  │  ├─ pages/                예정: ResultPage.jsx
+│  │  └─ api/                  예정: voteApi.js (CandidatePage에서 가져다 씀)
+│  │
+│  ├─ review/ (스켈레톤)        확정 장소 후기 작성/조회, 익명 (미구현)
+│  │  ├─ pages/
+│  │  └─ api/
+│  │
+│  └─ notification/ (스켈레톤)  Web Push 구독 등록/해제 (미구현)
+│     ├─ pages/
+│     └─ api/
 │
-├─ main.jsx               앱이 실행되는 진짜 시작점
-└─ index.css              전역 스타일
+├─ main.jsx                    앱이 실행되는 진짜 시작점
+└─ index.css                   전역 스타일
 ```
 
 새 화면을 추가할 때는, 기존 기능에 속하면 그 폴더 안에 페이지를 추가하고,
