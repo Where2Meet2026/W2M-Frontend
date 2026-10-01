@@ -13,12 +13,14 @@ import TimeSelectionPage from "../features/availability/pages/TimeSelectionPage"
 import TimeWaitingPage from "../features/availability/pages/TimeWaitingPage";
 import RecommendationPage from "../features/recommendation/pages/RecommendationPage";
 import LocationPage from "../features/location/pages/LocationPage";
+import NotificationConsentPage from "../features/notification/pages/NotificationConsentPage";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainPage />} />
+        <Route path="/notification" element={<NotificationConsentPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/get-room" element={<GetRoomPage />} /> {/* 추가 */}
         <Route path="/create-meeting" element={<CreateMeetingPage />} />

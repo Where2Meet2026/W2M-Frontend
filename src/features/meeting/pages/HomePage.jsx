@@ -1,11 +1,24 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../../../shared/components/PageShell";
+import NotificationSettingsSheet from "../../notification/components/NotificationSettingsSheet";
 
 function HomePage() {
   const navigate = useNavigate();
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
-    <PageShell className="flex flex-col justify-center px-6 py-10">
+    <PageShell className="relative flex flex-col justify-center px-6 py-10">
+        <button
+          onClick={() => setShowSettings(true)}
+          aria-label="알림 설정"
+          className="absolute right-6 top-10 flex h-10 w-10 items-center justify-center rounded-full text-gray-500 hover:bg-gray-50"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 003.4 0" />
+          </svg>
+        </button>
+        {showSettings && <NotificationSettingsSheet onClose={() => setShowSettings(false)} />}
         <div className="w-full">
 
         {/* 로고 */}
