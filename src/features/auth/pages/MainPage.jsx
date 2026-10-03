@@ -82,7 +82,7 @@ function MainPage() {
             </button>
 
             <button
-              onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/kakao"}
+              onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/kakao`}
               className="mb-4 h-12 w-full rounded-xl bg-yellow-400 text-sm font-bold text-gray-900 transition hover:bg-yellow-500 active:scale-95"
             >
               카카오로 시작하기
