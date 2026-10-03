@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCandidates } from "../api/candidateApi";
 import PageShell from "../../../shared/components/PageShell";
+import { getMeetingDetails } from "../../meeting/api/meetingApi";
+
+
+const TYPE_LABEL = {
+    FASTEST: "가장 빠른 동선",
+    BALANCED: "참여자 간 편차 최소",
+    OPTIMAL: "거리 + 평점 최적",
+}
 
 function CandidatePage() {
     const navigate = useNavigate();
@@ -10,6 +18,7 @@ function CandidatePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [candidates, setCandidates] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
+    const [meetingTitle, setMeetingTitle] = useState("");
 
     useEffect( () => {
         const fetchCandidates = async() => {
@@ -17,8 +26,12 @@ function CandidatePage() {
                 setIsLoading(true);
                 setErrorMessage("");
 
-                const data = await getCandidates(meetingId);
+                const [data, meeting] = await Promise.all([
+                    getCandidates(meetingId),
+                    getMeetingDetails(meetingId),
+                ]);
                 setCandidates(data.candidates || data || []);
+                setMeetingTitle(meeting.title || "");
             }catch (error) {
                 setErrorMessage("후보 장소를 불러오는 중 문제가 발생했습니다.");
             } finally {
@@ -68,7 +81,74 @@ function CandidatePage() {
             ) : errorMessage ? (
                 <div>{errorMessage}</div>
             ) : (
-                <div> </div>
+                <>
+                <section className="mb-3">
+                    <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
+                        WHERE2MEET
+                    </p>
+                    <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
+                        후보에 투표해주세요 
+                    </h1>
+                    <p className="m-0 text-sm leading-[1.7] text-gray-500">
+                        마음에 드는 후보 하나를 골라 투표하기를 누르면 최종 투표에 반영돼요.
+                    </p>
+                </section>
+
+                <section className="mb-4 rounded-3xl bg-gray-50 px-5 py-[18px]">
+                    <div className="mb-3 flex items-center justify-between" >
+                        <p className="m-0 text-[13px] font-bold text-gray-400">현재 모임</p>
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
+                            투표 진행중
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
+                        <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
+                            {meetingTitle || "모임"}
+                        </p>
+                    </div>
+                </section>
+
+                <div className="space-y-3"> 
+                    {candidates.map((candidate) => (
+                        <div
+                            key={candidate.candidateId}
+                            className="flex gap-3 rounded-3xl bg-gray-50 p-3.5"
+                        >
+                            <div className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
+                                <div className="h-[72px] w-[72px] rounded-2xl bg-gray-200" />
+                                <p className="m-0 text-[11px] font-bold text-gray-400">
+                                    👍 {candidate.likeCount} · 👎 {candidate.dislikeCount}
+                                </p>
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                                <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
+                                    {candidate.placeName}
+                                </p>
+                                <p className="m-0 truncate text-[11px] text-gray-400" >
+                                    평균 {Math.round(candidate.avgDistanceMeters)}m · {TYPE_LABEL[candidate.type]}
+                                </p>
+                            </div>
+
+                            <button 
+                                type = "button"
+                                className="h-[30px] shrink-0 rounded-full border-[1.5px] border-blue-500 
+                                bg-white px-3 text-xs font-extrabold text-blue-500"
+                                >
+                                투표하기
+                                </button>
+                        </div>
+                    ))}
+                </div>
+
+                <section className="mt-6 rounded-[20px] bg-blue-50 px-[18px] py-3.5">
+                    <p className="m-0 text-[13px] font-extrabold leading-[1.6] text-blue-600">  
+                        마지막 한 명이 투표하면 자동으로 확정돼요. 
+                        <br />확정 후에는 투표를 바꿀 수 없어요.
+                    </p>
+                </section>
+                </>
             )}
         </PageShell>
     );
