@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCandidates } from "../api/candidateApi";
 import PageShell from "../../../shared/components/PageShell";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
+import { getVoteStatus } from "../../vote/api/voteApi";
 
 
 const TYPE_LABEL = {
@@ -19,6 +20,7 @@ function CandidatePage() {
     const [candidates, setCandidates] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [meetingTitle, setMeetingTitle] = useState("");
+    const [voteStatus, setVoteStatus] = useState(null);
 
     useEffect( () => {
         const fetchCandidates = async() => {
@@ -26,13 +28,16 @@ function CandidatePage() {
                 setIsLoading(true);
                 setErrorMessage("");
 
-                const [data, meeting] = await Promise.all([
+                const [data, meeting, status] = await Promise.all([
                     getCandidates(meetingId),
                     getMeetingDetails(meetingId),
+                    getVoteStatus(meetingId),
                 ]);
                 setCandidates(data.candidates || data || []);
                 setMeetingTitle(meeting.title || "");
+                setVoteStatus(status);
             }catch (error) {
+                console.error("후보 화면 데이터 로드 실패:", error);
                 setErrorMessage("후보 장소를 불러오는 중 문제가 발생했습니다.");
             } finally {
                 setIsLoading(false);
@@ -40,7 +45,9 @@ function CandidatePage() {
         };
         fetchCandidates();
     }, [meetingId]);
-
+    const totalParticipants = voteStatus?.totalParticipants ?? 0;
+    const votedCount = voteStatus?.votedCount ?? 0;
+    const votedPercent = totalParticipants > 0 ? (votedCount / totalParticipants) * 100 : 0;
     return (
         <PageShell className="flex flex-col px-6 py-10">
             <button
@@ -105,6 +112,17 @@ function CandidatePage() {
                         <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
                         <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
                             {meetingTitle || "모임"}
+                        </p>
+                    </div>
+                    <div className="mt-3 flex items-center gap-2.5">
+                        <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-200">
+                            <div 
+                                className="h-full rounded-full bg-blue-500"
+                                style={{ width: `${votedPercent}%`}}
+                            />
+                        </div>
+                        <p className="m-0 shrink-0 text-[11px] font-bold text-gray-400">
+                            {totalParticipants}명 중 {votedCount}명 투표 완료
                         </p>
                     </div>
                 </section>
