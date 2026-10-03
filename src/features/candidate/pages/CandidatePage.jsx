@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCandidates } from "../api/candidateApi";
 import PageShell from "../../../shared/components/PageShell";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
-import { getVoteStatus } from "../../vote/api/voteApi";
+import { getVoteStatus, castVote } from "../../vote/api/voteApi";
 
 const TYPE_LABEL = {
   FASTEST: "가장 빠른 동선",
@@ -20,6 +20,8 @@ function CandidatePage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [meetingTitle, setMeetingTitle] = useState("");
   const [voteStatus, setVoteStatus] = useState(null);
+  const [isVoting, setIsVoting] = useState(false);
+  const [voteError, setVoteError] = useState("");
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -51,6 +53,21 @@ function CandidatePage() {
   const getVoteCount = (candidateId) =>
     voteStatus?.results?.find((item) => item.candidateId === candidateId)
       ?.voteCount ?? 0;
+
+  const handleVote = async (candidateId) => {
+    try {
+      setIsVoting(true);
+      await castVote(meetingId, candidateId);
+      const status = await getVoteStatus(meetingId);
+      setVoteStatus(status);
+    } catch (error) {
+      console.error("투표 실패", error);
+      setVoteError(error.message);
+      setTimeout(() => setVoteError(""), 3000);
+    } finally {
+      setIsVoting(false);
+    }
+  };
   return (
     <PageShell className="flex flex-col px-6 py-10">
       <button
@@ -219,7 +236,10 @@ function CandidatePage() {
                   ) : (
                     <button
                       type="button"
-                      className="h-[30px] shrink-0 rounded-full border-[1.5px] border-blue-500 bg-white px-3 text-xs font-extrabold text-blue-500"
+                      onClick={() => handleVote(candidate.candidateId)}
+                      disabled={isVoting}
+                      className="h-[30px] shrink-0 rounded-full border-[1.5px] border-blue-500 bg-white px-3 
+                    text-xs font-extrabold text-blue-500 disabled:opacity-50"
                     >
                       투표하기
                     </button>
@@ -236,6 +256,13 @@ function CandidatePage() {
               확정 후에는 투표를 바꿀 수 없어요.
             </p>
           </section>
+          {voteError && (
+            <div className="fixed inset-x-6 bottom-6 mx-auto max-w-[345px] rounded-2xl bg-red-50 px-4 py-3 shadow-lg">
+              <p className="m-0 text-[13px] font-bold leading-[1.6] text-red-700">
+                {voteError}
+              </p>
+            </div>
+          )}
         </>
       )}
     </PageShell>
