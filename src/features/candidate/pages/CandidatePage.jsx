@@ -53,7 +53,7 @@ function CandidatePage() {
   const getVoteCount = (candidateId) =>
     voteStatus?.results?.find((item) => item.candidateId === candidateId)
       ?.voteCount ?? 0;
-
+  const isClosed = voteStatus?.isClosed ?? false;
   const handleVote = async (candidateId) => {
     try {
       setIsVoting(true);
@@ -132,11 +132,12 @@ function CandidatePage() {
               WHERE2MEET
             </p>
             <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
-              후보에 투표해주세요
+              {isClosed ? "장소가 확정됐어요" : "후보에 투표해주세요"}
             </h1>
             <p className="m-0 text-sm leading-[1.7] text-gray-500">
-              마음에 드는 후보 하나를 골라 투표하기를 누르면 최종 투표에
-              반영돼요.
+              {isClosed
+                ? "전원이 투표를 마쳐서 서버가 자동으로 최다 득표 후보를 확정했어요."
+                : "마음에 드는 후보 하나를 골라 투표하기를 누르면 최종 투표에 반영돼요."}
             </p>
           </section>
 
@@ -145,8 +146,14 @@ function CandidatePage() {
               <p className="m-0 text-[13px] font-bold text-gray-400">
                 현재 모임
               </p>
-              <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-                투표 진행중
+              <span
+                className={`rounded-full px-3 py-1 text-[11px] font-extrabold ${
+                  isClosed
+                    ? "bg-green-50 text-green-600"
+                    : "bg-blue-100 text-blue-600"
+                }`}
+              >
+                {isClosed ? "투표 마감 · 확정 완료" : "투표 진행중"}
               </span>
             </div>
             <div className="flex items-center gap-2.5">
@@ -155,17 +162,23 @@ function CandidatePage() {
                 {meetingTitle || "모임"}
               </p>
             </div>
-            <div className="mt-3 flex items-center gap-2.5">
-              <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-200">
-                <div
-                  className="h-full rounded-full bg-blue-500"
-                  style={{ width: `${votedPercent}%` }}
-                />
-              </div>
-              <p className="m-0 shrink-0 text-[11px] font-bold text-gray-400">
+            {isClosed ? (
+              <p className="m-0 mt-3 text-[13px] font-bold text-gray-500">
                 {totalParticipants}명 중 {votedCount}명 투표 완료
               </p>
-            </div>
+            ) : (
+              <div className="mt-3 flex items-center gap-2.5">
+                <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-200">
+                  <div
+                    className="h-full rounded-full bg-blue-500"
+                    style={{ width: `${votedPercent}%` }}
+                  />
+                </div>
+                <p className="m-0 shrink-0 text-[11px] font-bold text-gray-400">
+                  {totalParticipants}명 중 {votedCount}명 투표 완료
+                </p>
+              </div>
+            )}
           </section>
 
           <div className="space-y-3">
@@ -249,13 +262,40 @@ function CandidatePage() {
             })}
           </div>
 
-          <section className="mt-6 rounded-[20px] bg-blue-50 px-[18px] py-3.5">
-            <p className="m-0 text-[13px] font-extrabold leading-[1.6] text-blue-600">
-              마지막 한 명이 투표하면 자동으로 확정돼요.
-              <br />
-              확정 후에는 투표를 바꿀 수 없어요.
-            </p>
-          </section>
+          {isClosed ? (
+            <section className="mt-6 rounded-[20px] bg-green-50 px-5 py-4">
+              <div className="mb-1 flex items-center gap-2">
+                <svg
+                  className="shrink-0 text-green-600"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                  <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                </svg>
+                <p className="m-0 text-[13px] font-extrabold text-green-700">
+                  투표가 끝나 장소가 자동으로 확정됐어요
+                </p>
+              </div>
+              <p className="m-0 text-xs text-green-600">
+                방장의 별도 확정 절차 없이 자동으로 처리돼요
+              </p>
+            </section>
+          ) : (
+            <section className="mt-6 rounded-[20px] bg-blue-50 px-[18px] py-3.5">
+              <p className="m-0 text-[13px] font-extrabold leading-[1.6] text-blue-600">
+                마지막 한 명이 투표하면 자동으로 확정돼요.
+                <br />
+                확정 후에는 투표를 바꿀 수 없어요.
+              </p>
+            </section>
+          )}
           {voteError && (
             <div className="fixed inset-x-6 bottom-6 mx-auto max-w-[345px] rounded-2xl bg-red-50 px-4 py-3 shadow-lg">
               <p className="m-0 text-[13px] font-bold leading-[1.6] text-red-700">
