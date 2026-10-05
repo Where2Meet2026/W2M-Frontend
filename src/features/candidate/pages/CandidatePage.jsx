@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCandidates } from "../api/candidateApi";
+import { getCandidates, toggleReaction } from "../api/candidateApi";
 import PageShell from "../../../shared/components/PageShell";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getVoteStatus, castVote } from "../../vote/api/voteApi";
@@ -22,6 +22,7 @@ function CandidatePage() {
   const [voteStatus, setVoteStatus] = useState(null);
   const [isVoting, setIsVoting] = useState(false);
   const [voteError, setVoteError] = useState("");
+  const [isReacting, setIsReacting] = useState(false);
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -54,6 +55,17 @@ function CandidatePage() {
     voteStatus?.results?.find((item) => item.candidateId === candidateId)
       ?.voteCount ?? 0;
   const isClosed = voteStatus?.isClosed ?? false;
+  const confirmedCandidate = candidates.find(
+    (candidate) => candidate.candidateId === voteStatus?.confirmedCandidateId,
+  );
+  const confirmedVoteCount = confirmedCandidate
+    ? getVoteCount(confirmedCandidate.candidateId)
+    : 0;
+  const otherCandidates = candidates
+    .filter(
+      (candidate) => candidate.candidateId !== voteStatus?.confirmedCandidateId,
+    )
+    .sort((a, b) => getVoteCount(b.candidateId) - getVoteCount(a.candidateId));
   const handleVote = async (candidateId) => {
     try {
       setIsVoting(true);
@@ -68,6 +80,26 @@ function CandidatePage() {
       setIsVoting(false);
     }
   };
+  const handleReaction = async (candidateId, reactionType) => {
+    try {
+      setIsReacting(true);
+      setVoteError("");
+      await toggleReaction(meetingId, candidateId, reactionType);
+      const [data, status] = await Promise.all([
+        getCandidates(meetingId),
+        getVoteStatus(meetingId),
+      ]);
+      setCandidates(data.candidate || data || []);
+      setVoteStatus(status);
+    } catch (error) {
+      console.error("반응 실패", error);
+      setVoteError(error.message);
+      setTimeout(() => setVoteError(""), 3000);
+    } finally {
+      setIsReacting(false);
+    }
+  };
+
   return (
     <PageShell className="flex flex-col px-6 py-10">
       <button
@@ -153,7 +185,7 @@ function CandidatePage() {
                     : "bg-blue-100 text-blue-600"
                 }`}
               >
-                {isClosed ? "투표 마감 · 확정 완료" : "투표 진행중"}
+                {isClosed ? "투표 마  감 · 확정 완료" : "투표 진행중"}
               </span>
             </div>
             <div className="flex items-center gap-2.5">
@@ -180,88 +212,205 @@ function CandidatePage() {
               </div>
             )}
           </section>
+          {isClosed ? (
+            <div className="space-y-3">
+              {confirmedCandidate && (
+                <div className="rounded-3xl border-2 border-blue-500 bg-blue-50 p-5">
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <span className="rounded-full bg-blue-500 px-3 py-1 text-[11px] font-extrabold text-white">
+                      확정된 장소
+                    </span>
+                    <svg
+                      className="text-blue-500"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </div>
+                  <p className="mb-1.5 truncate text-lg font-extrabold text-[#191f28]">
+                    {confirmedCandidate.placeName}
+                  </p>
+                  <p className="mb-2.5 truncate text-[13px] text-gray-500">
+                    평균 {Math.round(confirmedCandidate.avgDistanceMeters)}m ·{" "}
+                    {TYPE_LABEL[confirmedCandidate.type]}
+                  </p>
+                  <p className="m-0 text-[13px] text-gray-500">
+                    <span className="mr-1 text-xl font-extrabold text-blue-500">
+                      {confirmedVoteCount}표
+                    </span>
+                    · {totalParticipants}명 중 {confirmedVoteCount}명이
+                    선택했어요
+                  </p>
+                </div>
+              )}
 
-          <div className="space-y-3">
-            {candidates.map((candidate) => {
-              const voteCount = getVoteCount(candidate.candidateId);
-              const percent =
-                totalParticipants > 0
-                  ? Math.round((voteCount / totalParticipants) * 100)
-                  : 0;
-              const isMyVote =
-                voteStatus?.myVoteCandidateId === candidate.candidateId;
-
-              return (
+              {otherCandidates.map((candidate, index) => (
                 <div
                   key={candidate.candidateId}
-                  className="flex gap-3 rounded-3xl bg-gray-50 p-3.5"
+                  className="rounded-3xl bg-gray-50 px-[18px] py-4"
                 >
-                  <div className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
-                    <div className="h-[72px] w-[72px] rounded-2xl bg-gray-200" />
-                    <p className="m-0 text-[11px] font-bold text-gray-400">
-                      👍 {candidate.likeCount} · 👎 {candidate.dislikeCount}
-                    </p>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
-                      {candidate.placeName}
-                    </p>
-                    <p className="m-0 truncate text-[11px] text-gray-400">
-                      평균 {Math.round(candidate.avgDistanceMeters)}m ·{" "}
-                      {TYPE_LABEL[candidate.type]}
-                    </p>
-
-                    <div className="mt-2 flex items-center gap-1.5">
-                      <div className="h-1 w-[100px] shrink-0 overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className="h-full rounded-full bg-blue-500"
-                          style={{ width: `${percent}%` }}
-                        />
-                      </div>
-                      <span
-                        className={`text-[11px] font-extrabold ${isMyVote ? "text-blue-500" : "text-gray-400"}`}
-                      >
-                        {percent}%
-                      </span>
-                    </div>
-                  </div>
-
-                  {isMyVote ? (
-                    <button
-                      type="button"
-                      className="flex h-[30px] shrink-0 items-center gap-1 rounded-full bg-blue-500 px-3 text-xs font-extrabold text-white"
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M20 6L9 17l-5-5" />
-                      </svg>
-                      투표완료
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => handleVote(candidate.candidateId)}
-                      disabled={isVoting}
-                      className="h-[30px] shrink-0 rounded-full border-[1.5px] border-blue-500 bg-white px-3 
-                    text-xs font-extrabold text-blue-500 disabled:opacity-50"
-                    >
-                      투표하기
-                    </button>
-                  )}
+                  <span className="mb-2 inline-block rounded-full bg-gray-200 px-2.5 py-1 text-[11px] font-extrabold text-gray-600">
+                    {index + 2}위
+                  </span>
+                  <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
+                    {candidate.placeName}
+                  </p>
+                  <p className="m-0 text-xs text-gray-400">
+                    {getVoteCount(candidate.candidateId)}표
+                  </p>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {candidates.map((candidate) => {
+                const voteCount = getVoteCount(candidate.candidateId);
+                const percent =
+                  totalParticipants > 0
+                    ? Math.round((voteCount / totalParticipants) * 100)
+                    : 0;
+                const isMyVote =
+                  voteStatus?.myVoteCandidateId === candidate.candidateId;
 
+                return (
+                  <div
+                    key={candidate.candidateId}
+                    className="flex gap-3 rounded-3xl bg-gray-50 p-3.5"
+                  >
+                    <div className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
+                      <div className="h-[72px] w-[72px] rounded-2xl bg-gray-200" />
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleReaction(candidate.candidateId, "LIKE")
+                          }
+                          disabled={isReacting}
+                          className={`flex items-center gap-1 text-[11px] font-bold disabled:opacity-50 ${
+                            candidate.myReaction === "LIKE"
+                              ? "text-blue-500"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill={
+                              candidate.myReaction === "LIKE"
+                                ? "currentColor"
+                                : "none"
+                            }
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                          </svg>
+                          {candidate.likeCount}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleReaction(candidate.candidateId, "DISLIKE")
+                          }
+                          disabled={isReacting}
+                          className={`flex items-center gap-1 text-[11px] font-bold disabled:opacity-50 ${
+                            candidate.myReaction === "DISLIKE"
+                              ? "text-red-500"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill={
+                              candidate.myReaction === "DISLIKE"
+                                ? "currentColor"
+                                : "none"
+                            }
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M17 14V2" />
+                            <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z" />
+                          </svg>
+                          {candidate.dislikeCount}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
+                        {candidate.placeName}
+                      </p>
+                      <p className="m-0 truncate text-[11px] text-gray-400">
+                        평균 {Math.round(candidate.avgDistanceMeters)}m ·{" "}
+                        {TYPE_LABEL[candidate.type]}
+                      </p>
+
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <div className="h-1 w-[100px] shrink-0 overflow-hidden rounded-full bg-gray-200">
+                          <div
+                            className="h-full rounded-full bg-blue-500"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                        <span
+                          className={`text-[11px] font-extrabold ${isMyVote ? "text-blue-500" : "text-gray-400"}`}
+                        >
+                          {percent}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {isMyVote ? (
+                      <button
+                        type="button"
+                        className="flex h-[30px] shrink-0 items-center gap-1 rounded-full bg-blue-500 px-3 text-xs font-extrabold text-white"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                        투표완료
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleVote(candidate.candidateId)}
+                        disabled={isVoting}
+                        className="h-[30px] shrink-0 rounded-full border-[1.5px] border-blue-500 bg-white px-3 
+                    text-xs font-extrabold text-blue-500 disabled:opacity-50"
+                      >
+                        투표하기
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
           {isClosed ? (
             <section className="mt-6 rounded-[20px] bg-green-50 px-5 py-4">
               <div className="mb-1 flex items-center gap-2">
