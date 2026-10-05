@@ -40,7 +40,13 @@ function CandidatePage() {
         setVoteStatus(status);
       } catch (error) {
         console.error("후보 화면 데이터 로드 실패:", error);
-        setErrorMessage("후보 장소를 불러오는 중 문제가 발생했습니다.");
+        const message =
+          error.message === "Failed to fetch"
+            ? "서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요."
+            : error.message;
+        setErrorMessage(
+          message || "후보 장소를 불러오는 중 문제가 발생했습니다.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -174,7 +180,23 @@ function CandidatePage() {
           <p className="m-0 text-[13px] text-gray-400"> 잠시만 기다려주세요</p>
         </div>
       ) : errorMessage ? (
-        <div>{errorMessage}</div>
+        <div className="flex flex-1 flex-col justify-center pb-20">
+          <div className="rounded-[20px] bg-red-50 px-5 py-[18px]">
+            <p className="mb-1.5 text-[13px] font-extrabold text-red-600">
+              불러올 수 없습니다
+            </p>
+            <p className="m-0 text-[13px] leading-[1.65] text-red-700">
+              {errorMessage}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-4 h-12 w-full rounded-2xl bg-blue-500 text-sm font-extrabold text-white transition active:scale-95"
+          >
+            다시 시도
+          </button>
+        </div>
       ) : (
         <>
           <section className="mb-3">
