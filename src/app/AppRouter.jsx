@@ -13,6 +13,7 @@ import TimeSelectionPage from "../features/availability/pages/TimeSelectionPage"
 import TimeWaitingPage from "../features/availability/pages/TimeWaitingPage";
 import RecommendationPage from "../features/recommendation/pages/RecommendationPage";
 import LocationPage from "../features/location/pages/LocationPage";
+import CandidatePage from "../features/candidate/pages/CandidatePage";
 
 function AppRouter() {
   return (
@@ -32,6 +33,7 @@ function AppRouter() {
         <Route path="/time-selection/:meetingId" element={<TimeSelectionPage />} /> {/* 추가 */}
         <Route path="/time-waiting/:meetingId" element={<TimeWaitingPage />} /> {/* 추가 */}
         <Route path="/recommendation/:meetingId" element={<RecommendationPage />} /> {/* 추가 */}
+        <Route path="/candidates/:meetingId" element={<CandidatePage />} />
       </Routes>
     </BrowserRouter>
   );

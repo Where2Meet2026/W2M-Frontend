@@ -228,7 +228,7 @@ function LocationPage() {
       <div className="mt-auto pt-8">
         <button
           disabled={!selectedPlace}
-          onClick={() => navigate(`/recommendation-loading/${meetingId}`)}
+          onClick={() => navigate(`/candidates/${meetingId}`)}
           className="h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400"
         >
           다음
