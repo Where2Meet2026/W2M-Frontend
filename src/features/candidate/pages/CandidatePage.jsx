@@ -66,6 +66,24 @@ function CandidatePage() {
       (candidate) => candidate.candidateId !== voteStatus?.confirmedCandidateId,
     )
     .sort((a, b) => getVoteCount(b.candidateId) - getVoteCount(a.candidateId));
+  useEffect(() => {
+    if (!meetingId || isLoading || isClosed) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const [data, status] = await Promise.all([
+          getCandidates(meetingId),
+          getVoteStatus(meetingId),
+        ]);
+        setCandidates(data.candidates || data || []);
+        setVoteStatus(status);
+      } catch (error) {
+        console.error("투표 현황 갱신 실패:", error);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [meetingId, isLoading, isClosed]);
   const handleVote = async (candidateId) => {
     try {
       setIsVoting(true);
