@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getFinalSelection } from "../../meeting/api/meetingApi";
+import {
+  getFinalSelection,
+  getMeetingDetails,
+} from "../../meeting/api/meetingApi";
 import PageShell from "../../../shared/components/PageShell";
+import { getParticipants } from "../../meeting/api/participantApi";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
+const CATEGORY_LABEL = {
+  MEAL: "식당",
+  CAFE: "카페",
+};
 const formatTime = (date) => {
   const hours = date.getHours();
   const minutes = String(date.getMinutes()).padStart(2, "0");
@@ -27,14 +35,22 @@ function ResultPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [category, setCategory] = useState(null);
+  const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
     const fetchResult = async () => {
       try {
         setIsLoading(true);
         setErrorMessage("");
-        const data = await getFinalSelection(meetingId);
+        const [data, meeting, participantList] = await Promise.all([
+          getFinalSelection(meetingId),
+          getMeetingDetails(meetingId),
+          getParticipants(meetingId),
+        ]);
         setResult(data);
+        setCategory(meeting.category);
+        setParticipants(participantList);
       } catch (error) {
         console.error("최종 확정 정보 로드 실패", error);
         setErrorMessage(error.message || "최종 확정 정보를 불러오지 못했어요.");
@@ -97,6 +113,11 @@ function ResultPage() {
 
           <section className="mb-4 overflow-hidden rounded-3xl bg-gray-50">
             <div className="relative flex h-[176px] items-center justify-center bg-gray-200">
+              {CATEGORY_LABEL[category] && (
+                <span className="absolute left-4 top-4 rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
+                  {CATEGORY_LABEL[category]}
+                </span>
+              )}
               <span className="absolute right-4 top-4 rounded-full bg-green-50 px-3 py-1 text-[11px] font-extrabold text-green-600">
                 확정 완료
               </span>
@@ -169,6 +190,23 @@ function ResultPage() {
               <p className="m-0 min-w-0 truncate text-sm font-extrabold">
                 {result.placeName} · {region}
               </p>
+            </div>
+          </section>
+          <section className="mb-7">
+            <p className="mb-2.5 text-[13px] font-bold text-gray-400">
+              함께하는 사람 · {participants.length}명
+            </p>
+            <div className="flex">
+              {participants.map((participant, index) => (
+                <div
+                  key={participant.participantId}
+                  className={`flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-blue-100 text-[11px] font-extrabold text-blue-600 ${
+                    index > 0 ? "-ml-2" : ""
+                  }`}
+                >
+                  {participant.userName?.charAt(0)}
+                </div>
+              ))}
             </div>
           </section>
         </>
