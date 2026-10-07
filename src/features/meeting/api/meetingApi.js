@@ -19,3 +19,5 @@ export const confirmMeetingTime = (meetingId, selectedSlot) =>
     startDateTime: selectedSlot.startDateTime,
     endDateTime: selectedSlot.endDateTime,
   });
+export const getFinalSelection = (meetingId) => 
+  apiClient.get(`/api/meetings/${meetingId}/final-selection`);

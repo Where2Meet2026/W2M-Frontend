@@ -485,6 +485,15 @@ function CandidatePage() {
               </p>
             </section>
           )}
+          {isClosed && (
+            <button
+              type="button"
+              onClick={() => navigate(`/result/${meetingId}`)}
+              className="mt-4 h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95"
+            >
+              최종 확정 보기
+            </button>
+          )}
           {voteError && (
             <div className="fixed inset-x-6 bottom-6 mx-auto max-w-[345px] rounded-2xl bg-red-50 px-4 py-3 shadow-lg">
               <p className="m-0 text-[13px] font-bold leading-[1.6] text-red-700">
