@@ -7,6 +7,7 @@ import {
 import PageShell from "../../../shared/components/PageShell";
 import { getParticipants } from "../../meeting/api/participantApi";
 import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
+import { shareToKakao } from "../../../shared/lib/kakaoShare";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -92,8 +93,23 @@ function ResultPage() {
   };
 
   const handleKakaoShare = () => {
-    setIsShareOpen(false);
-    showNotice("카카오톡 공유는 준비 중이에요.");
+    const link = `${window.location.origin}/invite/accept/${inviteCode}`;
+    const description = result.confirmedStartDateTime
+      ? `${formatSchedule(result.confirmedStartDateTime, result.confirmedEndDateTime)} · ${result.address}`
+      : result.address;
+
+    try {
+      shareToKakao({
+        title: result.placeName,
+        description,
+        link,
+      });
+    } catch (error) {
+      console.error("카카오톡 공유 실패:", error);
+      showNotice("카카오톡 공유에 실패했어요.");
+    } finally {
+      setIsShareOpen(false);
+    }
   };
 
   return (
