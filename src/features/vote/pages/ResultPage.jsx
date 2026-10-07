@@ -6,6 +6,7 @@ import {
 } from "../../meeting/api/meetingApi";
 import PageShell from "../../../shared/components/PageShell";
 import { getParticipants } from "../../meeting/api/participantApi";
+import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -37,6 +38,9 @@ function ResultPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [category, setCategory] = useState(null);
   const [participants, setParticipants] = useState([]);
+  const [inviteCode, setInviteCode] = useState("");
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     const fetchResult = async () => {
@@ -50,6 +54,7 @@ function ResultPage() {
         ]);
         setResult(data);
         setCategory(meeting.category);
+        setInviteCode(meeting.inviteCode);
         setParticipants(participantList);
       } catch (error) {
         console.error("최종 확정 정보 로드 실패", error);
@@ -62,6 +67,34 @@ function ResultPage() {
   }, [meetingId]);
 
   const region = result?.address?.split(" ").slice(0, 2).join(" ") ?? "";
+  const showNotice = (message) => {
+    setNotice(message);
+    setTimeout(() => setNotice(""), 3000);
+  };
+
+  const handleOpenMap = () => {
+    const url = `https://map.kakao.com/link/map/${encodeURIComponent(result.placeName)},${result.latitude},${result.longitude}`;
+    window.open(url, "_blank", "noopener");
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/invite/accept/${inviteCode}`,
+      );
+      showNotice("초대 링크가 복사되었어요.");
+    } catch (error) {
+      console.error("링크 복사 실패:", error);
+      showNotice("링크 복사에 실패했어요.");
+    } finally {
+      setIsShareOpen(false);
+    }
+  };
+
+  const handleKakaoShare = () => {
+    setIsShareOpen(false);
+    showNotice("카카오톡 공유는 준비 중이에요.");
+  };
 
   return (
     <PageShell>
@@ -209,6 +242,59 @@ function ResultPage() {
               ))}
             </div>
           </section>
+          <div className="mt-auto space-y-3 pt-4">
+            <button
+              type="button"
+              onClick={handleOpenMap}
+              className="h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95"
+            >
+              지도에서 보기
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsShareOpen(true)}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-[1.5px] border-blue-500 bg-white text-sm font-extrabold text-blue-500 transition active:scale-95"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+              </svg>
+              공유하기
+            </button>
+          </div>
+
+          <ShareBottomSheet
+            isOpen={isShareOpen}
+            onClose={() => setIsShareOpen(false)}
+            title="모임 정보 공유하기"
+            previewTitle={result.placeName}
+            previewDescription={
+              result.confirmedStartDateTime
+                ? `${formatSchedule(result.confirmedStartDateTime, result.confirmedEndDateTime)} · Where2Meet`
+                : `${region} · Where2Meet`
+            }
+            onKakaoShare={handleKakaoShare}
+            onCopyLink={handleCopyLink}
+          />
+
+          {notice && (
+            <div className="fixed inset-x-6 bottom-6 mx-auto max-w-[345px] rounded-2xl bg-blue-50 px-4 py-3 shadow-lg">
+              <p className="m-0 text-[13px] font-bold leading-[1.6] text-blue-700">
+                {notice}
+              </p>
+            </div>
+          )}
         </>
       )}
     </PageShell>
