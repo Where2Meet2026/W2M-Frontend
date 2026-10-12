@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RoomItem from "../components/RoomItem";
 import { getMyMeetings } from "../api/meetingApi";
+import { canWriteReview } from "../../review/utils/reviewWindow";
 import PageShell from "../../../shared/components/PageShell";
 
 function GetRoomPage() {
@@ -19,6 +20,7 @@ function GetRoomPage() {
       const formattedRooms = data.map(room => ({
         ...room,
         id: room.meetingId,
+        reviewable: canWriteReview(room),
         name: room.title
       }));
       setRooms(formattedRooms);
@@ -95,6 +97,7 @@ function GetRoomPage() {
                 key={room.id}
                 room={room}
                 onClick={() => navigate(`/participate/${room.id}`)}
+                onReview={() => navigate(`/review/${room.id}/write`)}
                 onRefresh={fetchRooms}
                 onNotice={setNotice}
               />

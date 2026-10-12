@@ -13,6 +13,9 @@ import TimeSelectionPage from "../features/availability/pages/TimeSelectionPage"
 import TimeWaitingPage from "../features/availability/pages/TimeWaitingPage";
 import RecommendationPage from "../features/recommendation/pages/RecommendationPage";
 import LocationPage from "../features/location/pages/LocationPage";
+import NotificationConsentPage from "../features/notification/pages/NotificationConsentPage";
+import ReviewWritePage from "../features/review/pages/ReviewWritePage";
+import ReviewListPage from "../features/review/pages/ReviewListPage";
 import CandidatePage from "../features/candidate/pages/CandidatePage";
 import ResultPage from "../features/vote/pages/ResultPage";
 
@@ -21,6 +24,10 @@ function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainPage />} />
+        <Route path="/notification" element={<NotificationConsentPage />} />
+        <Route path="/review/:meetingId/write" element={<ReviewWritePage />} />
+        <Route path="/review/:meetingId/candidates/:candidateId" element={<ReviewListPage />} />
+        <Route path="/review/:meetingId" element={<ReviewListPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/get-room" element={<GetRoomPage />} /> {/* 추가 */}
         <Route path="/create-meeting" element={<CreateMeetingPage />} />

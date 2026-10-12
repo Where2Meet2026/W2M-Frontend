@@ -1,18 +1,50 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../../../shared/components/PageShell";
+import { BellIcon } from "../../../shared/components/Icons";
+import NotificationSettingsSheet from "../../notification/components/NotificationSettingsSheet";
+import ReviewPendingBanner from "../../review/components/ReviewPendingBanner";
+import ReviewPendingSheet from "../../review/components/ReviewPendingSheet";
+import { usePendingReviews } from "../../review/hooks/usePendingReviews";
 
 function HomePage() {
   const navigate = useNavigate();
+  const [showSettings, setShowSettings] = useState(false);
+  const [showPending, setShowPending] = useState(false);
+  const pending = usePendingReviews();
+
+  const goReview = (item) =>
+    navigate(`/review/${item.meetingId}/write`, {
+      state: { place: { name: item.placeName, address: item.placeAddress } },
+    });
+
+  const handleBannerClick = () => {
+    if (pending.length === 1) goReview(pending[0]);
+    else setShowPending(true);
+  };
 
   return (
-    <PageShell className="flex flex-col justify-center px-6 py-10">
+    <PageShell className="relative flex flex-col justify-center px-6 py-10">
+        <button
+          onClick={() => setShowSettings(true)}
+          aria-label="알림 설정"
+          className="absolute right-6 top-10 flex h-10 w-10 items-center justify-center rounded-full text-gray-500 hover:bg-gray-50"
+        >
+          <BellIcon />
+        </button>
+        {showSettings && <NotificationSettingsSheet onClose={() => setShowSettings(false)} />}
+        {showPending && (
+          <ReviewPendingSheet pending={pending} onSelect={goReview} onClose={() => setShowPending(false)} />
+        )}
         <div className="w-full">
 
         {/* 로고 */}
-        <div className="mb-14 text-center">
+        <div className="mb-8 text-center">
           <h1 className="text-3xl font-black tracking-tight text-blue-500">WHERE2MEET</h1>
           <p className="mt-2 text-sm text-gray-400">무엇을 하시겠어요?</p>
         </div>
+
+        <ReviewPendingBanner pending={pending} onClick={handleBannerClick} />
 
         {/* 버튼 그룹 */}
         <div className="space-y-4">
