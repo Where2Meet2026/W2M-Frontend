@@ -1,8 +1,9 @@
 import { apiClient } from "../../../shared/api/client";
 
-// 백엔드 notification 컨트롤러 구현 시 경로를 맞춰야 합니다. (PushSubscription: endpoint, p256dh, auth)
-export const subscribePush = ({ endpoint, p256dh, auth }) =>
-  apiClient.post("/api/notifications/subscriptions", { endpoint, p256dh, auth });
+// 백엔드 NotificationController 기준: POST/DELETE /api/notifications/subscribe
+// body는 브라우저 PushSubscription.toJSON() 형태 그대로: { endpoint, keys: { p256dh, auth } }
+export const subscribePush = (subscriptionJson) =>
+  apiClient.post("/api/notifications/subscribe", subscriptionJson);
 
 export const unsubscribePush = (endpoint) =>
-  apiClient.post("/api/notifications/subscriptions/delete", { endpoint });
+  apiClient.delete("/api/notifications/subscribe", { endpoint });

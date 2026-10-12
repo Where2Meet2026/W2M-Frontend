@@ -15,13 +15,6 @@ function urlBase64ToUint8Array(base64) {
   return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
-function arrayBufferToBase64Url(buffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
 async function getRegistration() {
   await navigator.serviceWorker.register("/sw.js");
   return navigator.serviceWorker.ready;
@@ -54,11 +47,8 @@ export function usePushSubscription() {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       }));
 
-    await subscribePush({
-      endpoint: sub.endpoint,
-      p256dh: arrayBufferToBase64Url(sub.getKey("p256dh")),
-      auth: arrayBufferToBase64Url(sub.getKey("auth")),
-    });
+    // sub.toJSON()이 백엔드가 기대하는 { endpoint, keys: { p256dh, auth } } 형태를 그대로 만들어준다.
+    await subscribePush(sub.toJSON());
     setSubscribed(true);
   }, [supported]);
 

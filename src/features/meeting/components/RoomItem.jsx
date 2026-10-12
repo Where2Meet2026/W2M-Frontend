@@ -1,6 +1,7 @@
 import { deleteMeeting } from "../api/meetingApi";
+import { EditIcon } from "../../../shared/components/Icons";
 
-function RoomItem({ room, onClick, onRefresh, onNotice }) {
+function RoomItem({ room, onClick, onReview, onRefresh, onNotice }) {
   const isHost = room.role === "HOST";
 
   const handleDelete = async (e) => {
@@ -23,16 +24,20 @@ function RoomItem({ room, onClick, onRefresh, onNotice }) {
     }
   };
 
+  // reviewable: 장소가 확정되고 약속 시간이 지났으며 아직 리뷰를 쓰지 않은 방 (2주가 지나도 유지)
+  const reviewable = Boolean(room.reviewable);
+
   return (
     <div
       role="button"
       tabIndex={0}
-      className="flex min-h-[78px] w-full cursor-pointer items-center justify-between gap-3 rounded-3xl border-[1.5px] border-gray-100 bg-white px-5 py-4 text-left shadow-sm transition active:scale-[0.98]"
+      className="flex min-h-[78px] w-full cursor-pointer flex-col gap-3 rounded-3xl border-[1.5px] border-gray-100 bg-white px-5 py-4 text-left shadow-sm transition active:scale-[0.98]"
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") onClick();
       }}
     >
+      <div className="flex w-full items-center justify-between gap-3">
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2">
           {isHost && (
@@ -63,6 +68,21 @@ function RoomItem({ room, onClick, onRefresh, onNotice }) {
           <path d="M9 5L16 12L9 19" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
+      </div>
+
+      {reviewable && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onReview?.(room);
+          }}
+          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-[#eff6ff] text-[13px] font-bold text-[#155dfc]"
+        >
+          <EditIcon />
+          리뷰 쓰기
+        </button>
+      )}
     </div>
   );
 }
