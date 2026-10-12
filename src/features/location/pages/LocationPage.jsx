@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { searchPlacesByKeyword } from "../api/locationApi";
+import { saveLocation, searchPlacesByKeyword } from "../api/locationApi";
+import { getMyParticipant } from "../../meeting/api/participantApi";
 import PageShell from "../../../shared/components/PageShell";
 
 function LocationPage() {
@@ -13,9 +14,18 @@ function LocationPage() {
   const [places, setPlaces] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [participantId, setParticipantId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const trimmedKeyword = keyword.trim();
   const isSearching = trimmedKeyword.length > 0;
+
+  useEffect(() => {
+    getMyParticipant(meetingId)
+      .then((me) => setParticipantId(me.participantId))
+      .catch((error) => setSaveError(error.message || "참여 정보를 불러오지 못했어요."));
+  }, [meetingId]);
 
   useEffect(() => {
     if (!isSearching) {
@@ -53,6 +63,21 @@ function LocationPage() {
     setKeyword("");
     setPlaces([]);
     setErrorMessage("");
+  };
+
+  const handleNext = async () => {
+    if (!selectedPlace || !participantId) return;
+
+    try {
+      setIsSaving(true);
+      setSaveError("");
+      await saveLocation(participantId, selectedPlace);
+      navigate(`/candidates/${meetingId}`);
+    } catch (error) {
+      setSaveError(error.message || "출발 위치를 저장하지 못했어요. 다시 시도해주세요.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -226,12 +251,15 @@ function LocationPage() {
 
       {/* 다음 버튼 */}
       <div className="mt-auto pt-8">
+        {saveError && (
+          <p className="mb-3 text-center text-[13px] font-bold text-red-500">{saveError}</p>
+        )}
         <button
-          disabled={!selectedPlace}
-          onClick={() => navigate(`/candidates/${meetingId}`)}
+          disabled={!selectedPlace || !participantId || isSaving}
+          onClick={handleNext}
           className="h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400"
         >
-          다음
+          {isSaving ? "저장 중..." : "다음"}
         </button>
       </div>
     </PageShell>

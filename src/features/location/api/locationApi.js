@@ -1,3 +1,5 @@
+import { apiClient } from "../../../shared/api/client";
+
 const KAKAO_LOCAL_API_URL = "https://dapi.kakao.com/v2/local/search/keyword.json";
 
 export async function searchPlacesByKeyword(keyword) {
@@ -26,3 +28,12 @@ export async function searchPlacesByKeyword(keyword) {
     url: place.place_url,
     }));
 }
+
+// 출발 위치를 서버에 저장한다. 이미 저장돼 있으면 덮어쓴다.
+// 카카오 검색 결과의 x는 경도, y는 위도이고 문자열이라 숫자로 변환해서 보낸다.
+export const saveLocation = (participantId, place) =>
+  apiClient.post(`/api/participants/${participantId}/locations`, {
+    address: place.address,
+    latitude: Number(place.y),
+    longitude: Number(place.x),
+  });
