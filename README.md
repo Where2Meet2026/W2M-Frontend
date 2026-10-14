@@ -52,17 +52,18 @@ npm install
 
 ### 3. 환경변수 설정
 
-프로젝트 최상단에 `.env` 파일을 만들고 아래 값을 채웁니다. (팀원에게 실제 값을 공유받으세요)
+`.env.example`을 복사해서 `.env.local`을 만들고, 비어 있는 값을 채웁니다. (실제 값은 팀 노션 "민감정보(백엔드, 프론트)" 페이지에 있습니다)
 
-```env
-VITE_API_BASE_URL=http://localhost:8080
-VITE_KAKAO_REST_API_KEY=<카카오 REST API 키>
+```bash
+cp .env.example .env.local
 ```
 
-- `VITE_API_BASE_URL`: 요청을 보낼 백엔드 서버 주소
-- `VITE_KAKAO_REST_API_KEY`: 카카오 장소 검색(로컬 API)에 사용
+| 파일 | Git | 용도 |
+|---|---|---|
+| `.env.example` | 포함 | 필요한 환경변수 목록을 알려주는 안내 파일 (실제 키 없음) |
+| `.env.local` | 제외 | 실제 값을 넣는 개인 설정 파일 |
 
-`.env` 파일은 개인 로컬 설정 파일이므로 Git에 커밋하지 않습니다.
+`.env.local`을 수정한 뒤에는 개발 서버를 다시 실행해야 반영됩니다. 각 변수의 설명은 아래 [환경변수](#환경변수) 참고.
 
 ### 4. 개발 서버 실행
 
@@ -252,10 +253,16 @@ import { getMeetingDetails } from "../../meeting/api/meetingApi";
 
 | 이름 | 설명 | 예시 |
 |---|---|---|
-| `VITE_API_BASE_URL` | 백엔드 API 서버 주소 | `http://localhost:8080` |
-| `VITE_KAKAO_REST_API_KEY` | 카카오 장소 검색 API 키 | - |
+| `VITE_API_BASE_URL` | 백엔드 API 서버 주소 | 배포 서버 `https://api.where2meet.site`, 로컬 백엔드 `http://localhost:8080` |
+| `VITE_KAKAO_REST_API_KEY` | 카카오 장소 검색(로컬 API) 키 | - |
+| `VITE_KAKAO_JS_KEY` | 카카오톡 공유(JavaScript SDK) 키 | - |
+| `VITE_VAPID_PUBLIC_KEY` | 웹 푸시 구독용 공개 키 | - |
 
 Vite에서 브라우저 코드에 노출되는 환경변수는 반드시 `VITE_`로 시작해야 합니다.
+`VITE_` 값은 빌드 결과물(JS)에 그대로 들어가 누구나 볼 수 있으므로, 서버에서만 써야 하는 비밀 값은 넣지 않습니다.
+(카카오 REST 키는 리팩토링 때 장소 검색을 백엔드 경유로 바꾸면서 재발급할 예정)
+
+배포할 때는 `.env.local`이 올라가지 않으므로, 호스팅 서비스의 환경변수 설정에 위 값을 넣습니다.
 
 ---
 
