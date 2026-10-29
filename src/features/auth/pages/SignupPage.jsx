@@ -86,6 +86,8 @@ function SignupPage() {
       setIsLoading(true);
       setNotice(null);
       await signup({ email: formData.email, password: formData.password, name: formData.name, phoneNumber: formData.phoneNumber });
+      // 가입 후 첫 로그인 때 알림 동의 화면을 한 번 보여준다. (MainPage에서 확인)
+      localStorage.setItem("showNotificationConsent", "true");
       showNotice("success", "회원가입이 완료되었습니다. 로그인 화면으로 이동합니다.");
       navigateTimerRef.current = setTimeout(() => {
         navigate("/", { replace: true });

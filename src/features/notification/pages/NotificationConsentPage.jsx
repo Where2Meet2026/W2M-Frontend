@@ -9,7 +9,11 @@ function NotificationConsentPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const finish = () => navigate("/home", { replace: true });
+  // 로그인 전에 보던 페이지가 있으면 그곳으로, 없으면 홈으로 이동한다.
+  const finish = () => {
+    const returnUrl = localStorage.getItem("returnUrl");
+    navigate(returnUrl && returnUrl.startsWith("/") ? returnUrl : "/home", { replace: true });
+  };
 
   const handleAccept = async () => {
     setLoading(true);
