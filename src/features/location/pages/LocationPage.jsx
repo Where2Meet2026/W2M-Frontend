@@ -72,7 +72,7 @@ function LocationPage() {
       setIsSaving(true);
       setSaveError("");
       await saveLocation(participantId, selectedPlace);
-      navigate(`/candidates/${meetingId}`);
+      navigate(`/location-waiting/${meetingId}`);
     } catch (error) {
       setSaveError(error.message || "출발 위치를 저장하지 못했어요. 다시 시도해주세요.");
     } finally {

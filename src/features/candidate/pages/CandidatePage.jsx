@@ -11,6 +11,12 @@ const TYPE_LABEL = {
   OPTIMAL: "거리 + 평점 최적",
 };
 
+// 서버가 내려주는 설명(리뷰가 쌓인 장소는 AI 요약, 아니면 "평균 Nm · 라벨")을 그대로 보여준다.
+// 설명이 비어 있는 예전 후보만 거리와 유형으로 직접 만든다.
+const getDescription = (candidate) =>
+  candidate.description ||
+  `평균 ${Math.round(candidate.avgDistanceMeters)}m · ${TYPE_LABEL[candidate.type]}`;
+
 function CandidatePage() {
   const navigate = useNavigate();
   const { meetingId } = useParams();
@@ -277,9 +283,8 @@ function CandidatePage() {
                   <p className="mb-1.5 truncate text-lg font-extrabold text-[#191f28]">
                     {confirmedCandidate.placeName}
                   </p>
-                  <p className="mb-2.5 truncate text-[13px] text-gray-500">
-                    평균 {Math.round(confirmedCandidate.avgDistanceMeters)}m ·{" "}
-                    {TYPE_LABEL[confirmedCandidate.type]}
+                  <p className="mb-2.5 break-keep text-[13px] leading-[1.6] text-gray-500">
+                    {getDescription(confirmedCandidate)}
                   </p>
                   <p className="m-0 text-[13px] text-gray-500">
                     <span className="mr-1 text-xl font-extrabold text-blue-500">
@@ -396,9 +401,8 @@ function CandidatePage() {
                       <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
                         {candidate.placeName}
                       </p>
-                      <p className="m-0 truncate text-[11px] text-gray-400">
-                        평균 {Math.round(candidate.avgDistanceMeters)}m ·{" "}
-                        {TYPE_LABEL[candidate.type]}
+                      <p className="m-0 break-keep text-[11px] leading-[1.55] text-gray-400">
+                        {getDescription(candidate)}
                       </p>
 
                       <div className="mt-2 flex items-center gap-1.5">
