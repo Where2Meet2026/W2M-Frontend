@@ -59,7 +59,11 @@ function ResultPage() {
         setParticipants(participantList);
       } catch (error) {
         console.error("최종 확정 정보 로드 실패", error);
-        setErrorMessage(error.message || "최종 확정 정보를 불러오지 못했어요.");
+        setErrorMessage(
+          error.status === 400
+            ? "이 모임의 참여자만 결과를 볼 수 있어요."
+            : error.message || "최종 확정 정보를 불러오지 못했어요.",
+        );
       } finally {
         setIsLoading(false);
       }
