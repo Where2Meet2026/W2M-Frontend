@@ -29,7 +29,7 @@ function ReviewCheckButton({ meetingId, candidateId, className = "" }) {
         e.stopPropagation();
         navigate(`/review/${meetingId}/candidates/${candidateId}`);
       }}
-      className={`ml-auto flex h-7 items-center gap-1 rounded-full bg-[#eff6ff] px-3 text-xs font-bold text-[#155dfc] transition active:scale-95 ${className}`}
+      className={`flex h-[30px] items-center gap-1 rounded-full bg-[#eff6ff] px-3 text-xs font-extrabold text-[#155dfc] transition active:scale-95 ${className}`}
     >
       <StarIcon size={12} filled />
       리뷰 확인

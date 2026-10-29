@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCandidates, toggleReaction } from "../api/candidateApi";
+import ReviewCheckButton from "../../review/components/ReviewCheckButton";
 import PageShell from "../../../shared/components/PageShell";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getVoteStatus, castVote } from "../../vote/api/voteApi";
@@ -327,8 +328,9 @@ function CandidatePage() {
                 return (
                   <div
                     key={candidate.candidateId}
-                    className="flex gap-3 rounded-3xl bg-gray-50 p-3.5"
+                    className="rounded-3xl bg-gray-50 p-3.5"
                   >
+                    <div className="flex gap-3">
                     <div className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
                       <div className="h-[72px] w-[72px] rounded-2xl bg-gray-200" />
                       <div className="flex items-center gap-2.5">
@@ -401,9 +403,6 @@ function CandidatePage() {
                       <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
                         {candidate.placeName}
                       </p>
-                      <p className="m-0 break-keep text-[11px] leading-[1.55] text-gray-400">
-                        {getDescription(candidate)}
-                      </p>
 
                       <div className="mt-2 flex items-center gap-1.5">
                         <div className="h-1 w-[100px] shrink-0 overflow-hidden rounded-full bg-gray-200">
@@ -418,38 +417,50 @@ function CandidatePage() {
                           {percent}%
                         </span>
                       </div>
+
+                      <div className="mt-3 flex items-center gap-2">
+                      {isMyVote ? (
+                        <button
+                          type="button"
+                          className="flex h-[30px] shrink-0 items-center gap-1 rounded-full bg-blue-500 px-3 text-xs font-extrabold text-white"
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M20 6L9 17l-5-5" />
+                          </svg>
+                          투표완료
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleVote(candidate.candidateId)}
+                          disabled={isVoting}
+                          className="h-[30px] shrink-0 rounded-full border-[1.5px] border-blue-500 bg-white px-3 
+                      text-xs font-extrabold text-blue-500 disabled:opacity-50"
+                        >
+                          투표하기
+                        </button>
+                      )}
+                      <ReviewCheckButton
+                        meetingId={meetingId}
+                        candidateId={candidate.candidateId}
+                      />
+                      </div>
                     </div>
 
-                    {isMyVote ? (
-                      <button
-                        type="button"
-                        className="flex h-[30px] shrink-0 items-center gap-1 rounded-full bg-blue-500 px-3 text-xs font-extrabold text-white"
-                      >
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M20 6L9 17l-5-5" />
-                        </svg>
-                        투표완료
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleVote(candidate.candidateId)}
-                        disabled={isVoting}
-                        className="h-[30px] shrink-0 rounded-full border-[1.5px] border-blue-500 bg-white px-3 
-                    text-xs font-extrabold text-blue-500 disabled:opacity-50"
-                      >
-                        투표하기
-                      </button>
-                    )}
+                    </div>
+
+                    <p className="m-0 mt-3 break-keep text-[11px] leading-[1.55] text-gray-400">
+                      {getDescription(candidate)}
+                    </p>
                   </div>
                 );
               })}
