@@ -4,6 +4,21 @@ import { getMeetingDetails } from "../api/meetingApi";
 import { getParticipants, getMyParticipant, leaveMeeting } from "../api/participantApi";
 import PageShell from "../../../shared/components/PageShell";
 
+// 모임 진행 상태에 따라 "다음 단계"로 이동할 화면을 정한다.
+//  - WAITING_PARTICIPANTS(모임 생성): 가능한 시간 입력
+//  - COLLECTING_LOCATION(시간 확정): 출발 위치 입력
+//  - CONFIRMED(투표로 장소 확정): 최종 결과
+const getNextStepPath = (status, meetingId) => {
+  switch (status) {
+    case "COLLECTING_LOCATION":
+      return `/location/${meetingId}`;
+    case "CONFIRMED":
+      return `/result/${meetingId}`;
+    default:
+      return `/time-selection/${meetingId}`;
+  }
+};
+
 function ParticipatePage() {
   const navigate = useNavigate();
   const { meetingId } = useParams();
@@ -30,6 +45,7 @@ function ParticipatePage() {
         setMeetingData({
           name: details.title || details.name || "",
           description: details.description || "",
+          status: details.status || "",
         });
         setParticipants(participantList || []);
         setIsHost(myInfo.role === "HOST");
@@ -198,7 +214,7 @@ function ParticipatePage() {
           </button>
 
           <button
-            onClick={() => navigate(`/time-selection/${meetingId}`)}
+            onClick={() => navigate(getNextStepPath(meetingData.status, meetingId))}
             className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-xl transition active:scale-95"
           >
             다음 단계

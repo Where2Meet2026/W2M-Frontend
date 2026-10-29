@@ -21,6 +21,12 @@ function MainPage() {
       const data = await login(email, password);
       if (data.token) localStorage.setItem("token", data.token);
 
+      if (localStorage.getItem("showNotificationConsent")) {
+        localStorage.removeItem("showNotificationConsent");
+        navigate("/notification", { replace: true });
+        return;
+      }
+
       const returnUrl = localStorage.getItem("returnUrl");
       navigate(returnUrl && returnUrl.startsWith("/") ? returnUrl : "/home", { replace: true });
     } catch (error) {

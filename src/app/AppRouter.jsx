@@ -13,6 +13,7 @@ import TimeSelectionPage from "../features/availability/pages/TimeSelectionPage"
 import TimeWaitingPage from "../features/availability/pages/TimeWaitingPage";
 import RecommendationPage from "../features/recommendation/pages/RecommendationPage";
 import LocationPage from "../features/location/pages/LocationPage";
+import LocationWaitingPage from "../features/location/pages/LocationWaitingPage";
 import NotificationConsentPage from "../features/notification/pages/NotificationConsentPage";
 import ReviewWritePage from "../features/review/pages/ReviewWritePage";
 import ReviewListPage from "../features/review/pages/ReviewListPage";
@@ -35,6 +36,7 @@ function AppRouter() {
         <Route path="/kakao-callback" element={<KakaoCallbackPage />} />
         <Route path="/participate/:meetingId" element={<ParticipatePage />} />
         <Route path="/location/:meetingId" element ={<LocationPage/>} />
+        <Route path="/location-waiting/:meetingId" element={<LocationWaitingPage />} />
         <Route path="/invite/:meetingId" element={<InvitePage />} /> {/* 추가 */}
         <Route path="/invite/accept/:inviteCode" element={<AcceptInvitePage />} /> {/* 추가 */}
         <Route path="/invite/login/:inviteCode" element={<GuestLoginPage />} /> {/* 추가 */}
