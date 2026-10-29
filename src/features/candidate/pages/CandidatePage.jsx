@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCandidates, toggleReaction } from "../api/candidateApi";
 import ReviewCheckButton from "../../review/components/ReviewCheckButton";
 import PageShell from "../../../shared/components/PageShell";
+import { usePolling } from "../../../shared/hooks/usePolling";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getVoteStatus, castVote } from "../../vote/api/voteApi";
 
@@ -79,10 +80,8 @@ function CandidatePage() {
       (candidate) => candidate.candidateId !== voteStatus?.confirmedCandidateId,
     )
     .sort((a, b) => getVoteCount(b.candidateId) - getVoteCount(a.candidateId));
-  useEffect(() => {
-    if (!meetingId || isLoading || isClosed) return;
-
-    const interval = setInterval(async () => {
+  usePolling(
+    async () => {
       try {
         const [data, status] = await Promise.all([
           getCandidates(meetingId),
@@ -93,10 +92,10 @@ function CandidatePage() {
       } catch (error) {
         console.error("투표 현황 갱신 실패:", error);
       }
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [meetingId, isLoading, isClosed]);
+    },
+    3000,
+    Boolean(meetingId) && !isLoading && !isClosed,
+  );
   const handleVote = async (candidateId) => {
     try {
       setIsVoting(true);

@@ -4,6 +4,7 @@ import { confirmMeetingTime, getMeetingDetails } from "../../meeting/api/meeting
 import { getMyParticipant } from "../../meeting/api/participantApi";
 import { getRecommendations } from "../api/recommendationApi";
 import PageShell from "../../../shared/components/PageShell";
+import { usePolling } from "../../../shared/hooks/usePolling";
 
 function RecommendationPage() {
   const navigate = useNavigate();
@@ -59,27 +60,23 @@ function RecommendationPage() {
     }
   }, [meetingId]);
 
-  useEffect(() => {
-    if (!meetingId || isHost) return;
+  // 방장이 아닌 참여자는 시간 확정 여부를 3초마다 확인한다. 탭이 가려지면 멈춘다.
+  const pollMeetingStatus = async () => {
+    try {
+      const meetingDetails = await getMeetingDetails(meetingId);
+      setMeetingData((prev) => ({
+        ...prev,
+        title: meetingDetails.title || meetingDetails.name || meetingDetails.meetingName || prev.title,
+        status: meetingDetails.status || "",
+        confirmedStartDateTime: meetingDetails.confirmedStartDateTime || null,
+        confirmedEndDateTime: meetingDetails.confirmedEndDateTime || null,
+      }));
+    } catch (error) {
+      console.error("확정 상태 확인 실패:", error);
+    }
+  };
 
-    const pollMeetingStatus = async () => {
-      try {
-        const meetingDetails = await getMeetingDetails(meetingId);
-        setMeetingData((prev) => ({
-          ...prev,
-          title: meetingDetails.title || meetingDetails.name || meetingDetails.meetingName || prev.title,
-          status: meetingDetails.status || "",
-          confirmedStartDateTime: meetingDetails.confirmedStartDateTime || null,
-          confirmedEndDateTime: meetingDetails.confirmedEndDateTime || null,
-        }));
-      } catch (error) {
-        console.error("확정 상태 확인 실패:", error);
-      }
-    };
-
-    const interval = setInterval(pollMeetingStatus, 3000);
-    return () => clearInterval(interval);
-  }, [meetingId, isHost]);
+  usePolling(pollMeetingStatus, 3000, Boolean(meetingId) && !isHost);
 
   const formatDateTime = (dateTimeStr) => {
     const date = new Date(dateTimeStr);

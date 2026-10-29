@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getParticipants } from "../../meeting/api/participantApi";
 import PageShell from "../../../shared/components/PageShell";
+import { usePolling } from "../../../shared/hooks/usePolling";
 
 function LocationWaitingPage() {
   const navigate = useNavigate();
@@ -36,22 +37,17 @@ function LocationWaitingPage() {
     if (meetingId) fetchInitialData();
   }, [meetingId]);
 
-  // 참여자 상태만 주기적으로 업데이트 (폴링) - 5초마다
-  useEffect(() => {
-    if (!meetingId) return;
+  // 참여자 상태만 주기적으로 업데이트 (폴링) - 5초마다, 탭이 가려지면 멈춤
+  const updateParticipantStatus = async () => {
+    try {
+      const participantList = await getParticipants(meetingId);
+      setParticipants(participantList || []);
+    } catch (error) {
+      console.error("참여자 상태 업데이트 실패:", error);
+    }
+  };
 
-    const updateParticipantStatus = async () => {
-      try {
-        const participantList = await getParticipants(meetingId);
-        setParticipants(participantList || []);
-      } catch (error) {
-        console.error("참여자 상태 업데이트 실패:", error);
-      }
-    };
-
-    const interval = setInterval(updateParticipantStatus, 5000);
-    return () => clearInterval(interval);
-  }, [meetingId]);
+  usePolling(updateParticipantStatus, 5000, Boolean(meetingId));
 
   const allSelected = participants.length > 0 && participants.every((p) => p.isLocationSelected);
 

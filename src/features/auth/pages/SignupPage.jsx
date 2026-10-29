@@ -6,7 +6,7 @@ import PageShell from "../../../shared/components/PageShell";
 function SignupPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "", verificationCode: "", password: "", passwordCheck: "", name: "", phoneNumber: "",
+    email: "", verificationCode: "", password: "", passwordCheck: "", name: "",
   });
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,7 +85,7 @@ function SignupPage() {
     try {
       setIsLoading(true);
       setNotice(null);
-      await signup({ email: formData.email, password: formData.password, name: formData.name, phoneNumber: formData.phoneNumber });
+      await signup({ email: formData.email, password: formData.password, name: formData.name });
       // 가입 후 첫 로그인 때 알림 동의 화면을 한 번 보여준다. (MainPage에서 확인)
       localStorage.setItem("showNotificationConsent", "true");
       showNotice("success", "회원가입이 완료되었습니다. 로그인 화면으로 이동합니다.");
@@ -127,12 +127,6 @@ function SignupPage() {
           <div>
             <label className="block text-xs font-bold text-gray-500 mb-2">이름</label>
             <input type="text" name="name" placeholder="이름 입력" value={formData.name} onChange={handleChange} className={inputClass} />
-          </div>
-
-          {/* 전화번호 */}
-          <div>
-            <label className="block text-xs font-bold text-gray-500 mb-2">전화번호</label>
-            <input type="text" name="phoneNumber" placeholder="전화번호 입력" value={formData.phoneNumber} onChange={handleChange} className={inputClass} />
           </div>
 
           {/* 이메일 */}

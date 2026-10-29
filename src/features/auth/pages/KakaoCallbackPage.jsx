@@ -1,61 +1,90 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PageShell from "../../../shared/components/PageShell";
+import { socialSignup } from "../api/authApi";
 
 function KakaoCallbackPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const navigateTimerRef = useRef(null);
+  const signupStartedRef = useRef(false);
+  const [signupError, setSignupError] = useState("");
   const params = new URLSearchParams(location.search);
   const token = params.get("token");
   const isNew = params.get("isNew");
   const email = params.get("email");
   const name = params.get("name");
+  const providerId = params.get("providerId");
 
-  const status = token
+  const status = signupError
     ? {
-        type: "success",
-        title: "카카오 로그인이 완료되었습니다.",
-        message: "잠시 후 다음 화면으로 이동합니다.",
+        type: "error",
+        title: "카카오 회원가입을 완료할 수 없습니다.",
+        message: `${signupError} 로그인 화면으로 돌아갑니다.`,
       }
-    : isNew === "true"
+    : token
       ? {
           type: "success",
-          title: "추가 정보 입력이 필요합니다.",
-          message: "회원가입 화면으로 이동합니다.",
+          title: "카카오 로그인이 완료되었습니다.",
+          message: "잠시 후 다음 화면으로 이동합니다.",
         }
-      : {
-          type: "error",
-          title: "로그인을 완료할 수 없습니다.",
-          message: "로그인 화면으로 돌아갑니다.",
-        };
+      : isNew === "true"
+        ? {
+            type: "success",
+            title: "카카오 계정으로 가입하고 있어요.",
+            message: "잠시만 기다려주세요.",
+          }
+        : {
+            type: "error",
+            title: "로그인을 완료할 수 없습니다.",
+            message: "로그인 화면으로 돌아갑니다.",
+          };
 
   useEffect(() => {
+    const goLater = (path, delay) => {
+      navigateTimerRef.current = setTimeout(() => navigate(path, { replace: true }), delay);
+    };
+
     if (token) {
       localStorage.setItem("token", token);
-      
-      const targetPath = localStorage.getItem("returnUrl");
-      const nextPath = targetPath && targetPath.startsWith("/") ? targetPath : "/home";
 
-      navigateTimerRef.current = setTimeout(() => {
-        navigate(nextPath, { replace: true });
-      }, 1000);
+      const targetPath = localStorage.getItem("returnUrl");
+      goLater(targetPath && targetPath.startsWith("/") ? targetPath : "/home", 1000);
     } else if (isNew === "true") {
-      navigateTimerRef.current = setTimeout(() => {
-        navigate("/signup", { replace: true, state: { email, name, isSocial: true } });
-      }, 1000);
+      // 신규 카카오 사용자: 별도 가입 폼 없이 카카오가 준 정보로 바로 가입하고 로그인한다.
+      // (개발 모드에서 효과가 두 번 실행돼도 가입 요청은 한 번만 보낸다.)
+      if (signupStartedRef.current) return;
+      signupStartedRef.current = true;
+
+      (async () => {
+        try {
+          if (!email || !providerId) {
+            throw new Error("카카오 계정 정보(이메일)를 가져오지 못했어요.");
+          }
+          const data = await socialSignup({
+            email,
+            name: name || email.split("@")[0],
+            providerId,
+          });
+          localStorage.setItem("token", data.token);
+          // 가입 직후라서 알림 동의 화면부터 보여준다.
+          goLater("/notification", 800);
+        } catch (error) {
+          setSignupError(error.message || "회원가입 중 오류가 발생했어요.");
+          goLater("/", 2200);
+        }
+      })();
     } else {
-      navigateTimerRef.current = setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 1400);
+      goLater("/", 1400);
     }
 
     return () => {
+      // 가입 요청이 진행 중인 동안에는 타이머만 정리한다.
       if (navigateTimerRef.current) {
         clearTimeout(navigateTimerRef.current);
       }
     };
-  }, [email, isNew, name, navigate, token]);
+  }, [email, isNew, name, navigate, providerId, token]);
 
   return (
     <PageShell className="flex flex-col items-center justify-center px-6 py-10">
