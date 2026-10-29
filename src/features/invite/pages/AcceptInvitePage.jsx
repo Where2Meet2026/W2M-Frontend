@@ -37,6 +37,11 @@ function AcceptInvitePage() {
       try {
         setIsLoading(true);
         const data = await getMeetingByInviteCode(inviteCode);
+        // 이미 확정된 모임이면 참여 화면 대신 결과 화면으로 보냄 (공유 링크로 들어온 경우)
+        if (data.status === "CONFIRMED") {
+          navigate(`/result/${data.meetingId}`, { replace: true });
+          return;
+        }
         setMeetingData(data);
       } catch (err) {
         console.error("초대 정보 로드 실패:", err);
