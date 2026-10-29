@@ -8,7 +8,7 @@ import { getVoteStatus, castVote } from "../../vote/api/voteApi";
 const TYPE_LABEL = {
   FASTEST: "가장 빠른 동선",
   BALANCED: "참여자 간 편차 최소",
-  OPTIMAL: "거리 + 평점 최적",
+  OPTIMAL: "거리 기준 추천",
 };
 
 function CandidatePage() {
