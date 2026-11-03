@@ -19,6 +19,15 @@ const getDescription = (candidate) =>
   candidate.description ||
   `평균 ${Math.round(candidate.avgDistanceMeters)}m · ${TYPE_LABEL[candidate.type]}`;
 
+// 카드 제목 아래 한 줄: 서버가 대중교통 시간을 계산했으면 분 단위, 못 했으면(예전 후보, API 실패) 직선거리
+const getTravelSummary = (candidate) => {
+  const travel =
+    candidate.avgTravelMinutes != null
+      ? `평균 ${candidate.avgTravelMinutes}분 · 최대 ${candidate.maxTravelMinutes}분`
+      : `평균 ${Math.round(candidate.avgDistanceMeters)}m`;
+  return `${TYPE_LABEL[candidate.type]} · ${travel}`;
+};
+
 function CandidatePage() {
   const navigate = useNavigate();
   const { meetingId } = useParams();
@@ -401,6 +410,9 @@ function CandidatePage() {
                     <div className="min-w-0 flex-1">
                       <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
                         {candidate.placeName}
+                      </p>
+                      <p className="m-0 truncate text-xs text-gray-500">
+                        {getTravelSummary(candidate)}
                       </p>
 
                       <div className="mt-2 flex items-center gap-1.5">
