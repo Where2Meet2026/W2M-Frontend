@@ -1,4 +1,5 @@
 import { deleteMeeting } from "../api/meetingApi";
+import { leaveMeeting } from "../api/participantApi";
 import { EditIcon } from "../../../shared/components/Icons";
 
 function RoomItem({ room, onClick, onReview, onRefresh, onNotice }) {
@@ -18,6 +19,29 @@ function RoomItem({ room, onClick, onReview, onRefresh, onNotice }) {
           onNotice({
             type: "error",
             message: error.message || "방 삭제에 실패했습니다.",
+          });
+        }
+      }
+    }
+  };
+
+  // 참여자의 모임 나가기. 서버가 내려주는 canLeave가 true일 때만 버튼이 보인다
+  // (참여자이고, 아직 장소 추천(후보)이 시작되지 않은 모임)
+  const handleLeave = async (e) => {
+    e.stopPropagation(); // 부모의 onClick 이벤트 방지
+    if (window.confirm(`"${room.name}" 모임에서 나가시겠습니까?\n입력한 가능 시간과 출발 위치도 함께 삭제됩니다.`)) {
+      try {
+        await leaveMeeting(room.id);
+        if (onRefresh) await onRefresh();
+        if (onNotice) {
+          onNotice({ type: "success", message: "모임에서 나갔습니다." });
+        }
+      } catch (error) {
+        // 목록을 연 뒤에 장소 추천이 시작됐다면 서버가 409로 막는다 → 그 안내 문구를 그대로 보여준다
+        if (onNotice) {
+          onNotice({
+            type: "error",
+            message: error.message || "모임 나가기에 실패했습니다.",
           });
         }
       }
@@ -62,6 +86,15 @@ function RoomItem({ room, onClick, onReview, onRefresh, onNotice }) {
             onClick={handleDelete}
           >
             방 삭제
+          </button>
+        )}
+        {room.canLeave && (
+          <button
+            type="button"
+            className="rounded-full bg-gray-100 px-3 py-1.5 text-[11px] font-extrabold text-gray-500"
+            onClick={handleLeave}
+          >
+            나가기
           </button>
         )}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
