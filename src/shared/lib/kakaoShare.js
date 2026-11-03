@@ -13,6 +13,10 @@ export function shareToKakao ({title, description, link}) {
         content: {
             title,
             description,
+            // 카카오 서버가 직접 가져가는 이미지라 배포된 사이트의 공개 주소여야 한다 (localhost에서는 안 보임)
+            imageUrl: `${window.location.origin}/share-thumbnail.png`,
+            imageWidth: 800,
+            imageHeight: 400,
             link : { mobileWebUrl: link, webUrl: link},
         },
         buttons: [
