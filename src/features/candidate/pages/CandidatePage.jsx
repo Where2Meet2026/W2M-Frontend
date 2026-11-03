@@ -6,6 +6,7 @@ import PageShell from "../../../shared/components/PageShell";
 import { usePolling } from "../../../shared/hooks/usePolling";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getVoteStatus, castVote } from "../../vote/api/voteApi";
+import { CoffeeIcon, UtensilsIcon, MapPinIcon } from "../../../shared/components/Icons";
 
 const TYPE_LABEL = {
   FASTEST: "가장 빠른 동선",
@@ -15,16 +16,29 @@ const TYPE_LABEL = {
 
 // 서버가 내려주는 설명(리뷰가 쌓인 장소는 AI 요약, 아니면 "평균 Nm · 라벨")을 그대로 보여준다.
 // 설명이 비어 있는 예전 후보만 거리와 유형으로 직접 만든다.
+// 1km 이상이면 "5.9km", 미만이면 "650m"
+const formatDistance = (meters) => {
+  const rounded = Math.round(meters);
+  return rounded >= 1000 ? `${(rounded / 1000).toFixed(1)}km` : `${rounded}m`;
+};
+
 const getDescription = (candidate) =>
   candidate.description ||
-  `평균 ${Math.round(candidate.avgDistanceMeters)}m · ${TYPE_LABEL[candidate.type]}`;
+  `평균 ${formatDistance(candidate.avgDistanceMeters)} · ${TYPE_LABEL[candidate.type]}`;
+
+// 장소 사진 대신 쓰는 카테고리 아이콘 (카카오 카테고리 코드: CE7 카페, FD6 음식점). 코드가 없는 예전 후보는 지도 핀
+const PlaceCategoryIcon = ({ code }) => {
+  if (code === "CE7") return <CoffeeIcon />;
+  if (code === "FD6") return <UtensilsIcon />;
+  return <MapPinIcon />;
+};
 
 // 카드 제목 아래 한 줄: 서버가 대중교통 시간을 계산했으면 분 단위, 못 했으면(예전 후보, API 실패) 직선거리
 const getTravelSummary = (candidate) => {
   const travel =
     candidate.avgTravelMinutes != null
       ? `평균 ${candidate.avgTravelMinutes}분 · 최대 ${candidate.maxTravelMinutes}분`
-      : `평균 ${Math.round(candidate.avgDistanceMeters)}m`;
+      : `평균 ${formatDistance(candidate.avgDistanceMeters)}`;
   return `${TYPE_LABEL[candidate.type]} · ${travel}`;
 };
 
@@ -340,7 +354,9 @@ function CandidatePage() {
                   >
                     <div className="flex gap-3">
                     <div className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
-                      <div className="h-[72px] w-[72px] rounded-2xl bg-gray-200" />
+                      <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-blue-50 text-blue-500">
+                        <PlaceCategoryIcon code={candidate.categoryCode} />
+                      </div>
                       <div className="flex items-center gap-2.5">
                         <button
                           type="button"
