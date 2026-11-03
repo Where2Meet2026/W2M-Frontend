@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../api/meetingApi";
 import { getParticipants, getMyParticipant, leaveMeeting } from "../api/participantApi";
 import PageShell from "../../../shared/components/PageShell";
+import ConfirmSheet from "../../../shared/components/ConfirmSheet";
+import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
+import { shareToKakao } from "../../../shared/lib/kakaoShare";
 
 // 모임 진행 상태에 따라 "다음 단계"로 이동할 화면을 정한다.
 //  - WAITING_PARTICIPANTS(모임 생성): 가능한 시간 입력
@@ -28,6 +31,8 @@ function ParticipatePage() {
   const [participants, setParticipants] = useState([]);
   const [isHost, setIsHost] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [notice, setNotice] = useState(null);
   const navigateTimerRef = useRef(null);
 
@@ -46,6 +51,7 @@ function ParticipatePage() {
           name: details.title || details.name || "",
           description: details.description || "",
           status: details.status || "",
+          inviteCode: details.inviteCode || "",
         });
         setParticipants(participantList || []);
         setIsHost(myInfo.role === "HOST");
@@ -70,25 +76,58 @@ function ParticipatePage() {
     };
   }, []);
 
+  // 사이드바의 "모임 나가기" → 확인 시트를 먼저 띄우고, 시트에서 "나가기"를 눌렀을 때 실제로 나간다
   const handleLeaveMeeting = async () => {
-    if (window.confirm("정말 이 모임에서 나가시겠습니까?")) {
-      try {
-        setIsLeaving(true);
-        setNotice(null);
-        await leaveMeeting(meetingId);
-        setIsSidebarOpen(false);
-        setNotice({ type: "success", message: "모임에서 탈퇴되었습니다. 내 방 목록으로 이동합니다." });
-        navigateTimerRef.current = setTimeout(() => {
-          navigate("/get-room", { replace: true });
-        }, 1200);
-      } catch (error) {
-        setIsSidebarOpen(false);
-        setNotice({
-          type: "error",
-          message: error.message || "모임 탈퇴에 실패했습니다.",
-        });
-        setIsLeaving(false);
-      }
+    try {
+      setIsLeaving(true);
+      setNotice(null);
+      await leaveMeeting(meetingId);
+      setIsLeaveConfirmOpen(false);
+      setIsSidebarOpen(false);
+      setNotice({ type: "success", message: "모임에서 탈퇴되었습니다. 내 방 목록으로 이동합니다." });
+      navigateTimerRef.current = setTimeout(() => {
+        navigate("/get-room", { replace: true });
+      }, 1200);
+    } catch (error) {
+      // 장소 추천이 시작된 모임이면 서버가 409로 막고, 그 안내 문구를 그대로 보여준다
+      setIsLeaveConfirmOpen(false);
+      setIsSidebarOpen(false);
+      setNotice({
+        type: "error",
+        message: error.message || "모임 탈퇴에 실패했습니다.",
+      });
+      setIsLeaving(false);
+    }
+  };
+
+  // 초대 링크: 받은 사람이 누르면 로그인 후 바로 참여 화면으로 간다 (AcceptInvitePage)
+  const inviteLink = `${window.location.origin}/invite/accept/${meetingData.inviteCode}`;
+
+  const handleKakaoInvite = () => {
+    try {
+      shareToKakao({
+        title: `${meetingData.name || "모임"}에 초대합니다`,
+        description: "Where2Meet에서 시간과 장소를 함께 정해요",
+        link: inviteLink,
+        buttonTitle: "모임 참여하기",
+      });
+    } catch (error) {
+      console.error("카카오톡 초대 공유 실패:", error);
+      setNotice({ type: "error", message: "카카오톡 공유에 실패했어요." });
+    } finally {
+      setIsShareOpen(false);
+    }
+  };
+
+  const handleCopyInvite = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setNotice({ type: "success", message: "초대 링크가 복사되었습니다." });
+    } catch (error) {
+      console.error("초대 링크 복사 실패:", error);
+      setNotice({ type: "error", message: "링크를 복사하지 못했어요." });
+    } finally {
+      setIsShareOpen(false);
     }
   };
 
@@ -134,7 +173,7 @@ function ParticipatePage() {
           {!isLoading && !isHost && (
             <div className="p-5 border-t border-gray-100">
               <button
-                onClick={handleLeaveMeeting}
+                onClick={() => setIsLeaveConfirmOpen(true)}
                 disabled={isLeaving}
                 className="w-full py-3 rounded-xl bg-red-50 text-sm font-extrabold text-red-500 transition active:scale-95 disabled:text-red-300"
               >
@@ -206,9 +245,11 @@ function ParticipatePage() {
             <p className="text-xs text-gray-400">모임 ID: {meetingId}</p>
           </div>
 
+          {/* 예전에는 초대 페이지(/invite/:meetingId)로 이동했는데, 이제 이 화면에서 바로 공유 시트를 띄운다 */}
           <button
-            onClick={() => navigate(`/invite/${meetingId}`)}
-            className="mb-3 h-12 w-full rounded-xl border-[1.5px] border-blue-100 bg-blue-50 text-sm font-bold text-blue-600 transition active:scale-95"
+            onClick={() => setIsShareOpen(true)}
+            disabled={isLoading || !meetingData.inviteCode}
+            className="mb-3 h-12 w-full rounded-xl border-[1.5px] border-blue-100 bg-blue-50 text-sm font-bold text-blue-600 transition active:scale-95 disabled:opacity-50"
           >
             초대 링크 공유하기
           </button>
@@ -220,6 +261,27 @@ function ParticipatePage() {
             다음 단계
           </button>
         </div>
+
+        <ShareBottomSheet
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          title="모임 초대하기"
+          previewTitle={meetingData.name || "모임"}
+          previewDescription="링크를 받은 사람은 로그인 후 바로 참여할 수 있어요"
+          onKakaoShare={handleKakaoInvite}
+          onCopyLink={handleCopyInvite}
+        />
+
+        <ConfirmSheet
+          isOpen={isLeaveConfirmOpen}
+          onClose={() => setIsLeaveConfirmOpen(false)}
+          onConfirm={handleLeaveMeeting}
+          title="모임에서 나갈까요?"
+          description={"나가면 입력한 가능 시간과 출발 위치도 함께 삭제돼요."}
+          confirmLabel="나가기"
+          danger
+          isPending={isLeaving}
+        />
 
     </PageShell>
   );

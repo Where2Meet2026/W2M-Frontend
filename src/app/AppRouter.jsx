@@ -7,7 +7,6 @@ import CreateMeetingPage from "../features/meeting/pages/CreateMeetingPage";
 import ParticipatePage from "../features/meeting/pages/ParticipatePage";
 import HomePage from "../features/meeting/pages/HomePage";
 import GetRoomPage from "../features/meeting/pages/GetRoomPage";
-import InvitePage from "../features/invite/pages/InvitePage";
 import AcceptInvitePage from "../features/invite/pages/AcceptInvitePage";
 import TimeSelectionPage from "../features/availability/pages/TimeSelectionPage";
 import TimeWaitingPage from "../features/availability/pages/TimeWaitingPage";
@@ -37,7 +36,6 @@ function AppRouter() {
         <Route path="/participate/:meetingId" element={<ParticipatePage />} />
         <Route path="/location/:meetingId" element ={<LocationPage/>} />
         <Route path="/location-waiting/:meetingId" element={<LocationWaitingPage />} />
-        <Route path="/invite/:meetingId" element={<InvitePage />} /> {/* 추가 */}
         <Route path="/invite/accept/:inviteCode" element={<AcceptInvitePage />} /> {/* 추가 */}
         <Route path="/invite/login/:inviteCode" element={<GuestLoginPage />} /> {/* 추가 */}
         <Route path="/time-selection/:meetingId" element={<TimeSelectionPage />} /> {/* 추가 */}

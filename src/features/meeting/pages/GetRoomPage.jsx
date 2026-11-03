@@ -4,12 +4,38 @@ import RoomItem from "../components/RoomItem";
 import { getMyMeetings } from "../api/meetingApi";
 import { canWriteReview } from "../../review/utils/reviewWindow";
 import PageShell from "../../../shared/components/PageShell";
+import ConfirmSheet from "../../../shared/components/ConfirmSheet";
 
 function GetRoomPage() {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [notice, setNotice] = useState(null);
+
+  // 방 삭제·나가기 확인 시트. 카드(RoomItem)가 { title, description, confirmLabel, action }을 넘기면 띄운다.
+  // 닫히는 동안에도 내용이 보여야 해서(내려가는 애니메이션) 내용과 열림 여부를 따로 둔다.
+  const [confirmRequest, setConfirmRequest] = useState(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const askConfirm = (request) => {
+    setConfirmRequest(request);
+    setIsConfirmOpen(true);
+  };
+
+  const closeConfirm = () => {
+    if (!isConfirming) setIsConfirmOpen(false);
+  };
+
+  const handleConfirm = async () => {
+    setIsConfirming(true);
+    try {
+      await confirmRequest.action();
+    } finally {
+      setIsConfirming(false);
+      setIsConfirmOpen(false);
+    }
+  };
 
   const fetchRooms = async () => {
     try {
@@ -100,6 +126,7 @@ function GetRoomPage() {
                 onReview={() => navigate(`/review/${room.id}/write`)}
                 onRefresh={fetchRooms}
                 onNotice={setNotice}
+                onAskConfirm={askConfirm}
               />
             ))}
           </section>
@@ -123,6 +150,17 @@ function GetRoomPage() {
             모임 만들기
           </button>
         </div>
+
+        <ConfirmSheet
+          isOpen={isConfirmOpen}
+          onClose={closeConfirm}
+          onConfirm={handleConfirm}
+          title={confirmRequest?.title}
+          description={confirmRequest?.description}
+          confirmLabel={confirmRequest?.confirmLabel}
+          danger
+          isPending={isConfirming}
+        />
 
     </PageShell>
   );

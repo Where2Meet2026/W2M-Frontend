@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { MapPinIcon } from "./Icons";
+
 function ShareBottomSheet({
   isOpen,
   onClose,
@@ -7,6 +10,16 @@ function ShareBottomSheet({
   onKakaoShare,
   onCopyLink,
 }) {
+  // 노트북에서는 Esc 키로도 닫을 수 있게 한다 (ConfirmSheet와 동일)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center"
@@ -30,7 +43,10 @@ function ShareBottomSheet({
         </h2>
 
         <div className="mb-4 flex items-center gap-3.5 rounded-2xl bg-gray-50 p-3.5">
-          <div className="h-12 w-12 shrink-0 rounded-xl bg-blue-100" />
+          {/* 미리보기 칸이 작은 정사각형이라 가로로 긴 공유 썸네일 대신 핀 아이콘 (후보 카드와 같은 아이콘) */}
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-500">
+            <MapPinIcon size={22} />
+          </div>
           <div className="min-w-0">
             <p className="mb-1 truncate text-sm font-extrabold text-[#191f28]">
               {previewTitle}
