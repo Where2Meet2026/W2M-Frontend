@@ -2,50 +2,62 @@ import { deleteMeeting } from "../api/meetingApi";
 import { leaveMeeting } from "../api/participantApi";
 import { EditIcon } from "../../../shared/components/Icons";
 
-function RoomItem({ room, onClick, onReview, onRefresh, onNotice }) {
+// onAskConfirm: 확인 시트를 띄워 달라고 목록 화면(GetRoomPage)에 요청한다.
+// 카드마다 시트를 두면 모임 수만큼 시트가 생겨서, 시트는 목록 화면에 하나만 두고 내용만 넘긴다.
+function RoomItem({ room, onClick, onReview, onRefresh, onNotice, onAskConfirm }) {
   const isHost = room.role === "HOST";
 
-  const handleDelete = async (e) => {
+  const handleDelete = (e) => {
     e.stopPropagation(); // 부모의 onClick 이벤트 방지
-    if (window.confirm(`"${room.name}" 방을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없으며 모든 참여자의 목록에서도 삭제됩니다.`)) {
-      try {
-        await deleteMeeting(room.id);
-        if (onRefresh) await onRefresh();
-        if (onNotice) {
-          onNotice({ type: "success", message: "방이 삭제되었습니다." });
+    onAskConfirm({
+      title: "방을 삭제할까요?",
+      description: `"${room.name}" 방을 삭제하면 복구할 수 없고,\n모든 참여자의 목록에서도 사라져요.`,
+      confirmLabel: "삭제하기",
+      action: async () => {
+        try {
+          await deleteMeeting(room.id);
+          if (onRefresh) await onRefresh();
+          if (onNotice) {
+            onNotice({ type: "success", message: "방이 삭제되었습니다." });
+          }
+        } catch (error) {
+          if (onNotice) {
+            onNotice({
+              type: "error",
+              message: error.message || "방 삭제에 실패했습니다.",
+            });
+          }
         }
-      } catch (error) {
-        if (onNotice) {
-          onNotice({
-            type: "error",
-            message: error.message || "방 삭제에 실패했습니다.",
-          });
-        }
-      }
-    }
+      },
+    });
   };
 
   // 참여자의 모임 나가기. 서버가 내려주는 canLeave가 true일 때만 버튼이 보인다
   // (참여자이고, 아직 장소 추천(후보)이 시작되지 않은 모임)
-  const handleLeave = async (e) => {
+  const handleLeave = (e) => {
     e.stopPropagation(); // 부모의 onClick 이벤트 방지
-    if (window.confirm(`"${room.name}" 모임에서 나가시겠습니까?\n입력한 가능 시간과 출발 위치도 함께 삭제됩니다.`)) {
-      try {
-        await leaveMeeting(room.id);
-        if (onRefresh) await onRefresh();
-        if (onNotice) {
-          onNotice({ type: "success", message: "모임에서 나갔습니다." });
+    onAskConfirm({
+      title: "모임에서 나갈까요?",
+      description: `"${room.name}" 모임에서 나가면\n입력한 가능 시간과 출발 위치도 함께 삭제돼요.`,
+      confirmLabel: "나가기",
+      action: async () => {
+        try {
+          await leaveMeeting(room.id);
+          if (onRefresh) await onRefresh();
+          if (onNotice) {
+            onNotice({ type: "success", message: "모임에서 나갔습니다." });
+          }
+        } catch (error) {
+          // 목록을 연 뒤에 장소 추천이 시작됐다면 서버가 409로 막는다 → 그 안내 문구를 그대로 보여준다
+          if (onNotice) {
+            onNotice({
+              type: "error",
+              message: error.message || "모임 나가기에 실패했습니다.",
+            });
+          }
         }
-      } catch (error) {
-        // 목록을 연 뒤에 장소 추천이 시작됐다면 서버가 409로 막는다 → 그 안내 문구를 그대로 보여준다
-        if (onNotice) {
-          onNotice({
-            type: "error",
-            message: error.message || "모임 나가기에 실패했습니다.",
-          });
-        }
-      }
-    }
+      },
+    });
   };
 
   // reviewable: 장소가 확정되고 약속 시간이 지났으며 아직 리뷰를 쓰지 않은 방 (2주가 지나도 유지)
