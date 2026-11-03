@@ -38,6 +38,29 @@ export const CheckCircleIcon = ({ size = 24 }) => (
   </svg>
 );
 
+export const CoffeeIcon = ({ size = 28, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} {...base}>
+    <path d="M17 8h1a4 4 0 010 8h-1" />
+    <path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z" />
+    <path d="M6 2v2M10 2v2M14 2v2" />
+  </svg>
+);
+
+export const UtensilsIcon = ({ size = 28, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} {...base}>
+    <path d="M3 2v7a2 2 0 002 2h4a2 2 0 002-2V2" />
+    <path d="M7 2v20" />
+    <path d="M21 15V2a5 5 0 00-5 5v6a2 2 0 002 2h3zm0 0v7" />
+  </svg>
+);
+
+export const MapPinIcon = ({ size = 28, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} {...base}>
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
 export const EditIcon = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={2.2} {...base}>
     <path d="M12 20h9" />
