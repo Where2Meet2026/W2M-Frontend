@@ -8,6 +8,7 @@ import PageShell from "../../../shared/components/PageShell";
 import { getParticipants } from "../../meeting/api/participantApi";
 import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
 import { shareToKakao } from "../../../shared/lib/kakaoShare";
+import ResultMap from "../components/ResultMap";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -166,14 +167,8 @@ function ResultPage() {
 
           <section className="mb-4 overflow-hidden rounded-3xl bg-gray-50">
             <div className="relative flex h-[176px] items-center justify-center bg-gray-200">
-              {CATEGORY_LABEL[category] && (
-                <span className="absolute left-4 top-4 rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-                  {CATEGORY_LABEL[category]}
-                </span>
-              )}
-              <span className="absolute right-4 top-4 rounded-full bg-green-50 px-3 py-1 text-[11px] font-extrabold text-green-600">
-                확정 완료
-              </span>
+              {/* 지도가 뜨면 아래의 기본 핀 아이콘을 덮고, 못 뜨면 기본 디자인이 그대로 보인다 */}
+              <ResultMap latitude={result.latitude} longitude={result.longitude} />
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-500 text-white">
                 <svg
                   width="22"
@@ -190,10 +185,21 @@ function ResultPage() {
               </div>
             </div>
             <div className="px-5 py-4">
+              {/* 지도 위에 두면 지도 글자와 겹쳐서 장소 이름 위로 옮겼다 */}
+              {CATEGORY_LABEL[category] && (
+                <span className="mb-2 inline-block rounded-full bg-blue-100 px-2.5 py-0.5 text-[11px] font-extrabold text-blue-600">
+                  {CATEGORY_LABEL[category]}
+                </span>
+              )}
               <p className="mb-1.5 truncate text-[17px] font-extrabold">
                 {result.placeName}
               </p>
               <p className="m-0 text-[13px] text-gray-500">{result.address}</p>
+              {result.avgTravelMinutes != null && (
+                <p className="m-0 mt-1.5 text-[13px] font-bold text-blue-500">
+                  대중교통으로 평균 {result.avgTravelMinutes}분
+                </p>
+              )}
             </div>
           </section>
 
