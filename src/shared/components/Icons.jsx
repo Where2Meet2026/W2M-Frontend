@@ -18,7 +18,14 @@ export const ChevronRightIcon = ({ size = 16, strokeWidth = 2 }) => (
   </svg>
 );
 
-export const BellIcon = ({ size = 22, strokeWidth = 2 }) => (
+export const HomeIcon = ({ size = 18, strokeWidth = 2.2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} {...base}>
+    <path d="M3 10.5L12 3l9 7.5" />
+    <path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5" />
+  </svg>
+);
+
+export const BellIcon =({ size = 22, strokeWidth = 2 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} {...base}>
     <path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9" />
     <path d="M10.3 21a1.94 1.94 0 003.4 0" />

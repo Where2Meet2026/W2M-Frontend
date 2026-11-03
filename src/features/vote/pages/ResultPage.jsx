@@ -9,6 +9,7 @@ import { getParticipants } from "../../meeting/api/participantApi";
 import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
 import { shareToKakao } from "../../../shared/lib/kakaoShare";
 import ResultMap from "../components/ResultMap";
+import { HomeIcon } from "../../../shared/components/Icons";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -119,24 +120,34 @@ function ResultPage() {
 
   return (
     <PageShell>
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-        aria-label="뒤로가기"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#191f28"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      <div className="mb-10 flex items-center justify-between">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
+          aria-label="뒤로가기"
         >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#191f28"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        {/* 확정 후에는 더 할 일이 없어서 홈으로 바로 갈 수 있게 한다 (뒤로가기는 투표 화면으로 돌아감) */}
+        <button
+          onClick={() => navigate("/home")}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 text-[#191f28] transition active:scale-95"
+          aria-label="홈으로"
+        >
+          <HomeIcon />
+        </button>
+      </div>
 
       {isLoading ? (
         <p className="m-0 text-center text-sm font-bold text-gray-400">
