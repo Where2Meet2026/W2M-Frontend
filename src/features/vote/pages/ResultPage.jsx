@@ -194,6 +194,11 @@ function ResultPage() {
                 {result.placeName}
               </p>
               <p className="m-0 text-[13px] text-gray-500">{result.address}</p>
+              {result.avgTravelMinutes != null && (
+                <p className="m-0 mt-1.5 text-[13px] font-bold text-blue-500">
+                  대중교통으로 평균 {result.avgTravelMinutes}분
+                </p>
+              )}
             </div>
           </section>
 
