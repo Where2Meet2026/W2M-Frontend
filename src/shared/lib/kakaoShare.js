@@ -1,4 +1,5 @@
-export function shareToKakao ({title, description, link}) {
+// buttonTitle: 메시지 아래 버튼 문구 (결과 공유는 "모임 확인하기", 초대는 "모임 참여하기")
+export function shareToKakao ({title, description, link, buttonTitle = "모임 확인하기"}) {
     const { Kakao } = window;
 
     if(!Kakao) {
@@ -21,7 +22,7 @@ export function shareToKakao ({title, description, link}) {
         },
         buttons: [
             {
-                title: "모임 확인하기",
+                title: buttonTitle,
                 link: { mobileWebUrl: link, webUrl: link},
             },
         ],
