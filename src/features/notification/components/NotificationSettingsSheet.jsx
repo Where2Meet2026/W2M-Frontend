@@ -2,7 +2,8 @@ import { useState } from "react";
 import BottomSheet from "../../../shared/components/BottomSheet";
 import { usePushSubscription } from "../hooks/usePushSubscription";
 
-function NotificationSettingsSheet({ onClose }) {
+// isOpen: 홈 화면이 항상 그려 두고 열림 여부만 넘긴다 (공통 BottomSheet의 올라오는 애니메이션을 쓰려고)
+function NotificationSettingsSheet({ isOpen, onClose }) {
   const { supported, subscribed, subscribe, unsubscribe } = usePushSubscription();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -20,8 +21,14 @@ function NotificationSettingsSheet({ onClose }) {
     }
   };
 
+  // 예전엔 닫으면 시트가 사라지면서 에러 문구도 지워졌는데, 이제 항상 그려 두니까 닫을 때 직접 지운다
+  const handleClose = () => {
+    setError("");
+    onClose();
+  };
+
   return (
-    <BottomSheet onClose={onClose} radius="rounded-t-[20px]" handleColor="bg-[#dddddd]">
+    <BottomSheet isOpen={isOpen} onClose={handleClose} label="알림 설정" radius="rounded-t-[20px]" handleColor="bg-[#dddddd]">
       <h2 className="mt-[34px] text-base font-bold text-[#191f28]">알림 설정</h2>
       <div className="mt-[30px] flex items-center justify-between">
         <span className="text-sm text-[#374151]">약속 진행 상황 알림 받기</span>

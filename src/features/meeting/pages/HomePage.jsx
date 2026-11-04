@@ -32,10 +32,14 @@ function HomePage() {
         >
           <BellIcon />
         </button>
-        {showSettings && <NotificationSettingsSheet onClose={() => setShowSettings(false)} />}
-        {showPending && (
-          <ReviewPendingSheet pending={pending} onSelect={goReview} onClose={() => setShowPending(false)} />
-        )}
+        {/* 두 시트는 항상 그려 두고 열림 여부만 바꾼다 → 다른 시트처럼 아래에서 올라오고 내려간다 */}
+        <NotificationSettingsSheet isOpen={showSettings} onClose={() => setShowSettings(false)} />
+        <ReviewPendingSheet
+          isOpen={showPending}
+          pending={pending}
+          onSelect={goReview}
+          onClose={() => setShowPending(false)}
+        />
         <div className="w-full">
 
         {/* 로고 */}
