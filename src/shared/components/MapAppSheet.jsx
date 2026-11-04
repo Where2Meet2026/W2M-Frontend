@@ -27,7 +27,7 @@ function MapAppSheet({ isOpen, onClose, placeName, address, kakaoPlaceId, latitu
     <BottomSheet isOpen={isOpen} onClose={onClose} label="지도 선택">
       <h2 className="mb-1.5 text-[17px] font-extrabold text-[#191f28]">어느 지도로 볼까요?</h2>
       <p className="mb-5 text-[13px] leading-[1.6] text-gray-400">
-        사진·리뷰·영업시간을 확인하고, 길찾기도 그 지도에서 할 수 있어요
+        사진·리뷰·영업시간을 확인하고, 길찾기도 할 수 있어요
       </p>
 
       <button
