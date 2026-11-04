@@ -42,6 +42,17 @@ const getTravelSummary = (candidate) => {
   return `${TYPE_LABEL[candidate.type]} · ${travel}`;
 };
 
+// 후보를 처음 만들 때 서버가 하는 일 순서 (참여자 위치 → 카카오 장소 검색 → ODsay 이동 시간 → 3곳 선정).
+// 실제 진행률이 아니라 기다리는 동안 무슨 일을 하는지 보여주는 안내 문구다.
+const LOADING_STEPS = [
+  "참여자들의 출발 위치를 모으고 있어요",
+  "중간 지점 근처 카페·식당을 찾고 있어요",
+  "대중교통 이동 시간을 계산하고 있어요",
+  "추천할 3곳을 고르고 있어요",
+];
+const LOADER_DELAY_MS = 300; // 이보다 빨리 끝나면 로딩 화면을 아예 띄우지 않는다 (깜빡임 방지)
+const LOADING_STEP_MS = 1500;
+
 function CandidatePage() {
   const navigate = useNavigate();
   const { meetingId } = useParams();
@@ -54,6 +65,24 @@ function CandidatePage() {
   const [isVoting, setIsVoting] = useState(false);
   const [voteError, setVoteError] = useState("");
   const [isReacting, setIsReacting] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  // 후보가 이미 있으면 금방 불러와져서 로딩 화면이 깜빡이기만 했다 → 0.3초 넘게 걸릴 때만 보여준다.
+  // 처음 만들 때는 대중교통 시간 계산으로 몇 초 걸리니까, 그동안 단계 문구를 하나씩 넘긴다.
+  useEffect(() => {
+    if (!isLoading) return;
+    const showTimer = setTimeout(() => setShowLoader(true), LOADER_DELAY_MS);
+    const stepTimer = setInterval(() => {
+      setLoadingStep((step) => Math.min(step + 1, LOADING_STEPS.length - 1));
+    }, LOADING_STEP_MS);
+    return () => {
+      clearTimeout(showTimer);
+      clearInterval(stepTimer);
+      setShowLoader(false);
+      setLoadingStep(0);
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -175,7 +204,9 @@ function CandidatePage() {
         </svg>
       </button>
 
-      {isLoading ? (
+      {isLoading && !showLoader ? (
+        <div className="flex-1" />
+      ) : isLoading ? (
         <div className="flex flex-1 flex-col items-center justify-center pb-20">
           <p className="mb-6 text-xs font-extrabold tracking-[0.5px] text-blue-500">
             WHERE2MEET
@@ -206,7 +237,25 @@ function CandidatePage() {
           <h2 className="mb-1.5 text-lg font-extrabold text-[#191f28]">
             맞춤 장소를 찾고 있어요
           </h2>
-          <p className="m-0 text-[13px] text-gray-400"> 잠시만 기다려주세요</p>
+          <p className="m-0 text-[13px] text-gray-500" aria-live="polite">
+            {LOADING_STEPS[loadingStep]}
+          </p>
+
+          {/* 단계 표시: 지난 단계와 지금 단계는 파랑 */}
+          <div className="mt-5 flex gap-1.5" aria-hidden="true">
+            {LOADING_STEPS.map((step, index) => (
+              <span
+                key={step}
+                className={`h-1.5 w-6 rounded-full transition-colors duration-300 ${
+                  index <= loadingStep ? "bg-blue-500" : "bg-gray-200"
+                }`}
+              />
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs text-gray-400">
+            처음 추천할 때는 몇 초 걸릴 수 있어요
+          </p>
         </div>
       ) : errorMessage ? (
         <div className="flex flex-1 flex-col justify-center pb-20">
