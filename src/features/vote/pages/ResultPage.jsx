@@ -7,6 +7,7 @@ import {
 import PageShell from "../../../shared/components/PageShell";
 import { getParticipants } from "../../meeting/api/participantApi";
 import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
+import MapAppSheet from "../../../shared/components/MapAppSheet";
 import { shareToKakao } from "../../../shared/lib/kakaoShare";
 import ResultMap from "../components/ResultMap";
 import { HomeIcon } from "../../../shared/components/Icons";
@@ -43,6 +44,7 @@ function ResultPage() {
   const [participants, setParticipants] = useState([]);
   const [inviteCode, setInviteCode] = useState("");
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isMapAppOpen, setIsMapAppOpen] = useState(false);
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
@@ -77,11 +79,6 @@ function ResultPage() {
   const showNotice = (message) => {
     setNotice(message);
     setTimeout(() => setNotice(""), 3000);
-  };
-
-  const handleOpenMap = () => {
-    const url = `https://map.kakao.com/link/map/${encodeURIComponent(result.placeName)},${result.latitude},${result.longitude}`;
-    window.open(url, "_blank", "noopener");
   };
 
   const handleCopyLink = async () => {
@@ -282,7 +279,7 @@ function ResultPage() {
           <div className="mt-auto space-y-3 pt-4">
             <button
               type="button"
-              onClick={handleOpenMap}
+              onClick={() => setIsMapAppOpen(true)}
               className="h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95"
             >
               지도에서 보기
@@ -323,6 +320,17 @@ function ResultPage() {
             }
             onKakaoShare={handleKakaoShare}
             onCopyLink={handleCopyLink}
+          />
+
+          {/* 예전에는 카카오맵 지도만 바로 열었는데, 이제 카카오맵/네이버 지도 중에서 골라 그 장소 화면을 연다 */}
+          <MapAppSheet
+            isOpen={isMapAppOpen}
+            onClose={() => setIsMapAppOpen(false)}
+            placeName={result.placeName}
+            address={result.address}
+            kakaoPlaceId={result.kakaoPlaceId}
+            latitude={result.latitude}
+            longitude={result.longitude}
           />
 
           {notice && (
