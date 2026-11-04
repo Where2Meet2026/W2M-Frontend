@@ -6,9 +6,10 @@ const formatDate = (value) => {
   return Number.isNaN(d.getTime()) ? "" : `${d.getMonth() + 1}/${d.getDate()}`;
 };
 
-function ReviewPendingSheet({ pending, onSelect, onClose }) {
+// isOpen: 홈 화면이 항상 그려 두고 열림 여부만 넘긴다 (공통 BottomSheet의 올라오는 애니메이션을 쓰려고)
+function ReviewPendingSheet({ isOpen, pending, onSelect, onClose }) {
   return (
-    <BottomSheet onClose={onClose}>
+    <BottomSheet isOpen={isOpen} onClose={onClose} label="리뷰를 기다리는 장소">
       <div className="mb-4">
         <p className="m-0 text-[17px] font-bold text-[#191f28]">리뷰를 기다리는 장소 {pending.length}곳</p>
         <p className="m-0 mt-1 text-xs text-[#99a1af]">최근 약속 순 · 약속 후 2주가 지나면 목록에서 빠져요</p>
