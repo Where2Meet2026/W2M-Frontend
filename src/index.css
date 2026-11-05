@@ -4,6 +4,13 @@
     box-sizing: border-box;
 }
 
+/* 한글은 어절 단위로 줄바꿈한다. 기본값이면 "로그인해주세/요"처럼 한 글자만 다음 줄로 넘어가는 일이 생긴다.
+   긴 영문·주소는 칸을 넘지 않게 필요할 때만 쪼갠다. */
+body {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
 @keyframes banner-slide-up {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }

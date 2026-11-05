@@ -286,7 +286,7 @@ function CandidatePage() {
             </h1>
             <p className="m-0 text-sm leading-[1.7] text-gray-500">
               {isClosed
-                ? "전원이 투표를 마쳐서 서버가 자동으로 최다 득표 후보를 확정했어요."
+                ? "모두 투표해서 가장 많이 받은 곳으로 정해졌어요."
                 : "마음에 드는 후보 하나를 골라 투표하기를 누르면 최종 투표에 반영돼요."}
             </p>
           </section>
@@ -303,7 +303,7 @@ function CandidatePage() {
                     : "bg-blue-100 text-blue-600"
                 }`}
               >
-                {isClosed ? "투표 마  감 · 확정 완료" : "투표 진행중"}
+                {isClosed ? "투표 마감" : "투표 진행중"}
               </span>
             </div>
             <div className="flex items-center gap-2.5">
@@ -563,9 +563,6 @@ function CandidatePage() {
                   투표가 끝나 장소가 자동으로 확정됐어요
                 </p>
               </div>
-              <p className="m-0 text-xs text-green-600">
-                방장의 별도 확정 절차 없이 자동으로 처리돼요
-              </p>
             </section>
           ) : (
             <section className="mt-6 rounded-[20px] bg-blue-50 px-[18px] py-3.5">

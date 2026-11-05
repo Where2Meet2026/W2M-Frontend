@@ -84,7 +84,7 @@ function ParticipatePage() {
       await leaveMeeting(meetingId);
       setIsLeaveConfirmOpen(false);
       setIsSidebarOpen(false);
-      setNotice({ type: "success", message: "모임에서 탈퇴되었습니다. 내 방 목록으로 이동합니다." });
+      setNotice({ type: "success", message: "모임에서 나갔어요. 목록으로 돌아가요." });
       navigateTimerRef.current = setTimeout(() => {
         navigate("/get-room", { replace: true });
       }, 1200);
@@ -94,7 +94,7 @@ function ParticipatePage() {
       setIsSidebarOpen(false);
       setNotice({
         type: "error",
-        message: error.message || "모임 탈퇴에 실패했습니다.",
+        message: error.message || "모임에서 나가지 못했어요.",
       });
       setIsLeaving(false);
     }
@@ -231,7 +231,7 @@ function ParticipatePage() {
 
           {/* 정보 카드 */}
           <div className="bg-gray-50 rounded-2xl p-5 mb-6">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round">
                   <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
@@ -242,7 +242,6 @@ function ParticipatePage() {
                 <p className="text-sm font-bold text-gray-700">{participants.length}명</p>
               </div>
             </div>
-            <p className="text-xs text-gray-400">모임 ID: {meetingId}</p>
           </div>
 
           {/* 예전에는 초대 페이지(/invite/:meetingId)로 이동했는데, 이제 이 화면에서 바로 공유 시트를 띄운다 */}

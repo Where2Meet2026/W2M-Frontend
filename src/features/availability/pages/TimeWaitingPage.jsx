@@ -76,19 +76,13 @@ function TimeWaitingPage() {
         <section className="mb-7 rounded-3xl bg-gray-50 px-5 py-[22px]">
           <div className="mb-4 flex items-center justify-between">
             <p className="m-0 text-[13px] font-bold text-gray-400">현재 모임</p>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-              자동 갱신
-            </span>
           </div>
-          <div className="mb-2 flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
             <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
               {isLoading && !meetingData.title ? "모임 정보를 불러오는 중..." : meetingData.title || "모임"}
             </p>
           </div>
-          <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            5초마다 참여자 입력 상태를 새로 확인합니다.
-          </p>
         </section>
 
         <section className="mb-7 flex-1">

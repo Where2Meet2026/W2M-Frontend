@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { login } from "../api/authApi";
 import PageShell from "../../../shared/components/PageShell";
+import { KakaoSymbolIcon } from "../../../shared/components/Icons";
 
 function GuestLoginPage() {
   const navigate = useNavigate();
@@ -88,24 +89,6 @@ function GuestLoginPage() {
           </p>
         </section>
 
-        <section className="mb-7 rounded-3xl bg-gray-50 px-5 py-[22px]">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="m-0 text-[13px] font-bold text-gray-400">초대 코드</p>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-              대기 중
-            </span>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
-            <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
-              {inviteCode}
-            </p>
-          </div>
-          <p className="m-0 mt-2 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            로그인 후 초대를 수락할 수 있습니다.
-          </p>
-        </section>
-
         <section className="mb-7">
           <div className="mb-5">
             <input
@@ -142,15 +125,6 @@ function GuestLoginPage() {
           </section>
         )}
 
-        <div className="mb-7 rounded-[20px] bg-blue-50 px-5 py-[18px]">
-          <p className="mb-1.5 text-[13px] font-extrabold text-blue-600">
-            Tip
-          </p>
-          <p className="m-0 text-[11px] leading-[1.65] text-blue-800">
-            초대 링크로 들어온 경우 로그인 후 원래 초대 화면으로 돌아갑니다.
-          </p>
-        </div>
-
         <section className="mt-auto pt-8">
           <button 
             className="mb-3 h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400" 
@@ -161,12 +135,10 @@ function GuestLoginPage() {
           </button>
 
           <button
-            className="mb-5 flex h-[54px] w-full items-center justify-center gap-2 rounded-2xl border-0 bg-[#FEE500] text-[15px] font-extrabold text-[#191600] transition hover:bg-[#f2d900] active:scale-95"
+            className="mb-5 flex h-[54px] w-full items-center justify-center gap-2 rounded-2xl border-0 bg-[#FEE500] text-[15px] font-extrabold text-black/85 transition hover:bg-[#f2d900] active:scale-95"
             onClick={handleKakaoLogin}
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#191600] text-xs font-extrabold text-[#FEE500]">
-              K
-            </span>
+            <KakaoSymbolIcon />
             카카오로 시작하기
           </button>
           

@@ -21,7 +21,7 @@ function RecommendationPage() {
 
   const getDisplayErrorMessage = (error, fallbackMessage) => {
     if (error?.message === "Failed to fetch") {
-      return "백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.";
+      return "서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요.";
     }
 
     return error?.message || fallbackMessage;

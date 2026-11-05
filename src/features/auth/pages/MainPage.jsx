@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/authApi";
 import PageShell from "../../../shared/components/PageShell";
+import { KakaoSymbolIcon } from "../../../shared/components/Icons";
 
 function MainPage() {
   const navigate = useNavigate();
@@ -89,8 +90,9 @@ function MainPage() {
 
             <button
               onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/kakao`}
-              className="mb-4 h-12 w-full rounded-xl bg-yellow-400 text-sm font-bold text-gray-900 transition hover:bg-yellow-500 active:scale-95"
+              className="mb-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#FEE500] text-sm font-bold text-black/85 transition hover:bg-[#f2d900] active:scale-95"
             >
+              <KakaoSymbolIcon />
               카카오로 시작하기
             </button>
 

@@ -23,7 +23,6 @@ function AcceptInvitePage() {
       // 목적지 주소를 명확하게 고정 (로그인 페이지가 저장되는 것 방지)
       const targetPath = `/invite/accept/${inviteCode}`;
       localStorage.setItem("returnUrl", targetPath);
-      console.log("AcceptInvitePage: 목적지 저장됨 ->", targetPath);
       
       // 로그인 안 되어 있으면 초대 전용 로그인 페이지로 즉시 리다이렉트
       navigate(`/invite/login/${inviteCode}`, { replace: true });
@@ -144,15 +143,6 @@ function AcceptInvitePage() {
           </div>
           <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
             {isLoading ? "잠시만 기다려주세요." : meetingData?.description || "모임 설명이 없습니다."}
-          </p>
-        </section>
-
-        <section className="mb-7 rounded-[20px] bg-blue-50 px-5 py-[18px]">
-          <p className="mb-1.5 text-[13px] font-extrabold text-blue-600">
-            초대 코드
-          </p>
-          <p className="m-0 break-all text-[13px] leading-[1.65] text-blue-800">
-            {inviteCode}
           </p>
         </section>
 
