@@ -28,7 +28,6 @@ const getNextStepPath = (status, meetingId) => {
 function ParticipatePage() {
   const navigate = useNavigate();
   const { meetingId } = useParams();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [meetingData, setMeetingData] = useState({ name: "", description: "" });
   const [participants, setParticipants] = useState([]);
@@ -77,13 +76,12 @@ function ParticipatePage() {
     };
   }, []);
 
-  // 사이드바의 "모임 나가기" → 확인 시트를 먼저 띄우고, 시트에서 "나가기"를 눌렀을 때 실제로 나간다
+  // 화면 맨 아래 "모임 나가기" → 확인 시트를 먼저 띄우고, 시트에서 "나가기"를 눌렀을 때 실제로 나간다
   const handleLeaveMeeting = async () => {
     try {
       setIsLeaving(true);
       await leaveMeeting(meetingId);
       setIsLeaveConfirmOpen(false);
-      setIsSidebarOpen(false);
       showToast("모임에서 나갔어요. 목록으로 돌아가요.");
       navigateTimerRef.current = setTimeout(() => {
         navigate("/get-room", { replace: true });
@@ -91,7 +89,6 @@ function ParticipatePage() {
     } catch (error) {
       // 장소 추천이 시작된 모임이면 서버가 409로 막고, 그 안내 문구를 그대로 보여준다
       setIsLeaveConfirmOpen(false);
-      setIsSidebarOpen(false);
       showToast(error.message || "모임에서 나가지 못했어요.", "error");
       setIsLeaving(false);
     }
@@ -129,75 +126,11 @@ function ParticipatePage() {
   };
 
   return (
-    <PageShell className="relative flex flex-col overflow-hidden">
+    <PageShell className="flex flex-col">
 
-        {/* 사이드바 오버레이 */}
-        {isSidebarOpen && (
-          <div
-            className="absolute inset-0 z-10 bg-black/30"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-
-        {/* 사이드바 */}
-        <div
-          className={`absolute left-0 top-0 z-20 h-full w-52 bg-white shadow-xl transition-transform duration-300 flex flex-col ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
-          <div className="flex-1 pt-16 px-5 overflow-y-auto">
-            <p className="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wide">참여자 목록</p>
-            {isLoading ? (
-              <p className="text-sm text-gray-400">로딩 중...</p>
-            ) : participants.length > 0 ? (
-              <div className="space-y-2">
-                {participants.map((p) => (
-                  <div key={p.participantId} className="flex items-center gap-3 py-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">
-                      {(p.userName || p.name)?.[0]}
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {p.role === "HOST" && (
-                        <span className="mr-1.5 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-blue-600">
-                          방장
-                        </span>
-                      )}
-                      {p.userName || p.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-400">아직 참여자가 없어요</p>
-            )}
-          </div>
-
-          {!isLoading && !isHost && (
-            <div className="p-5 border-t border-gray-100">
-              <button
-                onClick={() => setIsLeaveConfirmOpen(true)}
-                disabled={isLeaving}
-                className="w-full py-3 rounded-xl bg-red-50 text-sm font-extrabold text-red-500 transition active:scale-95 disabled:text-red-300"
-              >
-                {isLeaving ? "처리 중..." : "모임 나가기"}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 상단 헤더 */}
-
-        <div className="flex items-center justify-between px-6 pt-10 pb-6">
+        {/* 상단 헤더 (참여자 목록은 본문에 바로 보여주므로 메뉴 버튼은 없다) */}
+        <div className="px-6 pt-10 pb-6">
           <BackButton />
-
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 transition active:scale-95"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round">
-              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-          </button>
         </div>
 
         {/* 본문 */}
@@ -217,20 +150,40 @@ function ParticipatePage() {
             </section>
           )}
 
-          {/* 정보 카드 */}
-          <div className="bg-gray-50 rounded-2xl p-5 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round">
-                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">참여자</p>
-                <p className="text-sm font-bold text-gray-700">{participants.length}명</p>
-              </div>
+          {/* 참여자 목록: 누가 들어왔는지 메뉴를 열지 않고 바로 확인한다 */}
+          <section className="mb-6">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="m-0 text-[13px] font-bold text-gray-700">참여자</p>
+              <span className="text-[13px] font-extrabold text-gray-400">{participants.length}명</span>
             </div>
-          </div>
+            {isLoading && participants.length === 0 ? (
+              <p className="m-0 text-sm text-gray-400">불러오는 중...</p>
+            ) : participants.length > 0 ? (
+              <ul className="m-0 list-none space-y-2 p-0">
+                {participants.map((p) => {
+                  const name = p.userName || p.name || "참여자";
+                  return (
+                    <li
+                      key={p.participantId}
+                      className="flex items-center gap-3 rounded-2xl border-[1.5px] border-gray-100 bg-white px-4 py-3 shadow-sm"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-extrabold text-blue-600">
+                        {name[0]}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-[#191f28]">{name}</span>
+                      {p.role === "HOST" && (
+                        <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-blue-600">
+                          방장
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="m-0 text-sm text-gray-400">아직 참여자가 없어요</p>
+            )}
+          </section>
 
           {/* 예전에는 초대 페이지(/invite/:meetingId)로 이동했는데, 이제 이 화면에서 바로 공유 시트를 띄운다 */}
           <button
@@ -247,6 +200,18 @@ function ParticipatePage() {
           >
             다음 단계
           </button>
+
+          {/* 방장은 나갈 수 없고(모임 삭제를 쓴다), 참여자에게만 보인다. 일부러 눈에 덜 띄게 둔다 */}
+          {!isLoading && !isHost && !loadError && (
+            <button
+              type="button"
+              onClick={() => setIsLeaveConfirmOpen(true)}
+              disabled={isLeaving}
+              className="mt-5 w-full py-2 text-center text-[13px] font-bold text-gray-400 transition hover:text-gray-500 active:scale-95 disabled:opacity-50"
+            >
+              {isLeaving ? "처리 중..." : "모임 나가기"}
+            </button>
+          )}
         </div>
 
         <ShareBottomSheet
