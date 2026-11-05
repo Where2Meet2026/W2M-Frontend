@@ -62,8 +62,8 @@ function HomePage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-bold text-gray-800">내 방 조회</p>
-              <p className="text-xs text-gray-400 mt-0.5">참여 중인 모임 목록 보기</p>
+              <p className="text-sm font-bold text-gray-800">내 모임</p>
+              <p className="text-xs text-gray-400 mt-0.5">참여 중인 모임 보기</p>
             </div>
           </button>
 

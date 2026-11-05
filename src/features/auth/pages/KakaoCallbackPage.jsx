@@ -19,14 +19,14 @@ function KakaoCallbackPage() {
   const status = signupError
     ? {
         type: "error",
-        title: "카카오 회원가입을 완료할 수 없습니다.",
-        message: `${signupError} 로그인 화면으로 돌아갑니다.`,
+        title: "카카오 회원가입을 완료하지 못했어요.",
+        message: `${signupError} 로그인 화면으로 돌아가요.`,
       }
     : token
       ? {
           type: "success",
-          title: "카카오 로그인이 완료되었습니다.",
-          message: "잠시 후 다음 화면으로 이동합니다.",
+          title: "카카오 로그인이 완료됐어요.",
+          message: "곧 다음 화면으로 이동해요.",
         }
       : isNew === "true"
         ? {
@@ -36,8 +36,8 @@ function KakaoCallbackPage() {
           }
         : {
             type: "error",
-            title: "로그인을 완료할 수 없습니다.",
-            message: "로그인 화면으로 돌아갑니다.",
+            title: "로그인을 완료하지 못했어요.",
+            message: "로그인 화면으로 돌아가요.",
           };
 
   useEffect(() => {

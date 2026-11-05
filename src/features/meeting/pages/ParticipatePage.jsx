@@ -59,7 +59,7 @@ function ParticipatePage() {
         console.error("데이터 로드 실패:", error);
         setNotice({
           type: "error",
-          message: error.message || "모임 정보를 불러오는데 실패했습니다.",
+          message: error.message || "모임 정보를 불러오지 못했어요.",
         });
       } finally {
         setIsLoading(false);
@@ -122,7 +122,7 @@ function ParticipatePage() {
   const handleCopyInvite = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      setNotice({ type: "success", message: "초대 링크가 복사되었습니다." });
+      setNotice({ type: "success", message: "초대 링크를 복사했어요." });
     } catch (error) {
       console.error("초대 링크 복사 실패:", error);
       setNotice({ type: "error", message: "링크를 복사하지 못했어요." });
@@ -166,7 +166,7 @@ function ParticipatePage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-400">참여자가 없습니다</p>
+              <p className="text-sm text-gray-400">아직 참여자가 없어요</p>
             )}
           </div>
 

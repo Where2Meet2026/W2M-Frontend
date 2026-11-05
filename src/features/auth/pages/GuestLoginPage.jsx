@@ -50,7 +50,7 @@ function GuestLoginPage() {
       console.error("로그인 에러:", error);
       setNotice({
         type: "error",
-        message: error.message || "로그인 중 오류가 발생했습니다.",
+        message: error.message || "로그인하지 못했어요. 잠시 후 다시 시도해주세요.",
       });
     } finally {
       setIsLoading(false);
@@ -85,7 +85,7 @@ function GuestLoginPage() {
             모임 참여를 위해 로그인해주세요
           </h1>
           <p className="m-0 text-sm leading-[1.7] text-gray-500">
-            로그인하면 초대받은 모임 참여 화면으로 바로 이동합니다.
+            로그인하면 초대받은 모임으로 바로 이동해요.
           </p>
         </section>
 

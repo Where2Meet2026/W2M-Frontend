@@ -130,7 +130,7 @@ function LocationWaitingPage() {
             </div>
           ) : (
             <div className="rounded-3xl border-[1.5px] border-dashed border-gray-200 bg-white px-5 py-10 text-center">
-              <p className="text-sm font-extrabold text-gray-600">참여자가 없습니다</p>
+              <p className="text-sm font-extrabold text-gray-600">아직 참여자가 없어요</p>
               <p className="mt-1 text-xs leading-[1.6] text-gray-400">초대 링크로 참여자를 모아보세요.</p>
             </div>
           )}

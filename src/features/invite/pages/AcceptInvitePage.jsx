@@ -44,7 +44,7 @@ function AcceptInvitePage() {
         setMeetingData(data);
       } catch (err) {
         console.error("초대 정보 로드 실패:", err);
-        setError("유효하지 않은 초대 코드이거나 정보를 불러올 수 없습니다.");
+        setError("초대 링크가 올바르지 않거나 정보를 불러오지 못했어요.");
       } finally {
         setIsLoading(false);
       }
@@ -67,7 +67,7 @@ function AcceptInvitePage() {
       navigate(`/participate/${result.meetingId}`);
     } catch (err) {
       console.error("참여 실패:", err);
-      setSubmitError(err.message || "모임 참여 중 오류가 발생했습니다.");
+      setSubmitError(err.message || "모임에 참여하지 못했어요.");
     } finally {
       setIsSubmitting(false);
     }
@@ -141,24 +141,26 @@ function AcceptInvitePage() {
               {isLoading ? "모임 정보를 불러오는 중..." : meetingData?.title || meetingData?.name || "모임"}
             </p>
           </div>
-          <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            {isLoading ? "잠시만 기다려주세요." : meetingData?.description || "모임 설명이 없습니다."}
-          </p>
+          {(isLoading || meetingData?.description) && (
+            <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
+              {isLoading ? "잠시만 기다려주세요." : meetingData.description}
+            </p>
+          )}
         </section>
 
         <section className="mb-7 rounded-3xl border-[1.5px] border-dashed border-gray-200 bg-white px-5 py-8 text-center">
           <p className="m-0 text-base font-extrabold text-[#191f28]">
-            초대를 수락하시겠습니까?
+            초대를 수락할까요?
           </p>
           <p className="mt-2 text-[13px] leading-[1.6] text-gray-400">
-            수락하면 해당 모임의 참여자 목록에 추가됩니다.
+            수락하면 이 모임의 참여자가 돼요.
           </p>
         </section>
 
         {submitError && (
           <section className="mb-7 rounded-[20px] bg-red-50 px-5 py-[18px]">
             <p className="mb-1.5 text-[13px] font-extrabold text-red-600">
-              참여할 수 없습니다
+              참여하지 못했어요
             </p>
             <p className="m-0 text-[13px] leading-[1.65] text-red-700">
               {submitError}

@@ -44,7 +44,7 @@ function LocationPage() {
       } catch (error) {
         console.error(error);
         setPlaces([]);
-        setErrorMessage("장소 검색 중 문제가 발생했습니다.");
+        setErrorMessage("장소를 검색하지 못했어요.");
       } finally {
         setIsLoading(false);
       }
@@ -139,7 +139,7 @@ function LocationPage() {
           <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-gray-300" />
             <p className="m-0 text-[15px] font-semibold text-gray-400">
-              아직 선택된 위치가 없습니다.
+              아직 선택한 위치가 없어요.
             </p>
           </div>
         )}
@@ -222,7 +222,7 @@ function LocationPage() {
           ) : (
             <div className="rounded-3xl bg-gray-50 px-5 py-8 text-center">
               <p className="mb-2 text-2xl">🔍</p>
-              <p className="m-0 mb-1 text-sm font-bold text-gray-500">검색 결과가 없습니다</p>
+              <p className="m-0 mb-1 text-sm font-bold text-gray-500">검색 결과가 없어요</p>
               <p className="m-0 text-xs text-gray-400">다른 장소명으로 다시 검색해보세요</p>
             </div>
           )}
@@ -234,7 +234,7 @@ function LocationPage() {
         <div className="mb-7 rounded-[20px] bg-blue-50 px-5 py-[18px]">
           <p className="mb-1.5 text-[13px] font-extrabold text-blue-600">💡 Tip</p>
           <p className="m-0 text-[13px] leading-[1.65] text-blue-800">
-            장소명을 입력하기 시작하면 아래에 검색 결과가 표시됩니다.
+            장소 이름을 입력하면 아래에 검색 결과가 나와요.
           </p>
         </div>
       )}

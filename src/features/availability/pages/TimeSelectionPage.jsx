@@ -104,11 +104,11 @@ function TimeSelectionPage() {
           
           setDateToTimes(loadedData);
         } catch {
-          console.log("기존 저장된 데이터가 없습니다."); 
+          console.log("저장된 시간이 없어요."); 
         }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
-        showNotice({ type: "error", message: "정보를 불러오는데 실패했습니다. 참여 여부를 확인해주세요." });
+        showNotice({ type: "error", message: "정보를 불러오지 못했어요. 이 모임에 참여했는지 확인해주세요." });
       } finally {
         setIsLoading(false);
       }
@@ -166,7 +166,7 @@ function TimeSelectionPage() {
 
   const handleSave = async () => {
     if (!participantId) {
-      showNotice({ type: "error", message: "참여 정보를 찾을 수 없습니다." });
+      showNotice({ type: "error", message: "참여 정보를 찾을 수 없어요." });
       return;
     }
 
@@ -221,7 +221,7 @@ function TimeSelectionPage() {
       });
 
       if (formattedRanges.length === 0) {
-        showNotice({ type: "error", message: "선택된 시간대가 없습니다." });
+        showNotice({ type: "error", message: "선택한 시간대가 없어요." });
         return;
       }
 
@@ -277,7 +277,7 @@ function TimeSelectionPage() {
             </p>
           </div>
           <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            {meetingData.description || "선택한 시간은 저장 후 수정할 수 있습니다."}
+            {meetingData.description || "저장한 뒤에도 수정할 수 있어요."}
           </p>
         </section>
 

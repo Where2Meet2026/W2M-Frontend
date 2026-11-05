@@ -44,9 +44,9 @@ function SignupPage() {
       setIsLoading(true);
       setNotice(null);
       await sendCode(formData.email);
-      showNotice("success", "인증코드를 발송했습니다.");
+      showNotice("success", "인증코드를 보냈어요.");
     } catch (error) {
-      showNotice("error", error.message || "인증코드 발송에 실패했습니다.");
+      showNotice("error", error.message || "인증코드를 보내지 못했어요.");
     } finally {
       setIsLoading(false);
     }
@@ -63,9 +63,9 @@ function SignupPage() {
       setNotice(null);
       await verifyCode(formData.email, formData.verificationCode);
       setIsEmailVerified(true);
-      showNotice("success", "이메일 인증이 완료되었습니다.");
+      showNotice("success", "이메일 인증이 완료됐어요.");
     } catch (error) {
-      showNotice("error", error.message || "이메일 인증에 실패했습니다.");
+      showNotice("error", error.message || "이메일 인증에 실패했어요.");
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +78,7 @@ function SignupPage() {
     }
 
     if (formData.password !== formData.passwordCheck) {
-      showNotice("error", "비밀번호가 일치하지 않습니다.");
+      showNotice("error", "비밀번호가 서로 달라요.");
       return;
     }
 
@@ -88,12 +88,12 @@ function SignupPage() {
       await signup({ email: formData.email, password: formData.password, name: formData.name });
       // 가입 후 첫 로그인 때 알림 동의 화면을 한 번 보여준다. (MainPage에서 확인)
       localStorage.setItem("showNotificationConsent", "true");
-      showNotice("success", "회원가입이 완료되었습니다. 로그인 화면으로 이동합니다.");
+      showNotice("success", "가입이 완료됐어요. 로그인 화면으로 이동해요.");
       navigateTimerRef.current = setTimeout(() => {
         navigate("/", { replace: true });
       }, 1200);
     } catch (error) {
-      showNotice("error", error.message || "회원가입 중 오류가 발생했습니다.");
+      showNotice("error", error.message || "회원가입에 실패했어요. 잠시 후 다시 시도해주세요.");
       setIsLoading(false);
     }
   };

@@ -153,7 +153,7 @@ function ResultPage() {
       ) : errorMessage ? (
         <div className="rounded-[20px] bg-red-50 px-5 py-[18px]">
           <p className="mb-1.5 text-[13px] font-extrabold text-red-600">
-            불러올 수 없습니다
+            불러오지 못했어요
           </p>
           <p className="m-0 text-[13px] leading-[1.65] text-red-700">
             {errorMessage}

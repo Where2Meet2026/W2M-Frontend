@@ -105,7 +105,7 @@ function CandidatePage() {
             ? "서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요."
             : error.message;
         setErrorMessage(
-          message || "후보 장소를 불러오는 중 문제가 발생했습니다.",
+          message || "후보 장소를 불러오지 못했어요.",
         );
       } finally {
         setIsLoading(false);
@@ -261,7 +261,7 @@ function CandidatePage() {
         <div className="flex flex-1 flex-col justify-center pb-20">
           <div className="rounded-[20px] bg-red-50 px-5 py-[18px]">
             <p className="mb-1.5 text-[13px] font-extrabold text-red-600">
-              불러올 수 없습니다
+              불러오지 못했어요
             </p>
             <p className="m-0 text-[13px] leading-[1.65] text-red-700">
               {errorMessage}

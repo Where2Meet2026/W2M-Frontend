@@ -31,7 +31,7 @@ function MainPage() {
       const returnUrl = localStorage.getItem("returnUrl");
       navigate(returnUrl && returnUrl.startsWith("/") ? returnUrl : "/home", { replace: true });
     } catch (error) {
-      setNotice({ type: "error", message: error.message || "로그인 중 오류가 발생했습니다." });
+      setNotice({ type: "error", message: error.message || "로그인하지 못했어요. 잠시 후 다시 시도해주세요." });
     } finally {
       setIsLoading(false);
     }

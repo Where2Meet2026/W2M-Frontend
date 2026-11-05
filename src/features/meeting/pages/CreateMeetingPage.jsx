@@ -46,7 +46,7 @@ function CreateMeetingPage() {
       const meetingId = data.id || data.meetingId || 1;
       navigate(`/participate/${meetingId}`);
     } catch (error) {
-      showNotice({ type: "error", message: error.message || "모임 생성 중 오류가 발생했습니다." });
+      showNotice({ type: "error", message: error.message || "모임을 만들지 못했어요." });
     } finally {
       setIsSubmitting(false);
     }

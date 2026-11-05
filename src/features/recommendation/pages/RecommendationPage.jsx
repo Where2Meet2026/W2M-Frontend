@@ -49,7 +49,7 @@ function RecommendationPage() {
         setMyRole(myParticipant.role || "");
       } catch (error) {
         console.error("데이터 로드 실패:", error);
-        setErrorMessage(getDisplayErrorMessage(error, "추천 정보를 불러오는데 실패했습니다."));
+        setErrorMessage(getDisplayErrorMessage(error, "추천 정보를 불러오지 못했어요."));
       } finally {
         setIsLoading(false);
       }
@@ -113,7 +113,7 @@ function RecommendationPage() {
       await confirmMeetingTime(meetingId, selectedSlot);
       navigate(`/location/${meetingId}`);
     } catch (error) {
-      setErrorMessage(getDisplayErrorMessage(error, "약속 시간 확정에 실패했습니다."));
+      setErrorMessage(getDisplayErrorMessage(error, "시간을 확정하지 못했어요."));
     } finally {
       setIsConfirming(false);
     }
@@ -166,13 +166,13 @@ function RecommendationPage() {
           {isLoading ? (
             <div className="rounded-3xl bg-gray-50 px-5 py-10 text-center">
               <p className="m-0 text-sm font-extrabold text-gray-500">
-                추천 시간을 계산 중입니다...
+                추천 시간을 계산하고 있어요...
               </p>
             </div>
           ) : errorMessage ? (
             <div className="rounded-[20px] bg-red-50 px-5 py-[18px]">
               <p className="mb-1.5 text-[13px] font-extrabold text-red-600">
-                불러올 수 없습니다
+                불러오지 못했어요
               </p>
               <p className="m-0 text-[13px] leading-[1.65] text-red-700">
                 {errorMessage}
@@ -228,7 +228,7 @@ function RecommendationPage() {
                     명 가능
                   </p>
                   <p className="m-0 text-[13px] leading-[1.6] text-gray-400">
-                    {(slot.participantNames || []).join(", ") || "참여자 정보가 없습니다."}
+                    {(slot.participantNames || []).join(", ") || "참여자 정보가 없어요."}
                   </p>
                 </button>
                 );
@@ -243,7 +243,7 @@ function RecommendationPage() {
                 </svg>
               </div>
               <p className="text-sm font-extrabold text-gray-600">
-                아직 입력된 시간 데이터가 없습니다
+                아직 입력된 시간이 없어요
               </p>
               <p className="mt-1 text-xs leading-[1.6] text-gray-400">
                 가능한 시간을 먼저 선택해주세요.
@@ -265,7 +265,7 @@ function RecommendationPage() {
             <p className={`mb-1.5 text-[13px] font-extrabold ${
               isTimeConfirmed ? "text-green-600" : "text-blue-600"
             }`}>
-              {isTimeConfirmed ? "시간이 확정되었습니다" : "방장이 시간을 확정합니다"}
+              {isTimeConfirmed ? "시간이 확정됐어요" : "방장이 시간을 확정해요"}
             </p>
             <p className={`m-0 text-[13px] leading-[1.65] ${
               isTimeConfirmed ? "text-green-700" : "text-blue-800"
