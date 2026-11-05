@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { saveLocation, searchPlacesByKeyword } from "../api/locationApi";
 import { getMyParticipant } from "../../meeting/api/participantApi";
 import PageShell from "../../../shared/components/PageShell";
+import BackButton from "../../../shared/components/BackButton";
+import { SearchIcon } from "../../../shared/components/Icons";
 
 function LocationPage() {
   const navigate = useNavigate();
@@ -83,21 +85,10 @@ function LocationPage() {
   return (
     <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
       {/* 뒤로가기 */}
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-        aria-label="뒤로가기"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
+      <BackButton className="mb-10" />
 
       {/* 헤더 */}
       <section className="mb-10">
-        <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
-          WHERE2MEET
-        </p>
         <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
           출발 위치를 입력해주세요
         </h1>
@@ -221,7 +212,9 @@ function LocationPage() {
             })
           ) : (
             <div className="rounded-3xl bg-gray-50 px-5 py-8 text-center">
-              <p className="mb-2 text-2xl">🔍</p>
+              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+                <SearchIcon />
+              </div>
               <p className="m-0 mb-1 text-sm font-bold text-gray-500">검색 결과가 없어요</p>
               <p className="m-0 text-xs text-gray-400">다른 장소명으로 다시 검색해보세요</p>
             </div>
@@ -229,24 +222,11 @@ function LocationPage() {
         </div>
       )}
 
-      {/* Tip 박스 */}
+      {/* 아직 아무것도 고르지 않았을 때 안내. (고른 뒤에는 위의 "현재 선택 위치" 카드와 "다음" 버튼이 알려준다) */}
       {!isSearching && !selectedPlace && (
-        <div className="mb-7 rounded-[20px] bg-blue-50 px-5 py-[18px]">
-          <p className="mb-1.5 text-[13px] font-extrabold text-blue-600">💡 Tip</p>
-          <p className="m-0 text-[13px] leading-[1.65] text-blue-800">
-            장소 이름을 입력하면 아래에 검색 결과가 나와요.
-          </p>
-        </div>
-      )}
-
-      {/* 선택 완료 안내 */}
-      {!isSearching && selectedPlace && (
-        <div className="mb-7 rounded-[20px] bg-green-50 px-5 py-[18px]">
-          <p className="mb-1.5 text-[13px] font-extrabold text-green-600">✅ 출발지 선택 완료</p>
-          <p className="m-0 text-[13px] leading-[1.65] text-green-700">
-            다음 버튼을 눌러 약속 장소 추천을 받아보세요.
-          </p>
-        </div>
+        <p className="mb-7 text-center text-[13px] text-gray-400">
+          장소 이름을 입력하면 아래에 검색 결과가 나와요.
+        </p>
       )}
 
       {/* 다음 버튼 */}

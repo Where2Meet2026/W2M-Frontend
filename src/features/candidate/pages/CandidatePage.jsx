@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCandidates, toggleReaction } from "../api/candidateApi";
 import ReviewCheckButton from "../../review/components/ReviewCheckButton";
 import PageShell from "../../../shared/components/PageShell";
+import Toast from "../../../shared/components/Toast";
+import { useToast } from "../../../shared/hooks/useToast";
+import BackButton from "../../../shared/components/BackButton";
 import { usePolling } from "../../../shared/hooks/usePolling";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getVoteStatus, castVote } from "../../vote/api/voteApi";
@@ -63,7 +66,7 @@ function CandidatePage() {
   const [meetingTitle, setMeetingTitle] = useState("");
   const [voteStatus, setVoteStatus] = useState(null);
   const [isVoting, setIsVoting] = useState(false);
-  const [voteError, setVoteError] = useState("");
+  const { toast, showToast, closeToast } = useToast();
   const [isReacting, setIsReacting] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -156,8 +159,7 @@ function CandidatePage() {
       setVoteStatus(status);
     } catch (error) {
       console.error("투표 실패", error);
-      setVoteError(error.message);
-      setTimeout(() => setVoteError(""), 3000);
+      showToast(error.message || "투표하지 못했어요.", "error");
     } finally {
       setIsVoting(false);
     }
@@ -165,7 +167,6 @@ function CandidatePage() {
   const handleReaction = async (candidateId, reactionType) => {
     try {
       setIsReacting(true);
-      setVoteError("");
       await toggleReaction(meetingId, candidateId, reactionType);
       const [data, status] = await Promise.all([
         getCandidates(meetingId),
@@ -175,8 +176,7 @@ function CandidatePage() {
       setVoteStatus(status);
     } catch (error) {
       console.error("반응 실패", error);
-      setVoteError(error.message);
-      setTimeout(() => setVoteError(""), 3000);
+      showToast(error.message || "잠시 후 다시 시도해주세요.", "error");
     } finally {
       setIsReacting(false);
     }
@@ -184,25 +184,7 @@ function CandidatePage() {
 
   return (
     <PageShell className="flex flex-col px-6 py-10">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full
-            border-0 bg-gray-100 transition active:scale-95"
-        aria-label="뒤로가기"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#191f28"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
+      <BackButton className="mb-10" />
 
       {isLoading && !showLoader ? (
         <div className="flex-1" />
@@ -278,9 +260,6 @@ function CandidatePage() {
       ) : (
         <>
           <section className="mb-3">
-            <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
-              WHERE2MEET
-            </p>
             <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
               {isClosed ? "장소가 확정됐어요" : "후보에 투표해주세요"}
             </h1>
@@ -292,10 +271,13 @@ function CandidatePage() {
           </section>
 
           <section className="mb-4 rounded-3xl bg-gray-50 px-5 py-[18px]">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="m-0 text-[13px] font-bold text-gray-400">
-                현재 모임
-              </p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                <p className="m-0 min-w-0 truncate text-[15px] font-extrabold">
+                  {meetingTitle || "모임"}
+                </p>
+              </div>
               <span
                 className={`rounded-full px-3 py-1 text-[11px] font-extrabold ${
                   isClosed
@@ -305,12 +287,6 @@ function CandidatePage() {
               >
                 {isClosed ? "투표 마감" : "투표 진행중"}
               </span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
-              <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
-                {meetingTitle || "모임"}
-              </p>
             </div>
             {isClosed ? (
               <p className="m-0 mt-3 text-[13px] font-bold text-gray-500">
@@ -582,13 +558,7 @@ function CandidatePage() {
               최종 확정 보기
             </button>
           )}
-          {voteError && (
-            <div className="fixed inset-x-6 bottom-6 mx-auto max-w-[345px] rounded-2xl bg-red-50 px-4 py-3 shadow-lg">
-              <p className="m-0 text-[13px] font-bold leading-[1.6] text-red-700">
-                {voteError}
-              </p>
-            </div>
-          )}
+          {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={closeToast} />}
         </>
       )}
     </PageShell>

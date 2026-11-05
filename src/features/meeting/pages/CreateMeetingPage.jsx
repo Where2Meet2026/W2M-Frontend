@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createMeeting } from "../api/meetingApi";
 import PageShell from "../../../shared/components/PageShell";
+import Toast from "../../../shared/components/Toast";
+import { useToast } from "../../../shared/hooks/useToast";
+import BackButton from "../../../shared/components/BackButton";
 import { CoffeeIcon, UtensilsIcon, MapPinIcon } from "../../../shared/components/Icons";
 
 // 모임에서 찾을 장소 종류. value는 서버의 PlaceCategory와 같은 값이다
@@ -17,29 +20,8 @@ function CreateMeetingPage() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("ANY"); // 기본값은 예전 동작(카페+식당)과 같은 "둘 다"
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notice, setNotice] = useState(null);
-  const noticeTimerRef = useRef(null);
-
-  const showNotice = (nextNotice) => {
-    setNotice(nextNotice);
-
-    if (noticeTimerRef.current) {
-      clearTimeout(noticeTimerRef.current);
-    }
-
-    noticeTimerRef.current = setTimeout(() => {
-      setNotice(null);
-      noticeTimerRef.current = null;
-    }, 2000);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (noticeTimerRef.current) {
-        clearTimeout(noticeTimerRef.current);
-      }
-    };
-  }, []);
+  const { toast, showToast, closeToast } = useToast();
+  const showNotice = ({ type, message }) => showToast(message, type);
 
   const handleCreate = async () => {
     if (!meetingName.trim()) {
@@ -49,7 +31,7 @@ function CreateMeetingPage() {
 
     try {
       setIsSubmitting(true);
-      setNotice(null);
+      closeToast();
 
       const data = await createMeeting(meetingName, description, category);
       const meetingId = data.id || data.meetingId || 1;
@@ -64,18 +46,9 @@ function CreateMeetingPage() {
   return (
     <PageShell className="relative flex flex-col overflow-hidden px-6 py-10">
 
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-          aria-label="뒤로가기"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        </button>
+        <BackButton className="mb-10" />
 
         <section className="mb-10">
-          <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">WHERE2MEET</p>
           <h1 className="text-[28px] font-extrabold leading-tight tracking-[-1px] text-[#191f28]">모임을 만들어볼까요?</h1>
           <p className="mt-2.5 text-sm leading-[1.7] text-gray-500">모임 이름과 찾을 장소 종류를 정해주세요.</p>
         </section>
@@ -147,15 +120,7 @@ function CreateMeetingPage() {
           </button>
         </div>
 
-        {notice && (
-          <div className="pointer-events-none absolute bottom-24 left-6 right-6 z-30 text-center">
-            <p className={`m-0 text-[13px] font-extrabold leading-[1.6] drop-shadow-sm ${
-              notice.type === "success" ? "text-blue-600" : "text-red-500"
-            }`}>
-              {notice.message}
-            </p>
-          </div>
-        )}
+        {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={closeToast} />}
 
     </PageShell>
   );

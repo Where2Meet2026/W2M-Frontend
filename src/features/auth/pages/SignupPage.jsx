@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup, sendCode, verifyCode } from "../api/authApi";
 import PageShell from "../../../shared/components/PageShell";
+import { CheckCircleIcon } from "../../../shared/components/Icons";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -150,7 +151,10 @@ function SignupPage() {
               </button>
             </div>
             {isEmailVerified && (
-              <p className="mt-2 text-xs font-bold text-green-500">✓ 이메일 인증 완료</p>
+              <p className="mt-2 flex items-center gap-1 text-xs font-bold text-green-500">
+                <CheckCircleIcon size={14} />
+                이메일 인증 완료
+              </p>
             )}
           </div>
 
@@ -170,10 +174,10 @@ function SignupPage() {
 
         {/* 버튼 */}
         <div className="flex gap-3 mt-8">
-          <button onClick={() => navigate("/")} className="flex-1 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-xl transition active:scale-95">
+          <button onClick={() => navigate("/")} className="flex-1 h-[54px] bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-2xl transition active:scale-95">
             뒤로가기
           </button>
-          <button onClick={handleSignup} disabled={isLoading} className="flex-1 h-12 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-xl transition active:scale-95 disabled:bg-gray-200 disabled:text-gray-400">
+          <button onClick={handleSignup} disabled={isLoading} className="flex-1 h-[54px] bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-2xl transition active:scale-95 disabled:bg-gray-200 disabled:text-gray-400">
             {isLoading ? "처리 중..." : "가입하기"}
           </button>
         </div>

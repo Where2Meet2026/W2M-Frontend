@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { login } from "../api/authApi";
 import PageShell from "../../../shared/components/PageShell";
+import BackButton from "../../../shared/components/BackButton";
 import { KakaoSymbolIcon } from "../../../shared/components/Icons";
 
 function GuestLoginPage() {
@@ -67,20 +68,9 @@ function GuestLoginPage() {
 
   return (
     <PageShell>
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-          aria-label="뒤로가기"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
+        <BackButton className="mb-10" />
 
         <section className="mb-10">
-          <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
-            WHERE2MEET
-          </p>
           <h1 className="mb-2.5 text-[26px] font-extrabold leading-tight tracking-[-1px]">
             모임 참여를 위해 로그인해주세요
           </h1>

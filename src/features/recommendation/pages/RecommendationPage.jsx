@@ -4,6 +4,8 @@ import { confirmMeetingTime, getMeetingDetails } from "../../meeting/api/meeting
 import { getMyParticipant } from "../../meeting/api/participantApi";
 import { getRecommendations } from "../api/recommendationApi";
 import PageShell from "../../../shared/components/PageShell";
+import MeetingTitleBar from "../../../shared/components/MeetingTitleBar";
+import BackButton from "../../../shared/components/BackButton";
 import { usePolling } from "../../../shared/hooks/usePolling";
 
 function RecommendationPage() {
@@ -121,20 +123,9 @@ function RecommendationPage() {
 
   return (
     <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
-        <button
-          onClick={handleBack}
-          className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-          aria-label="뒤로가기"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
+        <BackButton onClick={handleBack} className="mb-10" />
 
         <section className="mb-10">
-          <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
-            WHERE2MEET
-          </p>
           <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
             추천 약속 시간
           </h1>
@@ -143,24 +134,7 @@ function RecommendationPage() {
           </p>
         </section>
 
-        <section className="mb-7 rounded-3xl bg-gray-50 px-5 py-[22px]">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="m-0 text-[13px] font-bold text-gray-400">현재 모임</p>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-              추천 결과
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
-            <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
-              {isLoading ? "모임 정보를 불러오는 중..." : meetingData.title || "모임"}
-            </p>
-          </div>
-          <p className="m-0 mt-2 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            모임 ID: {meetingId}
-          </p>
-        </section>
+        <MeetingTitleBar title={isLoading ? "모임 정보를 불러오는 중..." : meetingData.title || "모임"} badge="추천 결과" />
 
         <section className="mb-7 flex-1">
           {isLoading ? (

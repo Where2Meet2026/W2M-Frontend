@@ -4,13 +4,17 @@ import RoomItem from "../components/RoomItem";
 import { getMyMeetings } from "../api/meetingApi";
 import { canWriteReview } from "../../review/utils/reviewWindow";
 import PageShell from "../../../shared/components/PageShell";
+import Toast from "../../../shared/components/Toast";
+import { useToast } from "../../../shared/hooks/useToast";
+import BackButton from "../../../shared/components/BackButton";
 import ConfirmSheet from "../../../shared/components/ConfirmSheet";
 
 function GetRoomPage() {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [notice, setNotice] = useState(null);
+  const [loadError, setLoadError] = useState("");
+  const { toast, showToast, closeToast } = useToast();
 
   // 방 삭제·나가기 확인 시트. 카드(RoomItem)가 { title, description, confirmLabel, action }을 넘기면 띄운다.
   // 닫히는 동안에도 내용이 보여야 해서(내려가는 애니메이션) 내용과 열림 여부를 따로 둔다.
@@ -40,7 +44,7 @@ function GetRoomPage() {
   const fetchRooms = async () => {
     try {
       setIsLoading(true);
-      setNotice(null);
+      setLoadError("");
       const data = await getMyMeetings();
       // 백엔드 필드명을 RoomItem에서 사용하는 필드명으로 매핑
       const formattedRooms = data.map(room => ({
@@ -52,10 +56,7 @@ function GetRoomPage() {
       setRooms(formattedRooms);
     } catch (error) {
       console.error("내 방 목록 조회 실패:", error);
-      setNotice({
-        type: "error",
-        message: error.message || "목록을 불러오지 못했어요.",
-      });
+      setLoadError(error.message || "목록을 불러오지 못했어요.");
     } finally {
       setIsLoading(false);
     }
@@ -69,49 +70,23 @@ function GetRoomPage() {
     <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
 
         {/* 뒤로가기 */}
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        </button>
+        <BackButton className="mb-10" />
 
         <section className="mb-10">
-          <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">WHERE2MEET</p>
-          <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px] text-[#191f28]">내 모임</h1>
+          <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px] text-[#191f28]">
+            내 모임
+            {!isLoading && <span className="ml-2 text-[22px] text-blue-500">{rooms.length}</span>}
+          </h1>
           <p className="mt-2.5 text-sm leading-[1.7] text-gray-500">참여 중인 모임을 확인하세요.</p>
         </section>
 
-        {notice && (
-          <section className={`mb-7 rounded-[20px] px-5 py-[18px] ${
-            notice.type === "success" ? "bg-blue-50" : "bg-red-50"
-          }`}>
-            <p className={`m-0 text-[13px] font-extrabold leading-[1.65] ${
-              notice.type === "success" ? "text-blue-700" : "text-red-700"
-            }`}>
-              {notice.message}
-            </p>
+        {loadError && (
+          <section className="mb-7 rounded-[20px] bg-red-50 px-5 py-[18px]">
+            <p className="m-0 text-[13px] font-extrabold leading-[1.65] text-red-700">{loadError}</p>
           </section>
         )}
 
-        <section className="mb-7 rounded-3xl bg-gray-50 px-5 py-[22px]">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="m-0 text-[13px] font-bold text-gray-400">참여 중인 모임</p>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-              {isLoading ? "..." : `${rooms.length}개`}
-            </span>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${isLoading ? "bg-gray-300" : (rooms.length > 0 ? "bg-blue-500" : "bg-gray-300")}`} />
-            <p className="m-0 text-[15px] font-bold text-gray-600">
-              {isLoading ? "로딩 중..." : (rooms.length > 0 ? "참여 중인 모임이 있어요." : "아직 참여 중인 모임이 없어요.")}
-            </p>
-          </div>
-        </section>
-
-        {/* 방 목록 */}
+                {/* 방 목록 */}
         {isLoading ? (
           <section className="mb-7 text-center py-10">
             <p className="text-sm text-gray-400">목록을 불러오고 있어요...</p>
@@ -125,7 +100,7 @@ function GetRoomPage() {
                 onClick={() => navigate(`/participate/${room.id}`)}
                 onReview={() => navigate(`/review/${room.id}/write`)}
                 onRefresh={fetchRooms}
-                onNotice={setNotice}
+                onNotice={({ type, message }) => showToast(message, type)}
                 onAskConfirm={askConfirm}
               />
             ))}
@@ -161,6 +136,8 @@ function GetRoomPage() {
           danger
           isPending={isConfirming}
         />
+
+        {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={closeToast} />}
 
     </PageShell>
   );

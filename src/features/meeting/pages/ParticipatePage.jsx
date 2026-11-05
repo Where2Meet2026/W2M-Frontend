@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../api/meetingApi";
 import { getParticipants, getMyParticipant, leaveMeeting } from "../api/participantApi";
 import PageShell from "../../../shared/components/PageShell";
+import Toast from "../../../shared/components/Toast";
+import { useToast } from "../../../shared/hooks/useToast";
+import BackButton from "../../../shared/components/BackButton";
 import ConfirmSheet from "../../../shared/components/ConfirmSheet";
 import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
 import { shareToKakao } from "../../../shared/lib/kakaoShare";
@@ -33,14 +36,15 @@ function ParticipatePage() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [notice, setNotice] = useState(null);
+  const [loadError, setLoadError] = useState("");
+  const { toast, showToast, closeToast } = useToast();
   const navigateTimerRef = useRef(null);
 
   useEffect(() => {
     const fetchMeetingData = async () => {
       try {
         setIsLoading(true);
-        setNotice(null);
+        setLoadError("");
         const [details, participantList, myInfo] = await Promise.all([
           getMeetingDetails(meetingId),
           getParticipants(meetingId),
@@ -57,10 +61,7 @@ function ParticipatePage() {
         setIsHost(myInfo.role === "HOST");
       } catch (error) {
         console.error("데이터 로드 실패:", error);
-        setNotice({
-          type: "error",
-          message: error.message || "모임 정보를 불러오지 못했어요.",
-        });
+        setLoadError(error.message || "모임 정보를 불러오지 못했어요.");
       } finally {
         setIsLoading(false);
       }
@@ -80,11 +81,10 @@ function ParticipatePage() {
   const handleLeaveMeeting = async () => {
     try {
       setIsLeaving(true);
-      setNotice(null);
       await leaveMeeting(meetingId);
       setIsLeaveConfirmOpen(false);
       setIsSidebarOpen(false);
-      setNotice({ type: "success", message: "모임에서 나갔어요. 목록으로 돌아가요." });
+      showToast("모임에서 나갔어요. 목록으로 돌아가요.");
       navigateTimerRef.current = setTimeout(() => {
         navigate("/get-room", { replace: true });
       }, 1200);
@@ -92,10 +92,7 @@ function ParticipatePage() {
       // 장소 추천이 시작된 모임이면 서버가 409로 막고, 그 안내 문구를 그대로 보여준다
       setIsLeaveConfirmOpen(false);
       setIsSidebarOpen(false);
-      setNotice({
-        type: "error",
-        message: error.message || "모임에서 나가지 못했어요.",
-      });
+      showToast(error.message || "모임에서 나가지 못했어요.", "error");
       setIsLeaving(false);
     }
   };
@@ -113,7 +110,7 @@ function ParticipatePage() {
       });
     } catch (error) {
       console.error("카카오톡 초대 공유 실패:", error);
-      setNotice({ type: "error", message: "카카오톡 공유에 실패했어요." });
+      showToast("카카오톡 공유에 실패했어요.", "error");
     } finally {
       setIsShareOpen(false);
     }
@@ -122,10 +119,10 @@ function ParticipatePage() {
   const handleCopyInvite = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      setNotice({ type: "success", message: "초대 링크를 복사했어요." });
+      showToast("초대 링크를 복사했어요.");
     } catch (error) {
       console.error("초대 링크 복사 실패:", error);
-      setNotice({ type: "error", message: "링크를 복사하지 못했어요." });
+      showToast("링크를 복사하지 못했어요.", "error");
     } finally {
       setIsShareOpen(false);
     }
@@ -160,7 +157,12 @@ function ParticipatePage() {
                       {(p.userName || p.name)?.[0]}
                     </div>
                     <span className="text-sm font-medium text-gray-700">
-                      {p.role === "HOST" ? "👑 " : ""}{p.userName || p.name}
+                      {p.role === "HOST" && (
+                        <span className="mr-1.5 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-blue-600">
+                          방장
+                        </span>
+                      )}
+                      {p.userName || p.name}
                     </span>
                   </div>
                 ))}
@@ -186,18 +188,11 @@ function ParticipatePage() {
         {/* 상단 헤더 */}
 
         <div className="flex items-center justify-between px-6 pt-10 pb-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 transition active:scale-95"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6"/>
-            </svg>
-          </button>
+          <BackButton />
 
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 transition active:scale-95"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 transition active:scale-95"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
@@ -208,7 +203,6 @@ function ParticipatePage() {
         {/* 본문 */}
         <div className="flex-1 px-6 pb-10">
           <div className="mb-8">
-            <p className="text-xs font-bold text-blue-500 mb-2">WHERE2MEET</p>
             <h1 className="text-2xl font-black text-gray-900">
               {isLoading ? "불러오는 중..." : meetingData.name || "모임"}
             </h1>
@@ -217,15 +211,9 @@ function ParticipatePage() {
             )}
           </div>
 
-          {notice && (
-            <section className={`mb-6 rounded-[20px] px-5 py-[18px] ${
-              notice.type === "success" ? "bg-blue-50" : "bg-red-50"
-            }`}>
-              <p className={`m-0 text-[13px] font-extrabold leading-[1.65] ${
-                notice.type === "success" ? "text-blue-700" : "text-red-700"
-              }`}>
-                {notice.message}
-              </p>
+          {loadError && (
+            <section className="mb-6 rounded-[20px] bg-red-50 px-5 py-[18px]">
+              <p className="m-0 text-[13px] font-extrabold leading-[1.65] text-red-700">{loadError}</p>
             </section>
           )}
 
@@ -248,14 +236,14 @@ function ParticipatePage() {
           <button
             onClick={() => setIsShareOpen(true)}
             disabled={isLoading || !meetingData.inviteCode}
-            className="mb-3 h-12 w-full rounded-xl border-[1.5px] border-blue-100 bg-blue-50 text-sm font-bold text-blue-600 transition active:scale-95 disabled:opacity-50"
+            className="mb-3 h-12 w-full rounded-2xl border-[1.5px] border-blue-100 bg-blue-50 text-sm font-bold text-blue-600 transition active:scale-95 disabled:opacity-50"
           >
             초대 링크 공유하기
           </button>
 
           <button
             onClick={() => navigate(getNextStepPath(meetingData.status, meetingId))}
-            className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-xl transition active:scale-95"
+            className="w-full h-[54px] bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-2xl transition active:scale-95"
           >
             다음 단계
           </button>
@@ -281,6 +269,8 @@ function ParticipatePage() {
           danger
           isPending={isLeaving}
         />
+
+        {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={closeToast} />}
 
     </PageShell>
   );

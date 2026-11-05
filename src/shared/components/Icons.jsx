@@ -78,6 +78,21 @@ export const KakaoSymbolIcon = ({ size = 18 }) => (
   </svg>
 );
 
+export const SearchIcon = ({ size = 20, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} {...base}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-3.5-3.5" />
+  </svg>
+);
+
+export const AlertCircleIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={2} {...base}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 8v4.5" />
+    <path d="M12 16h.01" />
+  </svg>
+);
+
 export const EditIcon = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={2.2} {...base}>
     <path d="M12 20h9" />
