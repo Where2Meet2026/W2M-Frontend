@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../../../shared/components/PageShell";
-import { usePushSubscription } from "../hooks/usePushSubscription";
+import { IOS_INSTALL_GUIDE, UNSUPPORTED_MESSAGE, usePushSubscription } from "../hooks/usePushSubscription";
 
 function NotificationConsentPage() {
   const navigate = useNavigate();
-  const { supported, subscribe } = usePushSubscription();
+  const { supported, needsInstall, subscribe } = usePushSubscription();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -62,7 +62,9 @@ function NotificationConsentPage() {
       </div>
 
       {!supported && (
-        <p className="mt-4 text-center text-xs text-gray-400">이 브라우저는 웹 알림을 지원하지 않아요.</p>
+        <p className="mt-4 break-keep text-center text-xs leading-relaxed text-gray-400">
+          {needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE}
+        </p>
       )}
       {error && <p className="mt-4 text-center text-xs text-red-500">{error}</p>}
     </PageShell>

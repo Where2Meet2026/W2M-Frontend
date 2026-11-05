@@ -39,7 +39,7 @@ function TimeWaitingPage() {
     if (meetingId) fetchInitialData();
   }, [meetingId]);
 
-  // 참여자 상태만 주기적으로 업데이트 (폴링) - 5초마다, 탭이 가려지면 멈춤
+  // 참여자 상태만 주기적으로 업데이트 (폴링) - 3초마다, 탭이 가려지면 멈춤
   const updateParticipantStatus = async () => {
     try {
       const participantList = await getParticipants(meetingId);
@@ -49,7 +49,7 @@ function TimeWaitingPage() {
     }
   };
 
-  usePolling(updateParticipantStatus, 5000, Boolean(meetingId));
+  usePolling(updateParticipantStatus, 3000, Boolean(meetingId));
 
   return (
     <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
