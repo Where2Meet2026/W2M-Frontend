@@ -68,7 +68,7 @@ function ReviewWritePage() {
           value={comment}
           maxLength={500}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="예) 참여자 전원 접근성이 좋았고 분위기가 조용해서 대화하기 편했어요"
+          placeholder="예) 조용해서 이야기 나누기 좋았어요"
           className="h-[110px] w-full resize-none rounded-2xl border border-[#f3f4f6] bg-white p-[13px] text-[13px] leading-normal text-[#191f28] outline-none placeholder:text-[#9ca3af] focus:border-[#3b82f6]"
         />
         <p className="m-0 text-[11px] text-[#9ca3af]">· 작성자 정보는 표시되지 않고 익명으로 등록돼요</p>

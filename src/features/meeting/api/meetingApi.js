@@ -1,7 +1,8 @@
 import { apiClient } from "../../../shared/api/client";
 
-export const createMeeting = (title, description) =>
-  apiClient.post("/api/meetings", { title, description });
+// category: "CAFE" | "MEAL" | "ANY" — 후보 장소를 어떤 종류로 찾을지 (서버가 안 받으면 ANY로 처리)
+export const createMeeting = (title, description, category) =>
+  apiClient.post("/api/meetings", { title, description, category });
 
 export const getMyMeetings = () => apiClient.get("/api/meetings/my");
 

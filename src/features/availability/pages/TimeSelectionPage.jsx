@@ -1,9 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getMyParticipant } from "../../meeting/api/participantApi";
 import { saveAvailabilities, getAvailabilities } from "../api/availabilityApi";
 import PageShell from "../../../shared/components/PageShell";
+import Toast from "../../../shared/components/Toast";
+import { useToast } from "../../../shared/hooks/useToast";
+import MeetingTitleBar from "../../../shared/components/MeetingTitleBar";
+import BackButton from "../../../shared/components/BackButton";
 
 function TimeSelectionPage() {
   const navigate = useNavigate();
@@ -20,29 +24,8 @@ function TimeSelectionPage() {
   
   const [isDragging, setIsDragging] = useState(false);
   const [dragMode, setDragMode] = useState(true);
-  const [notice, setNotice] = useState(null);
-  const noticeTimerRef = useRef(null);
-
-  const showNotice = (nextNotice) => {
-    setNotice(nextNotice);
-
-    if (noticeTimerRef.current) {
-      clearTimeout(noticeTimerRef.current);
-    }
-
-    noticeTimerRef.current = setTimeout(() => {
-      setNotice(null);
-      noticeTimerRef.current = null;
-    }, 2000);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (noticeTimerRef.current) {
-        clearTimeout(noticeTimerRef.current);
-      }
-    };
-  }, []);
+  const { toast, showToast, closeToast } = useToast();
+  const showNotice = useCallback(({ type, message }) => showToast(message, type), [showToast]);
 
   const formatDisplayTime = (timeStr) => {
     const [h, m] = timeStr.split(":").map(Number);
@@ -104,17 +87,17 @@ function TimeSelectionPage() {
           
           setDateToTimes(loadedData);
         } catch {
-          console.log("기존 저장된 데이터가 없습니다."); 
+          console.log("저장된 시간이 없어요."); 
         }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
-        showNotice({ type: "error", message: "정보를 불러오는데 실패했습니다. 참여 여부를 확인해주세요." });
+        showNotice({ type: "error", message: "정보를 불러오지 못했어요. 이 모임에 참여했는지 확인해주세요." });
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [meetingId]);
+  }, [meetingId, showNotice]);
 
   // 달력 생성 로직
   const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
@@ -166,7 +149,7 @@ function TimeSelectionPage() {
 
   const handleSave = async () => {
     if (!participantId) {
-      showNotice({ type: "error", message: "참여 정보를 찾을 수 없습니다." });
+      showNotice({ type: "error", message: "참여 정보를 찾을 수 없어요." });
       return;
     }
 
@@ -221,7 +204,7 @@ function TimeSelectionPage() {
       });
 
       if (formattedRanges.length === 0) {
-        showNotice({ type: "error", message: "선택된 시간대가 없습니다." });
+        showNotice({ type: "error", message: "선택한 시간대가 없어요." });
         return;
       }
 
@@ -241,45 +224,18 @@ function TimeSelectionPage() {
       className="relative flex select-none flex-col overflow-y-auto px-6 py-10"
       onMouseUp={() => setIsDragging(false)}
     >
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-          aria-label="뒤로가기"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
+        <BackButton className="mb-10" />
 
         <section className="mb-10">
-          <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
-            WHERE2MEET
-          </p>
           <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
             가능한 시간을 선택해주세요
           </h1>
           <p className="m-0 text-sm leading-[1.7] text-gray-500">
-            날짜를 선택한 뒤 만날 수 있는 시간대를 눌러주세요.
+            날짜를 선택한 뒤 만날 수 있는 시간대를 눌러주세요. 저장한 뒤에도 수정할 수 있어요.
           </p>
         </section>
 
-        <section className="mb-7 rounded-3xl bg-gray-50 px-5 py-[22px]">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="m-0 text-[13px] font-bold text-gray-400">현재 모임</p>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-              {selectedTimeCount}개 선택
-            </span>
-          </div>
-          <div className="mb-2 flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
-            <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
-              {isLoading ? "모임 정보를 불러오는 중..." : meetingData.title || "모임"}
-            </p>
-          </div>
-          <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            {meetingData.description || "선택한 시간은 저장 후 수정할 수 있습니다."}
-          </p>
-        </section>
+        <MeetingTitleBar title={isLoading ? "모임 정보를 불러오는 중..." : meetingData.title || "모임"} badge={<>{selectedTimeCount}개 선택</>} description={meetingData.description} />
 
         <section className="mb-7 rounded-3xl border-[1.5px] border-gray-100 bg-white px-4 py-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
@@ -394,15 +350,7 @@ function TimeSelectionPage() {
           </button>
         </div>
 
-        {notice && (
-          <div className="pointer-events-none absolute bottom-24 left-6 right-6 z-30 text-center">
-            <p className={`m-0 text-[13px] font-extrabold leading-[1.6] drop-shadow-sm ${
-              notice.type === "success" ? "text-blue-600" : "text-red-500"
-            }`}>
-              {notice.message}
-            </p>
-          </div>
-        )}
+        {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={closeToast} />}
     </PageShell>
   );
 }

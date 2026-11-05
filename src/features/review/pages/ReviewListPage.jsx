@@ -53,7 +53,7 @@ function ReviewListPage() {
         ))}
       </div>
 
-      <p className="mb-0 mt-auto text-center text-[10px] text-[#9ca3af]">작성자는 익명으로 표시됩니다</p>
+      <p className="mb-0 mt-auto text-center text-[10px] text-[#9ca3af]">작성자는 익명으로 보여요</p>
 
       {showToast && <Toast message="리뷰가 등록됐어요. 고마워요!" onClose={closeToast} />}
     </PageShell>

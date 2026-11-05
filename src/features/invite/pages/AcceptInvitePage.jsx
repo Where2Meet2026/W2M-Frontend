@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getMeetingByInviteCode } from "../../meeting/api/meetingApi";
 import { joinMeeting } from "../../meeting/api/participantApi";
 import PageShell from "../../../shared/components/PageShell";
+import BackButton from "../../../shared/components/BackButton";
 
 function AcceptInvitePage() {
   const navigate = useNavigate();
@@ -23,7 +24,6 @@ function AcceptInvitePage() {
       // 목적지 주소를 명확하게 고정 (로그인 페이지가 저장되는 것 방지)
       const targetPath = `/invite/accept/${inviteCode}`;
       localStorage.setItem("returnUrl", targetPath);
-      console.log("AcceptInvitePage: 목적지 저장됨 ->", targetPath);
       
       // 로그인 안 되어 있으면 초대 전용 로그인 페이지로 즉시 리다이렉트
       navigate(`/invite/login/${inviteCode}`, { replace: true });
@@ -45,7 +45,7 @@ function AcceptInvitePage() {
         setMeetingData(data);
       } catch (err) {
         console.error("초대 정보 로드 실패:", err);
-        setError("유효하지 않은 초대 코드이거나 정보를 불러올 수 없습니다.");
+        setError("초대 링크가 올바르지 않거나 정보를 불러오지 못했어요.");
       } finally {
         setIsLoading(false);
       }
@@ -68,7 +68,7 @@ function AcceptInvitePage() {
       navigate(`/participate/${result.meetingId}`);
     } catch (err) {
       console.error("참여 실패:", err);
-      setSubmitError(err.message || "모임 참여 중 오류가 발생했습니다.");
+      setSubmitError(err.message || "모임에 참여하지 못했어요.");
     } finally {
       setIsSubmitting(false);
     }
@@ -106,20 +106,9 @@ function AcceptInvitePage() {
 
   return (
     <PageShell>
-        <button
-          onClick={handleDecline}
-          className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-          aria-label="뒤로가기"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
+        <BackButton onClick={handleDecline} className="mb-10" />
 
         <section className="mb-10">
-          <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
-            WHERE2MEET
-          </p>
           <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
             모임 초대가 도착했어요!
           </h1>
@@ -142,33 +131,26 @@ function AcceptInvitePage() {
               {isLoading ? "모임 정보를 불러오는 중..." : meetingData?.title || meetingData?.name || "모임"}
             </p>
           </div>
-          <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            {isLoading ? "잠시만 기다려주세요." : meetingData?.description || "모임 설명이 없습니다."}
-          </p>
-        </section>
-
-        <section className="mb-7 rounded-[20px] bg-blue-50 px-5 py-[18px]">
-          <p className="mb-1.5 text-[13px] font-extrabold text-blue-600">
-            초대 코드
-          </p>
-          <p className="m-0 break-all text-[13px] leading-[1.65] text-blue-800">
-            {inviteCode}
-          </p>
+          {(isLoading || meetingData?.description) && (
+            <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
+              {isLoading ? "잠시만 기다려주세요." : meetingData.description}
+            </p>
+          )}
         </section>
 
         <section className="mb-7 rounded-3xl border-[1.5px] border-dashed border-gray-200 bg-white px-5 py-8 text-center">
           <p className="m-0 text-base font-extrabold text-[#191f28]">
-            초대를 수락하시겠습니까?
+            초대를 수락할까요?
           </p>
           <p className="mt-2 text-[13px] leading-[1.6] text-gray-400">
-            수락하면 해당 모임의 참여자 목록에 추가됩니다.
+            수락하면 이 모임의 참여자가 돼요.
           </p>
         </section>
 
         {submitError && (
           <section className="mb-7 rounded-[20px] bg-red-50 px-5 py-[18px]">
             <p className="mb-1.5 text-[13px] font-extrabold text-red-600">
-              참여할 수 없습니다
+              참여하지 못했어요
             </p>
             <p className="m-0 text-[13px] leading-[1.65] text-red-700">
               {submitError}

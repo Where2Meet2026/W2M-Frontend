@@ -68,6 +68,31 @@ export const MapPinIcon = ({ size = 28, strokeWidth = 2 }) => (
   </svg>
 );
 
+// 카카오 로그인 버튼용 말풍선 심볼 (카카오 로그인 디자인 가이드의 검정 말풍선 모양을 단순하게 그린 것)
+export const KakaoSymbolIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.86 5.33 4.66 6.74l-.95 3.48c-.08.3.26.54.52.37l4.13-2.74c.54.06 1.08.1 1.64.1 5.52 0 10-3.58 10-8S17.52 3 12 3z"
+    />
+  </svg>
+);
+
+export const SearchIcon = ({ size = 20, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} {...base}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-3.5-3.5" />
+  </svg>
+);
+
+export const AlertCircleIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={2} {...base}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 8v4.5" />
+    <path d="M12 16h.01" />
+  </svg>
+);
+
 export const EditIcon = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth={2.2} {...base}>
     <path d="M12 20h9" />

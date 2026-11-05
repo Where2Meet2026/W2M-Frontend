@@ -49,13 +49,13 @@ function NotificationConsentPage() {
         <button
           onClick={handleAccept}
           disabled={loading || !supported}
-          className="h-[45px] w-full rounded-[14px] bg-[#3b82f6] text-sm font-bold text-white transition active:scale-95 disabled:opacity-50"
+          className="h-[54px] w-full rounded-2xl bg-[#3b82f6] text-sm font-bold text-white transition active:scale-95 disabled:opacity-50"
         >
           {loading ? "설정 중..." : "알림 받기"}
         </button>
         <button
           onClick={finish}
-          className="h-[45px] w-full rounded-[14px] border border-[#e5e7eb] text-sm font-semibold text-[#6b7280] transition active:scale-95"
+          className="h-12 w-full rounded-2xl border border-[#e5e7eb] text-sm font-semibold text-[#6b7280] transition active:scale-95"
         >
           나중에
         </button>
