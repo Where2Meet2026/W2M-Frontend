@@ -78,6 +78,7 @@ function CreateMeetingPage() {
               type="text"
               placeholder="모임 이름 입력"
               value={meetingName}
+              maxLength={100}
               onChange={(e) => setMeetingName(e.target.value)}
               disabled={isSubmitting}
               className="h-[54px] w-full rounded-2xl border-[1.5px] border-gray-200 bg-white px-4 text-[15px] font-medium outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100 disabled:text-gray-400"
@@ -90,6 +91,7 @@ function CreateMeetingPage() {
               type="text"
               placeholder="모임에 대한 간단한 설명"
               value={description}
+              maxLength={500}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
               className="h-[54px] w-full rounded-2xl border-[1.5px] border-gray-200 bg-white px-4 text-[15px] font-medium outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100 disabled:text-gray-400"

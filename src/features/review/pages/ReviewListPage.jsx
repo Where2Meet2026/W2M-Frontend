@@ -6,7 +6,6 @@ import Toast from "../../../shared/components/Toast";
 import { usePlace } from "../hooks/usePlace";
 import PlaceCard from "../components/PlaceCard";
 import ReviewCard from "../components/ReviewCard";
-import { starText } from "../utils/starText";
 import { getCandidateReviews, getReviews } from "../api/reviewApi";
 
 function ReviewListPage() {
@@ -38,7 +37,7 @@ function ReviewListPage() {
 
   const average = reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
   const summary = reviews.length
-    ? `누적 리뷰 ${reviews.length}개 · 평균 ${starText(average)}`
+    ? `누적 리뷰 ${reviews.length}개 · 평균 ★ ${average.toFixed(1)}`
     : "아직 등록된 리뷰가 없어요";
 
   return (
