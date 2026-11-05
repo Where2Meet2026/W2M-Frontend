@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup, sendCode, verifyCode } from "../api/authApi";
 import PageShell from "../../../shared/components/PageShell";
+import { CheckCircleIcon } from "../../../shared/components/Icons";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -44,9 +45,9 @@ function SignupPage() {
       setIsLoading(true);
       setNotice(null);
       await sendCode(formData.email);
-      showNotice("success", "인증코드를 발송했습니다.");
+      showNotice("success", "인증코드를 보냈어요.");
     } catch (error) {
-      showNotice("error", error.message || "인증코드 발송에 실패했습니다.");
+      showNotice("error", error.message || "인증코드를 보내지 못했어요.");
     } finally {
       setIsLoading(false);
     }
@@ -63,9 +64,9 @@ function SignupPage() {
       setNotice(null);
       await verifyCode(formData.email, formData.verificationCode);
       setIsEmailVerified(true);
-      showNotice("success", "이메일 인증이 완료되었습니다.");
+      showNotice("success", "이메일 인증이 완료됐어요.");
     } catch (error) {
-      showNotice("error", error.message || "이메일 인증에 실패했습니다.");
+      showNotice("error", error.message || "이메일 인증에 실패했어요.");
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +79,7 @@ function SignupPage() {
     }
 
     if (formData.password !== formData.passwordCheck) {
-      showNotice("error", "비밀번호가 일치하지 않습니다.");
+      showNotice("error", "비밀번호가 서로 달라요.");
       return;
     }
 
@@ -88,12 +89,12 @@ function SignupPage() {
       await signup({ email: formData.email, password: formData.password, name: formData.name });
       // 가입 후 첫 로그인 때 알림 동의 화면을 한 번 보여준다. (MainPage에서 확인)
       localStorage.setItem("showNotificationConsent", "true");
-      showNotice("success", "회원가입이 완료되었습니다. 로그인 화면으로 이동합니다.");
+      showNotice("success", "가입이 완료됐어요. 로그인 화면으로 이동해요.");
       navigateTimerRef.current = setTimeout(() => {
         navigate("/", { replace: true });
       }, 1200);
     } catch (error) {
-      showNotice("error", error.message || "회원가입 중 오류가 발생했습니다.");
+      showNotice("error", error.message || "회원가입에 실패했어요. 잠시 후 다시 시도해주세요.");
       setIsLoading(false);
     }
   };
@@ -150,7 +151,10 @@ function SignupPage() {
               </button>
             </div>
             {isEmailVerified && (
-              <p className="mt-2 text-xs font-bold text-green-500">✓ 이메일 인증 완료</p>
+              <p className="mt-2 flex items-center gap-1 text-xs font-bold text-green-500">
+                <CheckCircleIcon size={14} />
+                이메일 인증 완료
+              </p>
             )}
           </div>
 
@@ -170,10 +174,10 @@ function SignupPage() {
 
         {/* 버튼 */}
         <div className="flex gap-3 mt-8">
-          <button onClick={() => navigate("/")} className="flex-1 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-xl transition active:scale-95">
+          <button onClick={() => navigate("/")} className="flex-1 h-[54px] bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-2xl transition active:scale-95">
             뒤로가기
           </button>
-          <button onClick={handleSignup} disabled={isLoading} className="flex-1 h-12 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-xl transition active:scale-95 disabled:bg-gray-200 disabled:text-gray-400">
+          <button onClick={handleSignup} disabled={isLoading} className="flex-1 h-[54px] bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-2xl transition active:scale-95 disabled:bg-gray-200 disabled:text-gray-400">
             {isLoading ? "처리 중..." : "가입하기"}
           </button>
         </div>

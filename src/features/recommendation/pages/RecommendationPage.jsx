@@ -4,6 +4,8 @@ import { confirmMeetingTime, getMeetingDetails } from "../../meeting/api/meeting
 import { getMyParticipant } from "../../meeting/api/participantApi";
 import { getRecommendations } from "../api/recommendationApi";
 import PageShell from "../../../shared/components/PageShell";
+import MeetingTitleBar from "../../../shared/components/MeetingTitleBar";
+import BackButton from "../../../shared/components/BackButton";
 import { usePolling } from "../../../shared/hooks/usePolling";
 
 function RecommendationPage() {
@@ -21,7 +23,7 @@ function RecommendationPage() {
 
   const getDisplayErrorMessage = (error, fallbackMessage) => {
     if (error?.message === "Failed to fetch") {
-      return "백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.";
+      return "서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요.";
     }
 
     return error?.message || fallbackMessage;
@@ -49,7 +51,7 @@ function RecommendationPage() {
         setMyRole(myParticipant.role || "");
       } catch (error) {
         console.error("데이터 로드 실패:", error);
-        setErrorMessage(getDisplayErrorMessage(error, "추천 정보를 불러오는데 실패했습니다."));
+        setErrorMessage(getDisplayErrorMessage(error, "추천 정보를 불러오지 못했어요."));
       } finally {
         setIsLoading(false);
       }
@@ -113,7 +115,7 @@ function RecommendationPage() {
       await confirmMeetingTime(meetingId, selectedSlot);
       navigate(`/location/${meetingId}`);
     } catch (error) {
-      setErrorMessage(getDisplayErrorMessage(error, "약속 시간 확정에 실패했습니다."));
+      setErrorMessage(getDisplayErrorMessage(error, "시간을 확정하지 못했어요."));
     } finally {
       setIsConfirming(false);
     }
@@ -121,20 +123,9 @@ function RecommendationPage() {
 
   return (
     <PageShell className="flex flex-col overflow-y-auto px-6 py-10">
-        <button
-          onClick={handleBack}
-          className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-          aria-label="뒤로가기"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191f28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
+        <BackButton onClick={handleBack} className="mb-10" />
 
         <section className="mb-10">
-          <p className="mb-2.5 text-xs font-extrabold tracking-[0.5px] text-blue-500">
-            WHERE2MEET
-          </p>
           <h1 className="mb-2.5 text-[28px] font-extrabold leading-tight tracking-[-1px]">
             추천 약속 시간
           </h1>
@@ -143,36 +134,19 @@ function RecommendationPage() {
           </p>
         </section>
 
-        <section className="mb-7 rounded-3xl bg-gray-50 px-5 py-[22px]">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="m-0 text-[13px] font-bold text-gray-400">현재 모임</p>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-              추천 결과
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
-            <p className="m-0 min-w-0 truncate text-[17px] font-extrabold">
-              {isLoading ? "모임 정보를 불러오는 중..." : meetingData.title || "모임"}
-            </p>
-          </div>
-          <p className="m-0 mt-2 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            모임 ID: {meetingId}
-          </p>
-        </section>
+        <MeetingTitleBar title={isLoading ? "모임 정보를 불러오는 중..." : meetingData.title || "모임"} badge="추천 결과" />
 
         <section className="mb-7 flex-1">
           {isLoading ? (
             <div className="rounded-3xl bg-gray-50 px-5 py-10 text-center">
               <p className="m-0 text-sm font-extrabold text-gray-500">
-                추천 시간을 계산 중입니다...
+                추천 시간을 계산하고 있어요...
               </p>
             </div>
           ) : errorMessage ? (
             <div className="rounded-[20px] bg-red-50 px-5 py-[18px]">
               <p className="mb-1.5 text-[13px] font-extrabold text-red-600">
-                불러올 수 없습니다
+                불러오지 못했어요
               </p>
               <p className="m-0 text-[13px] leading-[1.65] text-red-700">
                 {errorMessage}
@@ -228,7 +202,7 @@ function RecommendationPage() {
                     명 가능
                   </p>
                   <p className="m-0 text-[13px] leading-[1.6] text-gray-400">
-                    {(slot.participantNames || []).join(", ") || "참여자 정보가 없습니다."}
+                    {(slot.participantNames || []).join(", ") || "참여자 정보가 없어요."}
                   </p>
                 </button>
                 );
@@ -243,7 +217,7 @@ function RecommendationPage() {
                 </svg>
               </div>
               <p className="text-sm font-extrabold text-gray-600">
-                아직 입력된 시간 데이터가 없습니다
+                아직 입력된 시간이 없어요
               </p>
               <p className="mt-1 text-xs leading-[1.6] text-gray-400">
                 가능한 시간을 먼저 선택해주세요.
@@ -265,7 +239,7 @@ function RecommendationPage() {
             <p className={`mb-1.5 text-[13px] font-extrabold ${
               isTimeConfirmed ? "text-green-600" : "text-blue-600"
             }`}>
-              {isTimeConfirmed ? "시간이 확정되었습니다" : "방장이 시간을 확정합니다"}
+              {isTimeConfirmed ? "시간이 확정됐어요" : "방장이 시간을 확정해요"}
             </p>
             <p className={`m-0 text-[13px] leading-[1.65] ${
               isTimeConfirmed ? "text-green-700" : "text-blue-800"

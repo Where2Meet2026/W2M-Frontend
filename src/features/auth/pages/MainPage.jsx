@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/authApi";
 import PageShell from "../../../shared/components/PageShell";
+import { KakaoSymbolIcon } from "../../../shared/components/Icons";
 
 function MainPage() {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ function MainPage() {
       const returnUrl = localStorage.getItem("returnUrl");
       navigate(returnUrl && returnUrl.startsWith("/") ? returnUrl : "/home", { replace: true });
     } catch (error) {
-      setNotice({ type: "error", message: error.message || "로그인 중 오류가 발생했습니다." });
+      setNotice({ type: "error", message: error.message || "로그인하지 못했어요. 잠시 후 다시 시도해주세요." });
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +68,7 @@ function MainPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="h-12 w-full rounded-xl border border-gray-200 px-4 text-sm font-medium outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                className="h-[54px] w-full rounded-2xl border border-gray-200 px-4 text-[15px] font-medium outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               />
               <input
                 type="password"
@@ -75,22 +76,23 @@ function MainPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className="h-12 w-full rounded-xl border border-gray-200 px-4 text-sm font-medium outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                className="h-[54px] w-full rounded-2xl border border-gray-200 px-4 text-[15px] font-medium outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <button
               onClick={handleLogin}
               disabled={isLoading}
-              className="mb-3 h-12 w-full rounded-xl bg-blue-500 text-sm font-bold text-white transition hover:bg-blue-600 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400"
+              className="mb-3 h-[54px] w-full rounded-2xl bg-blue-500 text-sm font-bold text-white transition hover:bg-blue-600 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400"
             >
               {isLoading ? "로그인 중..." : "로그인"}
             </button>
 
             <button
               onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/kakao`}
-              className="mb-4 h-12 w-full rounded-xl bg-yellow-400 text-sm font-bold text-gray-900 transition hover:bg-yellow-500 active:scale-95"
+              className="mb-4 flex h-[54px] w-full items-center justify-center gap-2 rounded-2xl bg-[#FEE500] text-sm font-bold text-black/85 transition hover:bg-[#f2d900] active:scale-95"
             >
+              <KakaoSymbolIcon />
               카카오로 시작하기
             </button>
 

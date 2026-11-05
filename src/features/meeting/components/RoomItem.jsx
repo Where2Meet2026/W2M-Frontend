@@ -10,21 +10,21 @@ function RoomItem({ room, onClick, onReview, onRefresh, onNotice, onAskConfirm }
   const handleDelete = (e) => {
     e.stopPropagation(); // 부모의 onClick 이벤트 방지
     onAskConfirm({
-      title: "방을 삭제할까요?",
-      description: `"${room.name}" 방을 삭제하면 복구할 수 없고,\n모든 참여자의 목록에서도 사라져요.`,
+      title: "모임을 삭제할까요?",
+      description: `"${room.name}" 모임을 삭제하면 복구할 수 없고,\n모든 참여자의 목록에서도 사라져요.`,
       confirmLabel: "삭제하기",
       action: async () => {
         try {
           await deleteMeeting(room.id);
           if (onRefresh) await onRefresh();
           if (onNotice) {
-            onNotice({ type: "success", message: "방이 삭제되었습니다." });
+            onNotice({ type: "success", message: "모임을 삭제했어요." });
           }
         } catch (error) {
           if (onNotice) {
             onNotice({
               type: "error",
-              message: error.message || "방 삭제에 실패했습니다.",
+              message: error.message || "모임을 삭제하지 못했어요.",
             });
           }
         }
@@ -45,14 +45,14 @@ function RoomItem({ room, onClick, onReview, onRefresh, onNotice, onAskConfirm }
           await leaveMeeting(room.id);
           if (onRefresh) await onRefresh();
           if (onNotice) {
-            onNotice({ type: "success", message: "모임에서 나갔습니다." });
+            onNotice({ type: "success", message: "모임에서 나갔어요." });
           }
         } catch (error) {
           // 목록을 연 뒤에 장소 추천이 시작됐다면 서버가 409로 막는다 → 그 안내 문구를 그대로 보여준다
           if (onNotice) {
             onNotice({
               type: "error",
-              message: error.message || "모임 나가기에 실패했습니다.",
+              message: error.message || "모임에서 나가지 못했어요.",
             });
           }
         }
@@ -85,9 +85,11 @@ function RoomItem({ room, onClick, onReview, onRefresh, onNotice, onAskConfirm }
             {room.name}
           </p>
         </div>
-        <p className="m-0 truncate text-[13px] font-medium text-gray-400">
-          {room.description || "모임 설명이 없습니다."}
-        </p>
+        {room.description && (
+          <p className="m-0 truncate text-[13px] font-medium text-gray-400">
+            {room.description}
+          </p>
+        )}
       </div>
       
       <div className="flex shrink-0 items-center gap-2">
@@ -97,7 +99,7 @@ function RoomItem({ room, onClick, onReview, onRefresh, onNotice, onAskConfirm }
             className="rounded-full bg-red-50 px-3 py-1.5 text-[11px] font-extrabold text-red-500"
             onClick={handleDelete}
           >
-            방 삭제
+            모임 삭제
           </button>
         )}
         {room.canLeave && (
