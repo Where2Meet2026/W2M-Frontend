@@ -37,7 +37,7 @@ function LocationWaitingPage() {
     if (meetingId) fetchInitialData();
   }, [meetingId]);
 
-  // 참여자 상태만 주기적으로 업데이트 (폴링) - 5초마다, 탭이 가려지면 멈춤
+  // 참여자 상태만 주기적으로 업데이트 (폴링) - 3초마다, 탭이 가려지면 멈춤
   const updateParticipantStatus = async () => {
     try {
       const participantList = await getParticipants(meetingId);
@@ -47,7 +47,7 @@ function LocationWaitingPage() {
     }
   };
 
-  usePolling(updateParticipantStatus, 5000, Boolean(meetingId));
+  usePolling(updateParticipantStatus, 3000, Boolean(meetingId));
 
   const allSelected = participants.length > 0 && participants.every((p) => p.isLocationSelected);
 
@@ -89,7 +89,7 @@ function LocationWaitingPage() {
             </p>
           </div>
           <p className="m-0 pl-5 text-[13px] leading-[1.6] text-gray-500">
-            5초마다 참여자 입력 상태를 새로 확인합니다.
+            3초마다 참여자 입력 상태를 새로 확인합니다.
           </p>
         </section>
 

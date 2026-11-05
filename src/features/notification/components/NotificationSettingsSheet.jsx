@@ -1,9 +1,9 @@
 import { useState } from "react";
 import BottomSheet from "../../../shared/components/BottomSheet";
-import { usePushSubscription } from "../hooks/usePushSubscription";
+import { IOS_INSTALL_GUIDE, UNSUPPORTED_MESSAGE, usePushSubscription } from "../hooks/usePushSubscription";
 
 function NotificationSettingsSheet({ onClose }) {
-  const { supported, subscribed, subscribe, unsubscribe } = usePushSubscription();
+  const { supported, needsInstall, subscribed, subscribe, unsubscribe } = usePushSubscription();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -41,7 +41,11 @@ function NotificationSettingsSheet({ onClose }) {
           />
         </button>
       </div>
-      {!supported && <p className="mt-3 text-xs text-gray-400">이 브라우저는 웹 알림을 지원하지 않아요.</p>}
+      {!supported && (
+        <p className="mt-3 break-keep text-xs leading-relaxed text-gray-400">
+          {needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE}
+        </p>
+      )}
       {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
     </BottomSheet>
   );
