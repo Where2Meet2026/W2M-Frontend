@@ -32,10 +32,14 @@ function HomePage() {
         >
           <BellIcon />
         </button>
-        {showSettings && <NotificationSettingsSheet onClose={() => setShowSettings(false)} />}
-        {showPending && (
-          <ReviewPendingSheet pending={pending} onSelect={goReview} onClose={() => setShowPending(false)} />
-        )}
+        {/* 두 시트는 항상 그려 두고 열림 여부만 바꾼다 → 다른 시트처럼 아래에서 올라오고 내려간다 */}
+        <NotificationSettingsSheet isOpen={showSettings} onClose={() => setShowSettings(false)} />
+        <ReviewPendingSheet
+          isOpen={showPending}
+          pending={pending}
+          onSelect={goReview}
+          onClose={() => setShowPending(false)}
+        />
         <div className="w-full">
 
         {/* 로고 */}
@@ -50,7 +54,7 @@ function HomePage() {
         <div className="space-y-4">
           <button
             onClick={() => navigate("/get-room")}
-            className="w-full h-16 bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl text-left px-6 flex items-center gap-4 shadow-sm transition active:scale-95"
+            className="w-full h-16 bg-white border border-gray-100 hover:border-blue-200 active:bg-gray-50 rounded-2xl text-left px-6 flex items-center gap-4 shadow-sm transition active:scale-[0.98]"
           >
             <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,9 +69,9 @@ function HomePage() {
 
           <button
             onClick={() => navigate("/create-meeting")}
-            className="w-full h-16 bg-blue-500 hover:bg-blue-600 rounded-2xl text-left px-6 flex items-center gap-4 shadow-sm transition active:scale-95"
+            className="w-full h-16 bg-blue-500 hover:bg-blue-600 active:bg-blue-600 rounded-2xl text-left px-6 flex items-center gap-4 shadow-sm transition active:scale-[0.98]"
           >
-            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-xl flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>

@@ -6,6 +6,7 @@ import PageShell from "../../../shared/components/PageShell";
 import { usePolling } from "../../../shared/hooks/usePolling";
 import { getMeetingDetails } from "../../meeting/api/meetingApi";
 import { getVoteStatus, castVote } from "../../vote/api/voteApi";
+import { CoffeeIcon, UtensilsIcon, MapPinIcon } from "../../../shared/components/Icons";
 
 const TYPE_LABEL = {
   FASTEST: "가장 빠른 동선",
@@ -15,9 +16,42 @@ const TYPE_LABEL = {
 
 // 서버가 내려주는 설명(리뷰가 쌓인 장소는 AI 요약, 아니면 "평균 Nm · 라벨")을 그대로 보여준다.
 // 설명이 비어 있는 예전 후보만 거리와 유형으로 직접 만든다.
+// 1km 이상이면 "5.9km", 미만이면 "650m"
+const formatDistance = (meters) => {
+  const rounded = Math.round(meters);
+  return rounded >= 1000 ? `${(rounded / 1000).toFixed(1)}km` : `${rounded}m`;
+};
+
 const getDescription = (candidate) =>
   candidate.description ||
-  `평균 ${Math.round(candidate.avgDistanceMeters)}m · ${TYPE_LABEL[candidate.type]}`;
+  `평균 ${formatDistance(candidate.avgDistanceMeters)} · ${TYPE_LABEL[candidate.type]}`;
+
+// 장소 사진 대신 쓰는 카테고리 아이콘 (카카오 카테고리 코드: CE7 카페, FD6 음식점). 코드가 없는 예전 후보는 지도 핀
+const PlaceCategoryIcon = ({ code }) => {
+  if (code === "CE7") return <CoffeeIcon />;
+  if (code === "FD6") return <UtensilsIcon />;
+  return <MapPinIcon />;
+};
+
+// 카드 제목 아래 한 줄: 서버가 대중교통 시간을 계산했으면 분 단위, 못 했으면(예전 후보, API 실패) 직선거리
+const getTravelSummary = (candidate) => {
+  const travel =
+    candidate.avgTravelMinutes != null
+      ? `평균 ${candidate.avgTravelMinutes}분 · 최대 ${candidate.maxTravelMinutes}분`
+      : `평균 ${formatDistance(candidate.avgDistanceMeters)}`;
+  return `${TYPE_LABEL[candidate.type]} · ${travel}`;
+};
+
+// 후보를 처음 만들 때 서버가 하는 일 순서 (참여자 위치 → 카카오 장소 검색 → ODsay 이동 시간 → 3곳 선정).
+// 실제 진행률이 아니라 기다리는 동안 무슨 일을 하는지 보여주는 안내 문구다.
+const LOADING_STEPS = [
+  "참여자들의 출발 위치를 모으고 있어요",
+  "중간 지점 근처 카페·식당을 찾고 있어요",
+  "대중교통 이동 시간을 계산하고 있어요",
+  "추천할 3곳을 고르고 있어요",
+];
+const LOADER_DELAY_MS = 300; // 이보다 빨리 끝나면 로딩 화면을 아예 띄우지 않는다 (깜빡임 방지)
+const LOADING_STEP_MS = 1500;
 
 function CandidatePage() {
   const navigate = useNavigate();
@@ -31,6 +65,24 @@ function CandidatePage() {
   const [isVoting, setIsVoting] = useState(false);
   const [voteError, setVoteError] = useState("");
   const [isReacting, setIsReacting] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  // 후보가 이미 있으면 금방 불러와져서 로딩 화면이 깜빡이기만 했다 → 0.3초 넘게 걸릴 때만 보여준다.
+  // 처음 만들 때는 대중교통 시간 계산으로 몇 초 걸리니까, 그동안 단계 문구를 하나씩 넘긴다.
+  useEffect(() => {
+    if (!isLoading) return;
+    const showTimer = setTimeout(() => setShowLoader(true), LOADER_DELAY_MS);
+    const stepTimer = setInterval(() => {
+      setLoadingStep((step) => Math.min(step + 1, LOADING_STEPS.length - 1));
+    }, LOADING_STEP_MS);
+    return () => {
+      clearTimeout(showTimer);
+      clearInterval(stepTimer);
+      setShowLoader(false);
+      setLoadingStep(0);
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -152,7 +204,9 @@ function CandidatePage() {
         </svg>
       </button>
 
-      {isLoading ? (
+      {isLoading && !showLoader ? (
+        <div className="flex-1" />
+      ) : isLoading ? (
         <div className="flex flex-1 flex-col items-center justify-center pb-20">
           <p className="mb-6 text-xs font-extrabold tracking-[0.5px] text-blue-500">
             WHERE2MEET
@@ -183,7 +237,25 @@ function CandidatePage() {
           <h2 className="mb-1.5 text-lg font-extrabold text-[#191f28]">
             맞춤 장소를 찾고 있어요
           </h2>
-          <p className="m-0 text-[13px] text-gray-400"> 잠시만 기다려주세요</p>
+          <p className="m-0 text-[13px] text-gray-500" aria-live="polite">
+            {LOADING_STEPS[loadingStep]}
+          </p>
+
+          {/* 단계 표시: 지난 단계와 지금 단계는 파랑 */}
+          <div className="mt-5 flex gap-1.5" aria-hidden="true">
+            {LOADING_STEPS.map((step, index) => (
+              <span
+                key={step}
+                className={`h-1.5 w-6 rounded-full transition-colors duration-300 ${
+                  index <= loadingStep ? "bg-blue-500" : "bg-gray-200"
+                }`}
+              />
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs text-gray-400">
+            처음 추천할 때는 몇 초 걸릴 수 있어요
+          </p>
         </div>
       ) : errorMessage ? (
         <div className="flex flex-1 flex-col justify-center pb-20">
@@ -331,7 +403,9 @@ function CandidatePage() {
                   >
                     <div className="flex gap-3">
                     <div className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
-                      <div className="h-[72px] w-[72px] rounded-2xl bg-gray-200" />
+                      <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-blue-50 text-blue-500">
+                        <PlaceCategoryIcon code={candidate.categoryCode} />
+                      </div>
                       <div className="flex items-center gap-2.5">
                         <button
                           type="button"
@@ -401,6 +475,9 @@ function CandidatePage() {
                     <div className="min-w-0 flex-1">
                       <p className="mb-1 truncate text-base font-extrabold text-[#191f28]">
                         {candidate.placeName}
+                      </p>
+                      <p className="m-0 truncate text-xs text-gray-500">
+                        {getTravelSummary(candidate)}
                       </p>
 
                       <div className="mt-2 flex items-center gap-1.5">

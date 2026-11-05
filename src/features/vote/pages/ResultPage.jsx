@@ -7,7 +7,10 @@ import {
 import PageShell from "../../../shared/components/PageShell";
 import { getParticipants } from "../../meeting/api/participantApi";
 import ShareBottomSheet from "../../../shared/components/ShareBottomSheet";
+import MapAppSheet from "../../../shared/components/MapAppSheet";
 import { shareToKakao } from "../../../shared/lib/kakaoShare";
+import ResultMap from "../components/ResultMap";
+import { HomeIcon } from "../../../shared/components/Icons";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -41,6 +44,7 @@ function ResultPage() {
   const [participants, setParticipants] = useState([]);
   const [inviteCode, setInviteCode] = useState("");
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isMapAppOpen, setIsMapAppOpen] = useState(false);
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
@@ -75,11 +79,6 @@ function ResultPage() {
   const showNotice = (message) => {
     setNotice(message);
     setTimeout(() => setNotice(""), 3000);
-  };
-
-  const handleOpenMap = () => {
-    const url = `https://map.kakao.com/link/map/${encodeURIComponent(result.placeName)},${result.latitude},${result.longitude}`;
-    window.open(url, "_blank", "noopener");
   };
 
   const handleCopyLink = async () => {
@@ -118,24 +117,34 @@ function ResultPage() {
 
   return (
     <PageShell>
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
-        aria-label="뒤로가기"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#191f28"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      <div className="mb-10 flex items-center justify-between">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 transition active:scale-95"
+          aria-label="뒤로가기"
         >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#191f28"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        {/* 확정 후에는 더 할 일이 없어서 홈으로 바로 갈 수 있게 한다 (뒤로가기는 투표 화면으로 돌아감) */}
+        <button
+          onClick={() => navigate("/home")}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-gray-100 text-[#191f28] transition active:scale-95"
+          aria-label="홈으로"
+        >
+          <HomeIcon />
+        </button>
+      </div>
 
       {isLoading ? (
         <p className="m-0 text-center text-sm font-bold text-gray-400">
@@ -166,14 +175,8 @@ function ResultPage() {
 
           <section className="mb-4 overflow-hidden rounded-3xl bg-gray-50">
             <div className="relative flex h-[176px] items-center justify-center bg-gray-200">
-              {CATEGORY_LABEL[category] && (
-                <span className="absolute left-4 top-4 rounded-full bg-blue-100 px-3 py-1 text-[11px] font-extrabold text-blue-600">
-                  {CATEGORY_LABEL[category]}
-                </span>
-              )}
-              <span className="absolute right-4 top-4 rounded-full bg-green-50 px-3 py-1 text-[11px] font-extrabold text-green-600">
-                확정 완료
-              </span>
+              {/* 지도가 뜨면 아래의 기본 핀 아이콘을 덮고, 못 뜨면 기본 디자인이 그대로 보인다 */}
+              <ResultMap latitude={result.latitude} longitude={result.longitude} />
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-500 text-white">
                 <svg
                   width="22"
@@ -190,10 +193,21 @@ function ResultPage() {
               </div>
             </div>
             <div className="px-5 py-4">
+              {/* 지도 위에 두면 지도 글자와 겹쳐서 장소 이름 위로 옮겼다 */}
+              {CATEGORY_LABEL[category] && (
+                <span className="mb-2 inline-block rounded-full bg-blue-100 px-2.5 py-0.5 text-[11px] font-extrabold text-blue-600">
+                  {CATEGORY_LABEL[category]}
+                </span>
+              )}
               <p className="mb-1.5 truncate text-[17px] font-extrabold">
                 {result.placeName}
               </p>
               <p className="m-0 text-[13px] text-gray-500">{result.address}</p>
+              {result.avgTravelMinutes != null && (
+                <p className="m-0 mt-1.5 text-[13px] font-bold text-blue-500">
+                  대중교통으로 평균 {result.avgTravelMinutes}분
+                </p>
+              )}
             </div>
           </section>
 
@@ -265,7 +279,7 @@ function ResultPage() {
           <div className="mt-auto space-y-3 pt-4">
             <button
               type="button"
-              onClick={handleOpenMap}
+              onClick={() => setIsMapAppOpen(true)}
               className="h-[54px] w-full rounded-2xl border-0 bg-blue-500 text-base font-extrabold text-white transition hover:bg-blue-600 active:scale-95"
             >
               지도에서 보기
@@ -306,6 +320,17 @@ function ResultPage() {
             }
             onKakaoShare={handleKakaoShare}
             onCopyLink={handleCopyLink}
+          />
+
+          {/* 예전에는 카카오맵 지도만 바로 열었는데, 이제 카카오맵/네이버 지도 중에서 골라 그 장소 화면을 연다 */}
+          <MapAppSheet
+            isOpen={isMapAppOpen}
+            onClose={() => setIsMapAppOpen(false)}
+            placeName={result.placeName}
+            address={result.address}
+            kakaoPlaceId={result.kakaoPlaceId}
+            latitude={result.latitude}
+            longitude={result.longitude}
           />
 
           {notice && (
