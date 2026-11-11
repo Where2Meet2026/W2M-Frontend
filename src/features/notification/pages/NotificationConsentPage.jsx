@@ -3,6 +3,22 @@ import { useNavigate } from "react-router-dom";
 import PageShell from "../../../shared/components/PageShell";
 import NotificationUnsupportedSheet from "../components/NotificationUnsupportedSheet";
 import { usePushSubscription } from "../hooks/usePushSubscription";
+import { getMyMeetings } from "../../meeting/api/meetingApi";
+
+// 복귀 주소가 없을 때 가려고 하는 화면: 내가 초대받아 참여 중인, 아직 끝나지 않은 가장 최근 모임의 참여자 화면.
+// 초대를 수락한 곳과 알림을 켜는 곳의 저장소가 다르면(예: 홈 화면에 추가한 앱) returnUrl이 없어서 홈으로 끊기기 때문이다.
+// 방장은 모임을 만들 때 이미 모임 화면으로 가므로 참여자 모임만 찾는다. 찾지 못하거나 요청이 실패하면 null.
+async function findResumePath() {
+  try {
+    const meetings = await getMyMeetings();
+    const target = (meetings || [])
+      .filter((m) => m.role === "PARTICIPANT" && m.status !== "CONFIRMED")
+      .sort((a, b) => b.meetingId - a.meetingId)[0];
+    return target ? `/participate/${target.meetingId}` : null;
+  } catch {
+    return null;
+  }
+}
 
 // 이동할 주소는 화면이 처음 열릴 때 한 번만 읽는다.
 // finish()가 returnUrl을 지운 뒤 화면이 다시 그려져도 목적지가 /home으로 바뀌지 않게 하기 위해서다.
@@ -23,11 +39,13 @@ function NotificationConsentPage() {
   const finished = useRef(false);
   const afterInviteAcceptance = nextPath.startsWith("/participate/");
 
-  const finish = useCallback(() => {
+  // resumeMeeting: 복귀 주소가 없을 때 홈 대신 내 진행 중 참여 모임으로 보낸다. 사용자가 버튼을 눌렀을 때만 쓴다.
+  const finish = useCallback(async ({ resumeMeeting = false } = {}) => {
     if (finished.current) return; // 이동은 한 번만 한다
     finished.current = true;
     localStorage.removeItem("returnUrl");
-    navigate(nextPath, { replace: true });
+    const target = resumeMeeting && nextPath === "/home" ? (await findResumePath()) ?? nextPath : nextPath;
+    navigate(target, { replace: true });
   }, [navigate, nextPath]);
 
   // 회원가입·로그인 직후에 이미 이 기기로 알림을 받고 있으면 동의 화면을 건너뛴다.
@@ -48,7 +66,7 @@ function NotificationConsentPage() {
     setError("");
     try {
       await subscribe();
-      finish();
+      await finish({ resumeMeeting: true });
     } catch (e) {
       setError(e.message);
     } finally {
@@ -84,7 +102,7 @@ function NotificationConsentPage() {
           {loading ? "설정 중..." : "알림 받기"}
         </button>
         <button
-          onClick={finish}
+          onClick={() => finish({ resumeMeeting: true })}
           disabled={loading}
           className="h-12 w-full rounded-2xl border border-[#e5e7eb] text-sm font-semibold text-[#6b7280] transition active:scale-95"
         >
