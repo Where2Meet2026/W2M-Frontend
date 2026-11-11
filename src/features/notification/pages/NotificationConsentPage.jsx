@@ -1,22 +1,31 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../../../shared/components/PageShell";
 import { IOS_INSTALL_GUIDE, UNSUPPORTED_MESSAGE, usePushSubscription } from "../hooks/usePushSubscription";
+
+// 이동할 주소는 화면이 처음 열릴 때 한 번만 읽는다.
+// finish()가 returnUrl을 지운 뒤 화면이 다시 그려져도 목적지가 /home으로 바뀌지 않게 하기 위해서다.
+function readNextPath() {
+  const returnUrl = localStorage.getItem("returnUrl");
+  return returnUrl?.startsWith("/") && !returnUrl.startsWith("//") && returnUrl !== "/notification"
+    ? returnUrl
+    : "/home";
+}
 
 function NotificationConsentPage() {
   const navigate = useNavigate();
   const { supported, needsInstall, ready, setupError, subscribed, subscribe } = usePushSubscription();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const returnUrl = localStorage.getItem("returnUrl");
-  const nextPath = returnUrl?.startsWith("/") && !returnUrl.startsWith("//") && returnUrl !== "/notification"
-    ? returnUrl
-    : "/home";
+  const [nextPath] = useState(readNextPath);
+  const finished = useRef(false);
   const afterInviteAcceptance = nextPath.startsWith("/participate/");
   const permissionDenied = supported && Notification.permission === "denied";
   const canSubscribe = supported && !permissionDenied;
 
   const finish = useCallback(() => {
+    if (finished.current) return; // 이동은 한 번만 한다
+    finished.current = true;
     localStorage.removeItem("returnUrl");
     navigate(nextPath, { replace: true });
   }, [navigate, nextPath]);
