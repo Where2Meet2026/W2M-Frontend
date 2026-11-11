@@ -64,8 +64,9 @@ function AcceptInvitePage() {
       setIsSubmitting(true);
       setSubmitError("");
       const result = await joinMeeting(inviteCode);
-      // 참여 성공 후 해당 모임 페이지로 이동
-      navigate(`/participate/${result.meetingId}`);
+      // 참여를 완료한 뒤 알림을 설정하고 참여자 화면으로 이동한다.
+      localStorage.setItem("returnUrl", `/participate/${result.meetingId}`);
+      navigate("/notification", { replace: true });
     } catch (err) {
       console.error("참여 실패:", err);
       setSubmitError(err.message || "모임에 참여하지 못했어요.");

@@ -38,7 +38,7 @@ function GuestLoginPage() {
       if (!data.token) throw new Error("로그인을 완료하지 못했어요.");
       localStorage.setItem("token", data.token);
       localStorage.setItem("returnUrl", invitePath);
-      navigate("/notification", { replace: true });
+      navigate(invitePath, { replace: true });
       
     } catch (error) {
       console.error("로그인 에러:", error);
@@ -65,7 +65,7 @@ function GuestLoginPage() {
             모임 참여를 위해 로그인해주세요
           </h1>
           <p className="m-0 text-sm leading-[1.7] text-gray-500">
-            로그인하면 알림을 설정하고 초대받은 모임을 확인할 수 있어요.
+            로그인하면 초대받은 모임을 확인할 수 있어요.
           </p>
         </section>
 
