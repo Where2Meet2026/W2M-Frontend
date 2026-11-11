@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { subscribePush, unsubscribePush } from "../api/notificationApi";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getPushSubscriptionStatus, subscribePush, unsubscribePush } from "../api/notificationApi";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
@@ -29,53 +29,80 @@ function urlBase64ToUint8Array(base64) {
   return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
-async function getRegistration() {
-  await navigator.serviceWorker.register("/sw.js");
-  return navigator.serviceWorker.ready;
-}
-
 export function usePushSubscription() {
   const supported = isSupported();
   const needsInstall = !supported && isIos() && !isStandalone();
+  const registration = useRef(null);
+  const subscription = useRef(null);
   const [subscribed, setSubscribed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [setupError, setSetupError] = useState("");
 
   useEffect(() => {
     if (!supported) return;
-    navigator.serviceWorker
-      .getRegistration("/sw.js")
-      .then((reg) => reg?.pushManager.getSubscription())
-      .then((sub) => setSubscribed(Boolean(sub)))
-      .catch(() => {});
+    let cancelled = false;
+
+    async function prepare() {
+      try {
+        await navigator.serviceWorker.register("/sw.js");
+        const worker = await navigator.serviceWorker.ready;
+        const existing = await worker.pushManager.getSubscription();
+        if (cancelled) return;
+        registration.current = worker;
+        subscription.current = existing;
+        const registered = existing && await getPushSubscriptionStatus(existing.endpoint);
+        if (!cancelled) setSubscribed(registered === true);
+      } catch {
+        if (!cancelled) {
+          setSetupError(registration.current
+            ? "알림 구독 상태를 확인하지 못했어요. 다시 설정해 주세요."
+            : "알림 설정을 준비하지 못했어요. 페이지를 새로고침해 주세요.");
+        }
+      } finally {
+        if (!cancelled) setReady(Boolean(registration.current));
+      }
+    }
+
+    prepare();
+    return () => { cancelled = true; };
   }, [supported]);
 
   const subscribe = useCallback(async () => {
-    if (!supported) throw new Error(needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE);
+    setSetupError("");
+    if (!registration.current) throw new Error("알림 설정을 준비하고 있어요.");
+    if (Notification.permission === "denied") {
+      throw new Error("브라우저 설정에서 이 사이트의 알림을 허용해 주세요.");
+    }
+    if (!subscription.current && !VAPID_PUBLIC_KEY?.trim()) {
+      throw new Error("알림 서비스 설정이 아직 준비되지 않았어요.");
+    }
 
-    const result = await Notification.requestPermission();
-    if (result !== "granted") throw new Error("알림 권한이 허용되지 않았어요.");
-
-    const reg = await getRegistration();
-    const sub =
-      (await reg.pushManager.getSubscription()) ||
-      (await reg.pushManager.subscribe({
+    let sub;
+    try {
+      // Service Worker를 미리 준비해 버튼을 누른 이벤트에서 바로 권한을 요청한다.
+      sub = subscription.current ?? await registration.current.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      }));
-
-    // sub.toJSON()이 백엔드가 기대하는 { endpoint, keys: { p256dh, auth } } 형태를 그대로 만들어준다.
+      });
+    } catch (error) {
+      if (error.name === "NotAllowedError") {
+        throw new Error("알림 권한이 허용되지 않았어요.");
+      }
+      throw error;
+    }
+    subscription.current = sub;
     await subscribePush(sub.toJSON());
     setSubscribed(true);
-  }, [supported, needsInstall]);
-
-  const unsubscribe = useCallback(async () => {
-    const reg = await navigator.serviceWorker.getRegistration("/sw.js");
-    const sub = await reg?.pushManager.getSubscription();
-    if (sub) {
-      await unsubscribePush(sub.endpoint);
-      await sub.unsubscribe();
-    }
-    setSubscribed(false);
   }, []);
 
-  return { supported, needsInstall, subscribed, subscribe, unsubscribe };
+  const unsubscribe = useCallback(async () => {
+    setSetupError("");
+    const sub = subscription.current;
+    if (sub) await unsubscribePush(sub.endpoint);
+    setSubscribed(false);
+    if (sub) await sub.unsubscribe();
+    subscription.current = null;
+  }, []);
+
+  return { supported, needsInstall, ready, setupError, subscribed, subscribe, unsubscribe };
 }

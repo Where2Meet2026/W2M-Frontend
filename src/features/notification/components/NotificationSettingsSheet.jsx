@@ -3,7 +3,7 @@ import BottomSheet from "../../../shared/components/BottomSheet";
 import { IOS_INSTALL_GUIDE, UNSUPPORTED_MESSAGE, usePushSubscription } from "../hooks/usePushSubscription";
 
 function NotificationSettingsSheet({ isOpen, onClose }) {
-  const { supported, needsInstall, subscribed, subscribe, unsubscribe } = usePushSubscription();
+  const { supported, needsInstall, ready, setupError, subscribed, subscribe, unsubscribe } = usePushSubscription();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -34,7 +34,7 @@ function NotificationSettingsSheet({ isOpen, onClose }) {
         <button
           role="switch"
           aria-checked={subscribed}
-          disabled={busy || !supported}
+          disabled={busy || !ready}
           onClick={handleToggle}
           className={`relative h-[26px] w-11 rounded-full transition-colors disabled:opacity-50 ${
             subscribed ? "bg-[#3b82f6]" : "bg-[#d1d5db]"
@@ -52,7 +52,7 @@ function NotificationSettingsSheet({ isOpen, onClose }) {
           {needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE}
         </p>
       )}
-      {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
+      {(error || setupError) && <p className="mt-3 text-xs text-red-500">{error || setupError}</p>}
     </BottomSheet>
   );
 }
