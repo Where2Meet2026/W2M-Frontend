@@ -12,7 +12,7 @@ function NotificationConsentPage() {
   const nextPath = returnUrl?.startsWith("/") && !returnUrl.startsWith("//") && returnUrl !== "/notification"
     ? returnUrl
     : "/home";
-  const hasInvite = nextPath.startsWith("/invite/accept/");
+  const afterInviteAcceptance = nextPath.startsWith("/participate/");
   const permissionDenied = supported && Notification.permission === "denied";
   const canSubscribe = supported && !permissionDenied;
 
@@ -22,14 +22,15 @@ function NotificationConsentPage() {
   }, [navigate, nextPath]);
 
   useEffect(() => {
-    if (subscribed) finish();
-  }, [finish, subscribed]);
+    if (subscribed && !afterInviteAcceptance) finish();
+  }, [afterInviteAcceptance, finish, subscribed]);
 
   const handleAccept = async () => {
     setLoading(true);
     setError("");
     try {
       await subscribe();
+      if (afterInviteAcceptance) finish();
     } catch (e) {
       setError(e.message);
     } finally {
@@ -37,7 +38,7 @@ function NotificationConsentPage() {
     }
   };
 
-  if (subscribed) return null;
+  if (subscribed && !afterInviteAcceptance) return null;
 
   return (
     <PageShell className="flex flex-col justify-center px-[33px] py-10">
@@ -49,7 +50,7 @@ function NotificationConsentPage() {
           </svg>
         </div>
         <h1 className="mt-[27px] text-[19px] font-extrabold leading-normal text-[#191f28]">
-          약속 진행상황을<br />알림으로 받아보세요
+          {subscribed ? <>이 기기로 약속 알림을<br />받고 있어요</> : <>약속 진행상황을<br />알림으로 받아보세요</>}
         </h1>
         <p className="mt-[21px] whitespace-nowrap text-[12px] text-[#6b7280]">
           시간 확정 · 위치 입력 요청 · 최종 확정 · 투표 독려 시 알려드려요
@@ -57,30 +58,30 @@ function NotificationConsentPage() {
       </div>
 
       <div className="mt-[50px] flex flex-col gap-[21px]">
-        {canSubscribe && (
+        {(canSubscribe || subscribed) && (
           <button
-            onClick={handleAccept}
+            onClick={subscribed ? finish : handleAccept}
             disabled={loading || !ready}
             className="h-[54px] w-full rounded-2xl bg-[#3b82f6] text-sm font-bold text-white transition active:scale-95 disabled:opacity-50"
           >
-            {loading ? "설정 중..." : "알림 받기"}
+            {loading ? "설정 중..." : subscribed ? "모임으로 이동" : "알림 받기"}
           </button>
         )}
-        <button
+        {!subscribed && <button
           onClick={finish}
           disabled={loading}
           className="h-12 w-full rounded-2xl border border-[#e5e7eb] text-sm font-semibold text-[#6b7280] transition active:scale-95"
         >
-          {canSubscribe ? "나중에" : hasInvite ? "초대 화면으로" : "계속하기"}
-        </button>
+          {canSubscribe ? "나중에" : afterInviteAcceptance ? "모임으로 이동" : "계속하기"}
+        </button>}
       </div>
 
       {!canSubscribe && (
         <p className="mt-4 break-keep text-center text-xs leading-relaxed text-gray-400">
           {permissionDenied
             ? "기기나 브라우저 설정에서 Where2Meet 알림을 허용할 수 있어요."
-            : needsInstall && hasInvite
-              ? "아이폰에서는 초대를 수락한 뒤 홈 화면의 Where2Meet을 열고, 같은 계정으로 알림을 켜주세요."
+            : needsInstall && afterInviteAcceptance
+              ? "모임에 참여했어요. 아이폰 홈 화면의 Where2Meet을 열고 같은 계정으로 알림을 켜주세요."
               : needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE}
         </p>
       )}

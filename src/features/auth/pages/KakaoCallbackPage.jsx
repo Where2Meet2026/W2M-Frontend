@@ -41,13 +41,15 @@ function KakaoCallbackPage() {
           };
 
   useEffect(() => {
+    const returnUrl = localStorage.getItem("returnUrl");
+    const nextPath = returnUrl?.startsWith("/invite/accept/") ? returnUrl : "/notification";
     const goLater = (path, delay) => {
       navigateTimerRef.current = setTimeout(() => navigate(path, { replace: true }), delay);
     };
 
     if (token) {
       localStorage.setItem("token", token);
-      goLater("/notification", 1000);
+      goLater(nextPath, 1000);
     } else if (isNew === "true") {
       // 신규 카카오 사용자: 별도 가입 폼 없이 카카오가 준 정보로 바로 가입하고 로그인한다.
       // (개발 모드에서 효과가 두 번 실행돼도 가입 요청은 한 번만 보낸다.)
@@ -65,7 +67,7 @@ function KakaoCallbackPage() {
             providerId,
           });
           localStorage.setItem("token", data.token);
-          goLater("/notification", 800);
+          goLater(nextPath, 800);
         } catch (error) {
           setSignupError(error.message || "회원가입 중 오류가 발생했어요.");
           goLater("/", 2200);

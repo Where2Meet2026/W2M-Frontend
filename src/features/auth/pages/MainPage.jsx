@@ -22,7 +22,8 @@ function MainPage() {
       const data = await login(email, password);
       if (!data.token) throw new Error("로그인을 완료하지 못했어요.");
       localStorage.setItem("token", data.token);
-      navigate("/notification", { replace: true });
+      const returnUrl = localStorage.getItem("returnUrl");
+      navigate(returnUrl?.startsWith("/invite/accept/") ? returnUrl : "/notification", { replace: true });
     } catch (error) {
       setNotice({ type: "error", message: error.message || "로그인하지 못했어요. 잠시 후 다시 시도해주세요." });
     } finally {
