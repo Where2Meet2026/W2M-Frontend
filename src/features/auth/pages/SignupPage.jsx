@@ -88,7 +88,6 @@ function SignupPage() {
       setNotice(null);
       await signup({ email: formData.email, password: formData.password, name: formData.name });
       // 가입 후 첫 로그인 때 알림 동의 화면을 한 번 보여준다. (MainPage에서 확인)
-      localStorage.setItem("showNotificationConsent", "true");
       showNotice("success", "가입이 완료됐어요. 로그인 화면으로 이동해요.");
       navigateTimerRef.current = setTimeout(() => {
         navigate("/", { replace: true });

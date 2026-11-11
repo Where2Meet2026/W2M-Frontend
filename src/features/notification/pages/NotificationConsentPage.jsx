@@ -1,32 +1,43 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../../../shared/components/PageShell";
 import { IOS_INSTALL_GUIDE, UNSUPPORTED_MESSAGE, usePushSubscription } from "../hooks/usePushSubscription";
 
 function NotificationConsentPage() {
   const navigate = useNavigate();
-  const { supported, needsInstall, ready, setupError, subscribe } = usePushSubscription();
+  const { supported, needsInstall, ready, setupError, subscribed, subscribe } = usePushSubscription();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const returnUrl = localStorage.getItem("returnUrl");
+  const nextPath = returnUrl?.startsWith("/") && !returnUrl.startsWith("//") && returnUrl !== "/notification"
+    ? returnUrl
+    : "/home";
+  const hasInvite = nextPath.startsWith("/invite/accept/");
+  const permissionDenied = supported && Notification.permission === "denied";
+  const canSubscribe = supported && !permissionDenied;
 
-  // 로그인 전에 보던 페이지가 있으면 그곳으로, 없으면 홈으로 이동한다.
-  const finish = () => {
-    const returnUrl = localStorage.getItem("returnUrl");
-    navigate(returnUrl && returnUrl.startsWith("/") ? returnUrl : "/home", { replace: true });
-  };
+  const finish = useCallback(() => {
+    localStorage.removeItem("returnUrl");
+    navigate(nextPath, { replace: true });
+  }, [navigate, nextPath]);
+
+  useEffect(() => {
+    if (subscribed) finish();
+  }, [finish, subscribed]);
 
   const handleAccept = async () => {
     setLoading(true);
     setError("");
     try {
       await subscribe();
-      finish();
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
   };
+
+  if (subscribed) return null;
 
   return (
     <PageShell className="flex flex-col justify-center px-[33px] py-10">
@@ -46,24 +57,31 @@ function NotificationConsentPage() {
       </div>
 
       <div className="mt-[50px] flex flex-col gap-[21px]">
-        <button
-          onClick={handleAccept}
-          disabled={loading || !ready}
-          className="h-[54px] w-full rounded-2xl bg-[#3b82f6] text-sm font-bold text-white transition active:scale-95 disabled:opacity-50"
-        >
-          {loading ? "설정 중..." : "알림 받기"}
-        </button>
+        {canSubscribe && (
+          <button
+            onClick={handleAccept}
+            disabled={loading || !ready}
+            className="h-[54px] w-full rounded-2xl bg-[#3b82f6] text-sm font-bold text-white transition active:scale-95 disabled:opacity-50"
+          >
+            {loading ? "설정 중..." : "알림 받기"}
+          </button>
+        )}
         <button
           onClick={finish}
+          disabled={loading}
           className="h-12 w-full rounded-2xl border border-[#e5e7eb] text-sm font-semibold text-[#6b7280] transition active:scale-95"
         >
-          나중에
+          {canSubscribe ? "나중에" : hasInvite ? "초대 화면으로" : "계속하기"}
         </button>
       </div>
 
-      {!supported && (
+      {!canSubscribe && (
         <p className="mt-4 break-keep text-center text-xs leading-relaxed text-gray-400">
-          {needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE}
+          {permissionDenied
+            ? "기기나 브라우저 설정에서 Where2Meet 알림을 허용할 수 있어요."
+            : needsInstall && hasInvite
+              ? "아이폰에서는 초대를 수락한 뒤 홈 화면의 Where2Meet을 열고, 같은 계정으로 알림을 켜주세요."
+              : needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE}
         </p>
       )}
       {(error || setupError) && <p className="mt-4 text-center text-xs text-red-500">{error || setupError}</p>}

@@ -8,6 +8,7 @@ import { KakaoSymbolIcon } from "../../../shared/components/Icons";
 function GuestLoginPage() {
   const navigate = useNavigate();
   const { inviteCode } = useParams();
+  const invitePath = `/invite/accept/${inviteCode}`;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,18 +16,14 @@ function GuestLoginPage() {
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
-    // 이미 로그인이 되어 있다면 바로 초대 수락 페이지로 리다이렉트
     const token = localStorage.getItem("token");
     if (token && token !== "null" && token !== "undefined") {
-      const returnUrl = localStorage.getItem("returnUrl") || `/invite/accept/${inviteCode}`;
-      navigate(returnUrl, { replace: true });
+      navigate(invitePath, { replace: true });
+      return;
     }
-    
-    // 목적지 정보 안전장치
-    if (inviteCode && !localStorage.getItem("returnUrl")) {
-      localStorage.setItem("returnUrl", `/invite/accept/${inviteCode}`);
-    }
-  }, [inviteCode, navigate]);
+
+    localStorage.setItem("returnUrl", invitePath);
+  }, [invitePath, navigate]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -38,14 +35,10 @@ function GuestLoginPage() {
       setIsLoading(true);
       setNotice(null);
       const data = await login(email, password);
-      
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      
-      const returnUrl = localStorage.getItem("returnUrl") || `/invite/accept/${inviteCode}`;
-      // 여기서 바로 지우지 않음 (AcceptInvitePage에서 지움)
-      navigate(returnUrl);
+      if (!data.token) throw new Error("로그인을 완료하지 못했어요.");
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("returnUrl", invitePath);
+      navigate("/notification", { replace: true });
       
     } catch (error) {
       console.error("로그인 에러:", error);
@@ -59,10 +52,7 @@ function GuestLoginPage() {
   };
 
   const handleKakaoLogin = () => {
-    // 카카오 로그인 시에도 returnUrl 확인 및 보강
-    if (!localStorage.getItem("returnUrl")) {
-      localStorage.setItem("returnUrl", `/invite/accept/${inviteCode}`);
-    }
+    localStorage.setItem("returnUrl", invitePath);
     window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/kakao`;
   };
 
@@ -75,7 +65,7 @@ function GuestLoginPage() {
             모임 참여를 위해 로그인해주세요
           </h1>
           <p className="m-0 text-sm leading-[1.7] text-gray-500">
-            로그인하면 초대받은 모임으로 바로 이동해요.
+            로그인하면 알림을 설정하고 초대받은 모임을 확인할 수 있어요.
           </p>
         </section>
 

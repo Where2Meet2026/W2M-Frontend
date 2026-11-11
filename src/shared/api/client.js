@@ -13,7 +13,8 @@ function handleSessionExpired() {
     const { pathname, search } = window.location;
     if (pathname === "/") return; // 이미 로그인 화면
     isHandlingExpiry = true;
-    if (!PUBLIC_PATHS.includes(pathname) && !pathname.startsWith("/invite/login")) {
+    // 알림 설정 중에 만료되면 로그인 전에 저장한 목적지를 유지한다.
+    if (!PUBLIC_PATHS.includes(pathname) && pathname !== "/notification" && !pathname.startsWith("/invite/login")) {
         localStorage.setItem("returnUrl", pathname + search);
     }
     window.location.replace("/");
