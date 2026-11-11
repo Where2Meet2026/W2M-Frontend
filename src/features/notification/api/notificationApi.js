@@ -5,5 +5,8 @@ import { apiClient } from "../../../shared/api/client";
 export const subscribePush = (subscriptionJson) =>
   apiClient.post("/api/notifications/subscribe", subscriptionJson);
 
+export const getPushSubscriptionStatus = (endpoint) =>
+  apiClient.post("/api/notifications/status", { endpoint });
+
 export const unsubscribePush = (endpoint) =>
   apiClient.delete("/api/notifications/subscribe", { endpoint });

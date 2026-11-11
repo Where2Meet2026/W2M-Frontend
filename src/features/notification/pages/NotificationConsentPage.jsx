@@ -5,7 +5,7 @@ import { IOS_INSTALL_GUIDE, UNSUPPORTED_MESSAGE, usePushSubscription } from "../
 
 function NotificationConsentPage() {
   const navigate = useNavigate();
-  const { supported, needsInstall, subscribe } = usePushSubscription();
+  const { supported, needsInstall, ready, setupError, subscribe } = usePushSubscription();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -48,7 +48,7 @@ function NotificationConsentPage() {
       <div className="mt-[50px] flex flex-col gap-[21px]">
         <button
           onClick={handleAccept}
-          disabled={loading || !supported}
+          disabled={loading || !ready}
           className="h-[54px] w-full rounded-2xl bg-[#3b82f6] text-sm font-bold text-white transition active:scale-95 disabled:opacity-50"
         >
           {loading ? "설정 중..." : "알림 받기"}
@@ -66,7 +66,7 @@ function NotificationConsentPage() {
           {needsInstall ? IOS_INSTALL_GUIDE : UNSUPPORTED_MESSAGE}
         </p>
       )}
-      {error && <p className="mt-4 text-center text-xs text-red-500">{error}</p>}
+      {(error || setupError) && <p className="mt-4 text-center text-xs text-red-500">{error || setupError}</p>}
     </PageShell>
   );
 }
